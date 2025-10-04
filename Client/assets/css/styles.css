@@ -1,0 +1,264 @@
+:root {
+  --primary: #0b0b0b;
+  --secondary: #f3f3f3;
+  --text: #111;
+  --subtext: #666;
+  --font: "Segoe UI", sans-serif;
+  --radius: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: #fff;
+  line-height: 1.6;
+}
+
+/* ================= HEADER ================= */
+header {
+  padding: 16px 40px;
+  border-bottom: 1px solid #eee;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav .logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+nav .nav-links a {
+  margin: 0 12px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+}
+
+nav .auth {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+nav .auth a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+}
+
+nav .auth button {
+  padding: 8px 18px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+nav .auth button:hover {
+  background: #222; /* màu đen nhạt hơn khi hover */
+}
+
+/* ================= HERO ================= */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.hero .badge {
+  display: inline-block;
+  background: var(--secondary);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--subtext);
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: var(--subtext);
+  max-width: 650px;
+  margin: 0 auto 40px;
+}
+
+.buttons button {
+  padding: 14px 28px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  cursor: pointer;
+  margin: 0 10px;
+  transition: 0.2s ease;
+}
+
+button.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+button.primary:hover {
+  opacity: 0.85;
+}
+
+button.secondary {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+button.secondary:hover {
+  background: var(--secondary);
+}
+
+/* ================= FEATURES ================= */
+.features {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 80px 20px;
+  text-align: center;
+  flex-wrap: wrap;
+}
+
+.feature-item {
+  max-width: 280px;
+}
+
+.feature-item .icon {
+  background: var(--secondary);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 1.5rem;
+}
+
+.feature-item h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.feature-item p {
+  font-size: 0.95rem;
+  color: var(--subtext);
+}
+
+/* ================= FOOTER ================= */
+footer {
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid #eee;
+  font-size: 0.9rem;
+  color: var(--subtext);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+  .features {
+    flex-direction: column;
+    gap: 40px;
+  }
+}
+
+/* ===== LOGIN PAGE ===== */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.login-box {
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.login-box h2 {
+  margin-bottom: 8px;
+  font-size: 1.8rem;
+}
+
+.login-box .subtitle {
+  margin-bottom: 24px;
+  color: var(--subtext);
+  font-size: 0.95rem;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.input-group input:focus {
+  border-color: var(--primary);
+}
+
+button.full {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.alt {
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.alt a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+}
