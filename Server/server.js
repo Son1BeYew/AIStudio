@@ -18,12 +18,22 @@ require("./config/passport")(passport);
 app.use(passport.initialize());
 
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.sendFile(path.join(__dirname, "../Client/index.html"));
 });
 
-app.use(express.static(path.join(__dirname, "../Client")));
 app.use("/auth", authRoutes);
-app.use("/protected", protectedRoutes); // ✅ thêm dòng này
+app.use("/protected", protectedRoutes);
+
+app.get("*", (req, res) => {
+  if (
+    req.path.startsWith("/auth") ||
+    req.path.startsWith("/protected") ||
+    req.path.startsWith("/api")
+  ) {
+    return res.status(404).json({ error: "Not found" });
+  }
+  res.sendFile(path.join(__dirname, "../Client/index.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>

@@ -9,10 +9,10 @@ function loadComponent(id, file) {
     .catch((err) => console.error("Không thể nạp " + file, err));
 }
 
-loadComponent("header", "/Client/assets/components/header.html");
-loadComponent("footer", "/Client/assets/components/footer.html");
-loadComponent("hero", "/Client/assets/components/hero.html");
-loadComponent("features", "/Client/assets/components/features.html");
+loadComponent("header", "/assets/components/header.html");
+loadComponent("footer", "/assets/components/footer.html");
+loadComponent("hero", "/assets/components/hero.html");
+loadComponent("features", "/assets/components/features.html");
 
 function checkAuth() {
   const params = new URLSearchParams(window.location.search);
@@ -26,7 +26,7 @@ function checkAuth() {
   })
     .then((res) => res.json())
     .then((data) => {
-      const authDiv = document.getElementById("auth-section");
+  const authDiv = document.getElementById("auth-section");
       if (!authDiv || !data.user) return;
 
       const avatarURL =
@@ -44,10 +44,10 @@ function checkAuth() {
           </div>
 
           <div class="dropdown" id="dropdownMenu">
-            <a href="/Client/profile.html">Hồ sơ</a>
-            <a href="/Client/account.html">Tài khoản</a>
-            <a href="/Client/account.html">Lịch sử</a>
-            <a href="/Client/account.html">Nạp tiền</a>
+            <a href="/profile.html">Hồ sơ</a>
+            <a href="/account.html">Tài khoản</a>
+            <a href="/history.html">Lịch sử</a>
+            <a href="/topup.html">Nạp tiền</a>
             <hr />
             <button onclick="logout()">Đăng xuất</button>
           </div>
@@ -158,7 +158,7 @@ function checkAuth() {
 
 function logout() {
   localStorage.removeItem("token");
-  if (window.location.pathname.toLowerCase().includes("/client/index.html")) {
+      if (window.location.pathname.toLowerCase().includes("/index.html")) {
     window.location.reload();
   } else {
     window.location.href = "./login.html";

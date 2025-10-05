@@ -1,0 +1,33 @@
+.hero {
+  display: flex;                 /* 👈 đặt các phần tử nằm ngang */
+  align-items: center;           /* căn giữa theo chiều dọc */
+  justify-content: space-between;/* phân bố hai bên và giữa */
+  gap: 30px;                     /* khoảng cách giữa các phần */
+  padding: 80px 60px;            /* khoảng cách xung quanh */
+  text-align: center;
+}
+
+.hero-image {
+  width: 320px;
+  height: auto;
+  border-radius: 25px;
+  object-fit: cover;
+  /* Glow tím/cam hiện tại */
+  transition: transform 0.8s ease, filter 0.8s ease, box-shadow 0.8s ease;
+  /* ✅ Viền mờ xám bên ngoài */
+  box-shadow: 0 0 0 10px rgba(0, 0, 0, 1);
+}
+
+.hero-image.left {
+  animation: floatLeft 6s ease-in-out infinite;
+}
+
+.hero-image.right {
+  animation: floatRight 6s ease-in-out infinite;
+}
+
+.hero-image:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.5));
+  box-shadow: 0 0 0 4px rgba(200, 200, 200, 0.3); /* hover đậm hơn */
+}
