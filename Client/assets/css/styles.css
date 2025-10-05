@@ -19,6 +19,16 @@ body {
   background: #fff;
   line-height: 1.6;
 }
+body {
+  background: radial-gradient(
+    150% 150% at 50% 90%, /* bán kính lớn, tâm gần đáy */
+    #ffffff 40%,           /* trung tâm sáng */
+    #000000 100%           /* rìa tối */
+  );
+  background-attachment: fixed; /* giữ nền khi scroll */
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 
 /* ================= HEADER ================= */
 header {
@@ -34,17 +44,33 @@ nav {
 
 nav .logo {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 nav .nav-links a {
+  position: relative;
   margin: 0 12px;
   text-decoration: none;
   color: var(--text);
-  font-weight: 500;
+  font-weight: 700;
+}
+nav .nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: var(--text);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+  border-radius: 10px; 
+}
+nav .nav-links a:hover::after {
+  width: 100%;
 }
 
 nav .auth {
@@ -53,26 +79,24 @@ nav .auth {
   gap: 16px;
 }
 
-nav .auth a {
+.auth a {
+  position: relative;
+  margin: 0 12px;
+  padding: 10px 20px;
+  border-radius: 50px;
   text-decoration: none;
   color: var(--text);
-  font-weight: 500;
+  font-weight: 700; /* in đậm vừa phải */
+  transition: all 0.3s ease;
 }
 
-nav .auth button {
-  padding: 8px 18px;
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
 
-nav .auth button:hover {
-  background: #222; /* màu đen nhạt hơn khi hover */
+/* Khi hover: bung từ giữa ra */
+.auth a:hover {
+  background-color: rgb(0, 0, 0);
+  color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  transition: all 0.4s ease;  
 }
 
 /* ================= HERO ================= */
@@ -104,32 +128,58 @@ nav .auth button:hover {
   margin: 0 auto 40px;
 }
 
-.buttons button {
-  padding: 14px 28px;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 1rem;
-  cursor: pointer;
-  margin: 0 10px;
-  transition: 0.2s ease;
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
 }
 
+.buttons button {
+  padding: 17px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: 0;
+  background-color: white;
+  box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: bold;
+  transition: all 0.5s ease;
+}
+
+
 button.primary {
-  background: var(--primary);
-  color: #fff;
+  padding: 17px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: 0;
+  background-color: white;
+  box-shadow: rgb(0, 0, 0) 0px 1px 5px 0px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: bold;
+  transition: all 0.5s ease;
 }
 
 button.primary:hover {
-  opacity: 0.85;
+  letter-spacing: 3px;
+  background-color: hsl(0, 0%, 0%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: rgb(0, 0, 0) 0px 7px 29px 0px;
 }
 
 button.secondary {
   background: #fff;
-  border: 1px solid #ddd;
+  box-shadow: rgb(0, 0, 0) 0px 1px 5px 0px;
 }
 
 button.secondary:hover {
-  background: var(--secondary);
+  letter-spacing: 3px;
+  background-color: hsl(0, 0%, 0%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: rgb(0, 0, 0) 0px 7px 29px 0px;
 }
 
 /* ================= FEATURES ================= */
@@ -262,3 +312,4 @@ button.full {
   color: var(--primary);
   font-weight: 600;
 }
+
