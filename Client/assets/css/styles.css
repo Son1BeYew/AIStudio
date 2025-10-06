@@ -25,6 +25,7 @@ body {
     #ffffff 40%,           /* trung tâm sáng */
     #000000 100%           /* rìa tối */
   );
+  background-attachment: fixed; /* giữ nền khi scroll */
   background-repeat: no-repeat;
   background-size: cover;
 }
