@@ -1,0 +1,51 @@
+/* Ảnh hai bên */
+.side-image {
+  width: 320px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
+  z-index: 2;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.side-image:hover {
+  transform: scale(1.07);
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.7);
+}
+
+/* Ảnh bên trái và bên phải */
+.side-image.left {
+  margin-right: 40px;
+  animation: floatLeft 6s ease-in-out infinite;
+}
+
+.side-image.right {
+  margin-left: 40px;
+  animation: floatRight 6s ease-in-out infinite;
+}
+
+/* Hiệu ứng ảnh bay nhẹ */
+@keyframes floatLeft {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+@keyframes floatRight {
+  0%, 100% { transform: translateY(0) rotate(1deg); }
+  50% { transform: translateY(-10px) rotate(-1deg); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .features {
+    flex-direction: column;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .side-image {
+    width: 80%;
+    margin: 20px 0;
+  }
+}
