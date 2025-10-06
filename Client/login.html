@@ -176,7 +176,7 @@
 
           if (data.token) {
             localStorage.setItem("token", data.token);
-            alert("Đăng nhập thành công 🎉");
+            alert("Đăng nhập thành công ");
             window.location.href = "/Client/dashboard.html";
           } else {
             alert(data.error || "Đăng nhập thất bại");
@@ -186,7 +186,6 @@
         }
       });
 
-      // Google callback redirect về với ?token
       const params = new URLSearchParams(window.location.search);
       if (params.get("token")) {
         localStorage.setItem("token", params.get("token"));
