@@ -1,4 +1,3 @@
-// ✅ Hàm nạp component (header, footer...)
 function loadComponent(id, file) {
   fetch(file)
     .then((res) => res.text())
@@ -26,7 +25,7 @@ function checkAuth() {
   })
     .then((res) => res.json())
     .then((data) => {
-  const authDiv = document.getElementById("auth-section");
+      const authDiv = document.getElementById("auth-section");
       if (!authDiv || !data.user) return;
 
       const avatarURL =
@@ -158,7 +157,7 @@ function checkAuth() {
 
 function logout() {
   localStorage.removeItem("token");
-      if (window.location.pathname.toLowerCase().includes("/index.html")) {
+  if (window.location.pathname.toLowerCase().includes("/index.html")) {
     window.location.reload();
   } else {
     window.location.href = "./login.html";
