@@ -15,37 +15,45 @@
         height: 100vh;
         margin: 0;
       }
+
       .login-container {
         max-width: 400px;
         width: 100%;
       }
+
       .login-box {
         background: #fff;
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
+
       .login-box h2 {
         margin-bottom: 5px;
       }
+
       .subtitle {
         margin-bottom: 20px;
         color: #777;
       }
+
       .input-group {
         margin-bottom: 15px;
       }
+
       .input-group label {
         display: block;
         margin-bottom: 6px;
         font-size: 14px;
       }
+
       .input-group input {
         width: 100%;
         padding: 10px;
         border-radius: 6px;
         border: 1px solid #ccc;
       }
+
       .primary {
         background: #4f46e5;
         color: white;
@@ -57,19 +65,23 @@
         margin-bottom: 15px;
         transition: background 0.2s ease;
       }
+
       .primary:hover {
         background: #3730a3;
       }
+
       .alt {
         text-align: center;
         margin-top: 10px;
       }
+
       .social-login {
         display: flex;
         flex-direction: column;
         gap: 10px;
         margin-top: 10px;
       }
+
       .btn-social {
         display: flex;
         align-items: center;
@@ -82,17 +94,21 @@
         font-size: 15px;
         transition: opacity 0.2s ease;
       }
+
       .btn-social:hover {
         opacity: 0.9;
       }
+
       .btn-google {
         background: #db4437;
         color: white;
       }
+
       .btn-facebook {
         background: #1877f2;
         color: white;
       }
+
       .btn-social svg {
         width: 20px;
         height: 20px;
@@ -102,6 +118,7 @@
       }
     </style>
   </head>
+
   <body>
     <div class="login-container">
       <div class="login-box">
@@ -176,7 +193,7 @@
 
           if (data.token) {
             localStorage.setItem("token", data.token);
-            alert("Đăng nhập thành công ");
+            alert("Đăng nhập thành công 🎉");
             window.location.href = "/Client/dashboard.html";
           } else {
             alert(data.error || "Đăng nhập thất bại");
@@ -186,6 +203,7 @@
         }
       });
 
+      // Google callback redirect về với ?token
       const params = new URLSearchParams(window.location.search);
       if (params.get("token")) {
         localStorage.setItem("token", params.get("token"));

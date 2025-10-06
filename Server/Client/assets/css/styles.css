@@ -1,0 +1,315 @@
+:root {
+  --primary: #0b0b0b;
+  --secondary: #f3f3f3;
+  --text: #111;
+  --subtext: #666;
+  --font: "Segoe UI", sans-serif;
+  --radius: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: #fff;
+  line-height: 1.6;
+}
+body {
+  background: radial-gradient(
+    150% 150% at 50% 90%, /* bán kính lớn, tâm gần đáy */
+    #ffffff 40%,           /* trung tâm sáng */
+    #000000 100%           /* rìa tối */
+  );
+  background-attachment: fixed; /* giữ nền khi scroll */
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* ================= HEADER ================= */
+header {
+  padding: 16px 40px;
+  border-bottom: 1px solid #eee;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav .logo {
+  font-weight: bold;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+nav .nav-links a {
+  position: relative;
+  margin: 0 12px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 700;
+}
+nav .nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 0%;
+  height: 3px;
+  background-color: var(--text);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+  border-radius: 10px; 
+}
+nav .nav-links a:hover::after {
+  width: 100%;
+}
+
+nav .auth {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.auth a {
+  position: relative;
+  margin: 0 12px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 700; /* in đậm vừa phải */
+  transition: all 0.3s ease;
+}
+
+
+/* Khi hover: bung từ giữa ra */
+.auth a:hover {
+  background-color: rgb(0, 0, 0);
+  color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  transition: all 0.4s ease;  
+}
+
+/* ================= HERO ================= */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.hero .badge {
+  display: inline-block;
+  background: var(--secondary);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--subtext);
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: var(--subtext);
+  max-width: 650px;
+  margin: 0 auto 40px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+.buttons button {
+  padding: 17px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: 0;
+  background-color: white;
+  box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: bold;
+  transition: all 0.5s ease;
+}
+
+
+button.primary {
+  padding: 17px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: 0;
+  background-color: white;
+  box-shadow: rgb(0, 0, 0) 0px 1px 5px 0px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: bold;
+  transition: all 0.5s ease;
+}
+
+button.primary:hover {
+  letter-spacing: 3px;
+  background-color: hsl(0, 0%, 0%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: rgb(0, 0, 0) 0px 7px 29px 0px;
+}
+
+button.secondary {
+  background: #fff;
+  box-shadow: rgb(0, 0, 0) 0px 1px 5px 0px;
+}
+
+button.secondary:hover {
+  letter-spacing: 3px;
+  background-color: hsl(0, 0%, 0%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: rgb(0, 0, 0) 0px 7px 29px 0px;
+}
+
+/* ================= FEATURES ================= */
+.features {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 80px 20px;
+  text-align: center;
+  flex-wrap: wrap;
+}
+
+.feature-item {
+  max-width: 280px;
+}
+
+.feature-item .icon {
+  background: var(--secondary);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 1.5rem;
+}
+
+.feature-item h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.feature-item p {
+  font-size: 0.95rem;
+  color: var(--subtext);
+}
+
+/* ================= FOOTER ================= */
+footer {
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid #eee;
+  font-size: 0.9rem;
+  color: var(--subtext);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+  .features {
+    flex-direction: column;
+    gap: 40px;
+  }
+}
+
+/* ===== LOGIN PAGE ===== */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.login-box {
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.login-box h2 {
+  margin-bottom: 8px;
+  font-size: 1.8rem;
+}
+
+.login-box .subtitle {
+  margin-bottom: 24px;
+  color: var(--subtext);
+  font-size: 0.95rem;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.input-group input:focus {
+  border-color: var(--primary);
+}
+
+button.full {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.alt {
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.alt a {
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 600;
+}
+
