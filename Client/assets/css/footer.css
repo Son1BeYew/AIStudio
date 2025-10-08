@@ -1,0 +1,10 @@
+
+footer {
+  background-color: #000000; /* Nền đen */
+  color: #fff; /* Chữ trắng */
+  text-align: center;
+  padding: 20px 0;
+  margin: 0;
+  border: none; /* bỏ viền trắng trên */
+}
+
