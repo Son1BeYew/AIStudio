@@ -54,5 +54,5 @@ exports.googleCallback = (req, res) => {
 
   const token = signToken(req.user);
 
-  res.redirect(`http://127.0.0.1:5500/Client/dashboard.html?token=${token}`);
+  res.redirect(`http://localhost:5000/Client/dashboard.html?token=${token}`);
 };
