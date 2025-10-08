@@ -9,16 +9,16 @@ const connectDB = require("./config/db");
 // === ROUTES ===
 const authRoutes = require("./routes/auth");
 const protectedRoutes = require("./routes/protected");
-const aiRoutes = require("./routes/ai");
-const promptRoutes = require("./routes/prompts");
+const aiRoutes = require("./routes/ai"); // nếu có
+const promptRoutes = require("./routes/prompts"); // nếu có
 
 const app = express();
 
-// === MIDDLEWARE ===
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// === CONNECT DB ===
+// Kết nối DB
 connectDB();
 
 // === PASSPORT CONFIG ===
@@ -31,10 +31,10 @@ app.use(express.static(path.join(__dirname, "../Client")));
 // === ROUTES ===
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/prompts", promptRoutes);
 
-// Thêm API mới:
-app.use("/api/ai", aiRoutes); // 👉 API tạo ảnh AI
-app.use("/api/prompts", promptRoutes); // 👉 API CRUD prompt trong MongoDB
+// Thư mục chứa output ảnh AI
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 // === ROOT ===
