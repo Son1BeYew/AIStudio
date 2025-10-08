@@ -1,1 +1,7 @@
 Server/.env
+Server/vertex-key.json
+Server/config/vertex-key.json
+Server/outputs/
+Server/node_modules/
+Server/vertex-key.json
+node_modules/
