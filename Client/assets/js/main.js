@@ -2,12 +2,18 @@ function loadComponent(id, file) {
   fetch(file)
     .then((res) => res.text())
     .then((data) => {
-      document.getElementById(id).innerHTML = data;
+      const el = document.getElementById(id);
+      if (!el) return console.error("Không tìm thấy phần tử #" + id);
+      el.innerHTML = data;
+      if (componentCSS[id]) loadCSS(componentCSS[id]);
       if (id === "header") checkAuth();
     })
     .catch((err) => console.error("Không thể nạp " + file, err));
 }
-
+loadComponent("header", "/assets/components/header.html");
+loadComponent("footer", "/assets/components/footer.html");
+loadComponent("hero", "/assets/components/hero.html");
+loadComponent("features", "/assets/components/features.html");
 loadComponent("header", "/assets/components/header.html");
 loadComponent("footer", "/assets/components/footer.html");
 loadComponent("hero", "/assets/components/hero.html");
