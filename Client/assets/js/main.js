@@ -1,24 +1,44 @@
-function loadComponent(id, file) {
-  fetch(file)
-    .then((res) => res.text())
-    .then((data) => {
-      const el = document.getElementById(id);
-      if (!el) return console.error("Không tìm thấy phần tử #" + id);
-      el.innerHTML = data;
-      if (componentCSS[id]) loadCSS(componentCSS[id]);
-      if (id === "header") checkAuth();
-    })
-    .catch((err) => console.error("Không thể nạp " + file, err));
-}
-loadComponent("header", "/assets/components/header.html");
-loadComponent("footer", "/assets/components/footer.html");
-loadComponent("hero", "/assets/components/hero.html");
-loadComponent("features", "/assets/components/features.html");
-loadComponent("header", "/assets/components/header.html");
-loadComponent("footer", "/assets/components/footer.html");
-loadComponent("hero", "/assets/components/hero.html");
-loadComponent("features", "/assets/components/features.html");
+document.addEventListener("DOMContentLoaded", () => {
+  // 🔹 Map component -> file CSS tương ứng
+  const componentCSS = {
+    header: "/assets/css/header.css",
+    hero: "/assets/css/hero.css",
+    features: "/assets/css/features.css",
+    footer: "/assets/css/footer.css",
+  };
 
+  // 🔹 Hàm nạp file CSS
+  function loadCSS(href) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    document.head.appendChild(link);
+  }
+
+  // 🔹 Hàm nạp component HTML
+  function loadComponent(id, file) {
+    fetch(file)
+      .then((res) => res.text())
+      .then((data) => {
+        const el = document.getElementById(id);
+        if (!el) return console.warn("⚠️ Không tìm thấy phần tử #" + id);
+        el.innerHTML = data;
+
+        // Nếu component có CSS riêng → nạp CSS
+        if (componentCSS[id]) loadCSS(componentCSS[id]);
+
+        // Nếu là header → kiểm tra đăng nhập
+        if (id === "header") checkAuth();
+      })
+      .catch((err) => console.error("Không thể nạp " + file, err));
+  }
+
+  // 🔹 Gọi nạp các component
+  loadComponent("header", "/assets/components/header.html");
+  loadComponent("hero", "/assets/components/hero.html");
+  loadComponent("features", "/assets/components/features.html");
+  loadComponent("footer", "/assets/components/footer.html");
+});
 function checkAuth() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token") || localStorage.getItem("token");
