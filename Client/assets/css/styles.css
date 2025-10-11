@@ -86,9 +86,6 @@ nav .auth {
 
 .auth a {
   position: relative;
-  margin: 0 12px;
-  padding: 10px 20px;
-  border-radius: 50px;
   text-decoration: none;
   color: var(--text);
   font-weight: 700; /* in đậm vừa phải */
@@ -98,8 +95,6 @@ nav .auth {
 
 /* Khi hover: bung từ giữa ra */
 .auth a:hover {
-  background-color: rgb(0, 0, 0);
-  color: white;
   box-shadow: 0 0 10px rgba(0,0,0,0.3);
   transition: all 0.4s ease;  
 }
@@ -314,3 +309,220 @@ button.full {
   font-weight: 600;
 }
 
+/* ============================= */
+/* 🌐 RESPONSIVE DESIGN (2025)  */
+/* ============================= */
+
+/* --- Tablet (≤1200px) --- */
+@media (max-width: 1200px) {
+  header {
+    padding: 16px 30px;
+  }
+
+  nav .logo img {
+    width: 50px;
+  }
+
+  nav .nav-links a {
+    margin: 0 8px;
+    font-size: 0.95rem;
+  }
+
+  .hero {
+    padding: 60px 40px;
+    flex-direction: column;
+    text-align: center;
+    gap: 40px;
+  }
+
+  .hero h1 {
+    font-size: 2.8rem;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    max-width: 500px;
+  }
+
+  .hero-image {
+    width: 280px;
+  }
+
+  .side-image {
+    width: 250px;
+  }
+
+  .features {
+    gap: 25px;
+    margin: 60px 15px;
+  }
+
+  .ai-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .ai-content {
+    text-align: center;
+    align-items: center;
+  }
+
+  .ai-actions {
+    align-items: center;
+  }
+}
+
+/* --- Mobile lớn (≤768px) --- */
+@media (max-width: 768px) {
+  /* HEADER */
+  nav {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  nav .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  nav .auth {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* HERO SECTION */
+  .hero {
+    padding: 50px 20px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+    margin-bottom: 30px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .buttons button {
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+  }
+
+  .hero-image,
+  .side-image {
+    width: 80%;
+    margin: 10px auto;
+  }
+
+  /* FEATURES */
+  .features {
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    margin: 60px 15px;
+  }
+
+  .feature-item {
+    max-width: 90%;
+  }
+
+  /* AI SECTION */
+  .ai {
+    padding: 3rem 1rem;
+  }
+
+  .ai-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .ai-title {
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .ai-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn {
+    width: 80%;
+    justify-content: center;
+  }
+
+  /* LOGIN */
+  .login-box {
+    width: 90%;
+    padding: 30px;
+  }
+}
+
+/* --- Mobile nhỏ (≤480px) --- */
+@media (max-width: 480px) {
+  header {
+    padding: 12px 20px;
+  }
+
+  nav .logo img {
+    width: 45px;
+  }
+
+  nav .logo strong {
+    font-size: 1.3rem;
+  }
+
+  .hero {
+    padding: 40px 10px;
+  }
+
+  .hero h1 {
+    font-size: 1.7rem;
+    margin-bottom: 10px;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  .buttons button {
+    font-size: 0.9rem;
+    padding: 14px 28px;
+  }
+
+  .feature-item h3 {
+    font-size: 1rem;
+  }
+
+  .feature-item p {
+    font-size: 0.9rem;
+  }
+
+  .ai-title {
+    font-size: 1.6rem;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+  }
+
+  .login-box {
+    padding: 25px;
+  }
+
+  .input-group input {
+    padding: 10px;
+  }
+}
