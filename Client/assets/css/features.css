@@ -179,3 +179,36 @@
   inset: 0;
   background: linear-gradient(45deg, rgba(137, 13, 153, 0.3), transparent);
 }
+
+/* Trend chart styles */
+.trend {
+  padding: 2.5rem 1rem;
+  background: linear-gradient(180deg, #0f0b12, #17061a);
+  color: #fff;
+}
+.trend-wrap {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+.trend-title {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+.trend-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+}
+.trend-card canvas {
+  width: 100% !important;
+  height: 320px !important;
+}
+
+@media (max-width: 768px) {
+  .trend-title { text-align: center; }
+  .trend-card canvas { height: 240px !important; }
+}
+
