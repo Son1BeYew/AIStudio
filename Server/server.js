@@ -6,20 +6,23 @@ const path = require("path");
 
 const connectDB = require("./config/db");
 
-// === ROUTES ===
 const authRoutes = require("./routes/auth");
 const protectedRoutes = require("./routes/protected");
+<<<<<<< HEAD
 const aiRoutes = require("./routes/ai"); // nếu có
 const promptRoutes = require("./routes/prompts"); // nếu có
 const announcementRoutes = require("./routes/announcementRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+=======
+const aiRoutes = require("./routes/ai");
+const promptRoutes = require("./routes/prompts");
+
+>>>>>>> a59e40af280ba26bdec6b08a32db72d138597007
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Kết nối DB
 connectDB();
 
 require("./config/passport")(passport);
