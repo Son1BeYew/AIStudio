@@ -7,6 +7,7 @@ const promptSchema = new mongoose.Schema(
     description: { type: String },
     prompt: { type: String, required: true },
     isActive: { type: Boolean, default: true },
+    image: { type: String, default: "" },
   },
   { timestamps: true }
 );
