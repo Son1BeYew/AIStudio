@@ -60,6 +60,21 @@
       max-width: 600px;
     }
 
+    .video-form {
+      flex: 0 0 65%;
+      /* giữ tỉ lệ 65% giống như login-video */
+      position: relative;
+      /* ✅ thêm padding */
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .video-form .login-video {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
     /* ========== FORM BÊN PHẢI (35%) ========== */
     .login-container {
       flex: 0 0 35%;
@@ -203,8 +218,8 @@
     }
 
 
-    /* Animation */ 
-    @keyframes fadeIn { 
+    /* Animation */
+    @keyframes fadeIn {
       from {
         opacity: 0;
         transform: translateY(20px);
@@ -238,15 +253,14 @@
 
 <body>
   <div class="login-wrapper">
-    <div class="login-video">
-      <video autoplay muted loop playsinline>
-        <source src="/assets/videos/background.mp4" type="video/mp4" />
-      </video>
-      <div class="video-overlay">
-        <h1>Chào mừng đến với EternaPicSHT</h1>
-        <p>Biến ý tưởng của bạn thành tác phẩm nghệ thuật với AI</p>
+    <form class="video-form">
+      <div class="login-video">
+        <video autoplay muted loop playsinline>
+          <source src="/assets/video/videoAI.mp4" type="video/mp4" />
+        </video>
       </div>
-    </div>
+    </form>
+
     <div class="login-container">
       <form id="loginForm">
         <div class="logo">
@@ -280,7 +294,7 @@
                 d="M24 47c6.55 0 12.04-2.17 16.05-5.89l-7.27-5.65C30.83 37.58 27.72 38.5 24 38.5c-6.41 0-11.89-3.65-14.33-8.77l-7.13 6.06C7.01 41.18 14.65 47 24 47z" />
             </svg>
             <span>Đăng nhập với Google</span>
-          </button> 
+          </button>
         </div>
       </form>
     </div>
