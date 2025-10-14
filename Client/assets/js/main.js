@@ -111,7 +111,7 @@ function checkAuth() {
   .username {
     font-weight: 600;
     color: #1f2937;
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .arrow-icon {
@@ -142,11 +142,12 @@ function checkAuth() {
     border: none;
     outline: none;
     cursor: pointer;
-    font-size: 14.5px;
-    color: #374151;
+    font-size: 14px;
+    color: #2a2a2aff;
     font-weight: 500;
     transition: all 0.3s ease;
     position: relative;
+     text-decoration: none; 
   }
 
   .dropdown a:hover,
