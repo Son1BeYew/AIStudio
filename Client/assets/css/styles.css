@@ -84,20 +84,6 @@ nav .auth {
   gap: 16px;
 }
 
-.auth a {
-  position: relative;
-  text-decoration: none;
-  color: var(--text);
-  font-weight: 700; /* in đậm vừa phải */
-  transition: all 0.3s ease;
-}
-
-
-/* Khi hover: bung từ giữa ra */
-.auth a:hover {
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  transition: all 0.4s ease;  
-}
 
 /* ================= HERO ================= */
 .hero {
@@ -467,7 +453,7 @@ button.full {
     width: 90%;
     padding: 30px;
   }
-}
+} 
 
 /* --- Mobile nhỏ (≤480px) --- */
 @media (max-width: 480px) {
