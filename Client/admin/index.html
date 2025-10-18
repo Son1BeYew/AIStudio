@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | AIStudio</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../assets/css/admin/admin.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body>
+    <div class="admin-container">
+      <aside class="sidebar">
+        <div class="logo">
+          <p>Hệ Thống Quản Lý</p>
+        </div>
+        <nav class="menu">
+          <a class="active"
+            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
+          >
+          <a><i data-lucide="users"></i><span>Danh Sách Account</span></a>
+          <a><i data-lucide="user"></i><span>Người Dùng</span></a>
+          <a><i data-lucide="activity"></i><span>Phân Tích</span></a>
+          <a><i data-lucide="palette"></i><span>Prompts</span></a>
+          <a><i data-lucide="bell"></i><span>Tạo Thông Báo</span></a>
+          <a><i data-lucide="info"></i><span>Thông Tin Người Dùng</span></a>
+          <a><i data-lucide="calendar"></i><span>Thời Gian Biểu</span></a>
+          <a><i data-lucide="bar-chart-3"></i><span>Thống Kê</span></a>
+          <a><i data-lucide="message-square"></i><span>Chat</span></a>
+          <a><i data-lucide="wallet"></i><span>Wallet</span></a>
+          <a><i data-lucide="log-out"></i><span>Đăng Xuất</span></a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="text" placeholder="Tìm kiếm..." class="search-input" />
+          </div>
+
+          <div class="topbar-right">
+            <i data-lucide="bell"></i>
+            <i data-lucide="settings"></i>
+            <div class="profile">
+              <img src="../assets/images/avatar.png" alt="avatar" />
+              <span>Hello, <b>Admin</b></span>
+            </div>
+          </div>
+        </header>
+
+        <section class="content">
+          <div class="header-row">
+            <div>
+              <h2>Dashboard</h2>
+              <p>Hi, chào mừng quay lại</p>
+            </div>
+            <button class="filter-btn">
+              <i data-lucide="calendar"></i> 17 Apr 2025 - 21 May 2025
+            </button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="card">
+              <div class="icon-box user"><i data-lucide="users"></i></div>
+              <div>
+                <h3>75</h3>
+                <p>Tổng Người Dùng</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="icon-box prompt"><i data-lucide="palette"></i></div>
+              <div>
+                <h3>357</h3>
+                <p>Tổng Prompts</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="icon-box image"><i data-lucide="image"></i></div>
+              <div>
+                <h3>65</h3>
+                <p>Số Lượng Ảnh</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="icon-box money">
+                <i data-lucide="dollar-sign"></i>
+              </div>
+              <div>
+                <h3>$128</h3>
+                <p>Tổng Tiền</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- BIỂU ĐỒ -->
+          <div class="charts-grid">
+            <div class="chart-card"><canvas id="pieChart"></canvas></div>
+            <div class="chart-card"><canvas id="lineChart"></canvas></div>
+            <div class="chart-card"><canvas id="barChart"></canvas></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="../assets/js/admin/dashboard.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
