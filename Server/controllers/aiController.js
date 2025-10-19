@@ -1,120 +1,64 @@
 const fs = require("fs");
 const path = require("path");
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: f }) => f(...args));
-const { GoogleAuth } = require("google-auth-library");
+const Replicate = require("replicate");
+require("dotenv").config();
 
-// ⚙️ Cấu hình Vertex AI
-const PROJECT_ID = "thinking-cacao-475416-q7";
-const LOCATION = "us-central1";
-// Dùng đúng model mà t thấy trong Vertex AI Studio
-const IMAGEN_MODEL = "imagen-3.0-generate-002";
-const IMAGEN_URL = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${IMAGEN_MODEL}:predict`;
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
+});
 
-exports.generateImage = async (req, res) => {
+exports.generateFaceImage = async (req, res) => {
   try {
-    const { customPrompt } = req.body;
+    const { mode, prompt } = req.body;
     const file = req.file;
+    if (!file) return res.status(400).json({ error: "Ảnh là bắt buộc" });
 
-    if (!customPrompt)
-      return res
-        .status(400)
-        .json({ message: "⚠️ Thiếu prompt mô tả hình ảnh." });
-    if (!file)
-      return res
-        .status(400)
-        .json({ message: "⚠️ Cần upload ảnh để giữ khuôn mặt gốc." });
-
-    console.log("📤 Bắt đầu pipeline Imagen 3.0 (image-to-image)...");
-    console.log("📝 Prompt:", customPrompt);
-
-    // 🔑 Xác thực bằng service account
-    const auth = new GoogleAuth({
-      keyFile: path.join(__dirname, "../config/vertex-ai-key.json"),
-      scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-    });
-    const client = await auth.getClient();
-    const token = await client.getAccessToken();
-
-    // 📸 Đọc ảnh gốc (base64)
-    const imageBase64 = fs.readFileSync(file.path, "base64");
-
-    // 🧠 Prompt cuối cùng
-    const finalPrompt = `
-Maintain the same face, identity, and key facial features.
-Only apply the visual style and lighting transformation described below.
-${customPrompt}
-`;
-
-    // 🧩 Payload cho Imagen 3.0
-    const instance = {
-      prompt: finalPrompt,
-      image: { bytesBase64Encoded: imageBase64 },
-      parameters: {
-        editMode: "IMAGE_TO_IMAGE",
-        strength: 0.4,
-        sampleCount: 1,
-        aspectRatio: "9:16",
-        safetyFilterLevel: "BLOCK_NONE",
-        personGeneration: "ALLOW_ALL",
-      },
+    const promptMap = {
+      anime: "Turn the person in the image into an anime-style portrait.",
+      fantasy: "Create a cinematic fantasy portrait keeping the same face.",
+      realistic:
+        "Enhance the portrait naturally while preserving the same face.",
+      art: "Create an artistic oil-painting style portrait, keeping the face features intact.",
     };
 
-    const body = JSON.stringify({ instances: [instance] });
+    const finalPrompt =
+      prompt?.trim() ||
+      promptMap[mode] ||
+      "Make this portrait look visually stunning while preserving the person's real face.";
 
-    console.log("🚀 Gửi yêu cầu đến Imagen 3.0...");
+    const imagePath = path.join(__dirname, "../uploads", file.filename);
+    const imageBase64 = fs.readFileSync(imagePath, { encoding: "base64" });
 
-    // 📡 Gửi request đến Vertex AI
-    const response = await fetch(IMAGEN_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token.token || token}`,
-        "Content-Type": "application/json",
+    console.log("📸 Running Replicate model...");
+    const output = await replicate.run("google/nano-banana", {
+      input: {
+        prompt: finalPrompt,
+        image_input: [`data:image/jpeg;base64,${imageBase64}`],
       },
-      body,
     });
 
-    const data = await response.json();
+    const imageUrl = Array.isArray(output) ? output[0] : output;
+    console.log("✅ Output URL:", imageUrl);
 
-    // Kiểm tra lỗi
-    if (!response.ok) {
-      console.error("❌ Imagen API error:", JSON.stringify(data, null, 2));
-      throw new Error(
-        data.error?.message || "Lỗi không xác định từ Imagen API."
-      );
-    }
+    const response = await fetch(imageUrl);
+    const buffer = await response.arrayBuffer();
+    const outputName = `output_${Date.now()}.jpg`;
+    const outputPath = path.join(__dirname, "../outputs", outputName);
+    fs.writeFileSync(outputPath, Buffer.from(buffer));
 
-    // 🖼️ Lấy ảnh trả về
-    const imageOutBase64 =
-      data.predictions?.[0]?.bytesBase64Encoded ||
-      data.predictions?.[0]?.images?.[0]?.bytesBase64Encoded;
-
-    if (!imageOutBase64)
-      throw new Error("Không nhận được ảnh từ phản hồi của Imagen 3.");
-
-    // 💾 Lưu ảnh ra thư mục outputs
-    const outputDir = path.join(__dirname, "../outputs");
-    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-    const filename = `output_${Date.now()}.png`;
-    const filepath = path.join(outputDir, filename);
-    fs.writeFileSync(filepath, Buffer.from(imageOutBase64, "base64"));
-
-    // 🧹 Xóa file upload gốc
-    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-
-    console.log("✅ Ảnh đã được tạo:", filename);
     res.json({
       success: true,
-      message: "✅ Ảnh tạo thành công với Imagen 3 (giữ nét mặt gốc)!",
-      file: `/outputs/${filename}`,
+      model: "google/nano-banana",
+      prompt: finalPrompt,
+      imageUrl,
+      localPath: `/outputs/${outputName}`,
     });
-  } catch (err) {
-    console.error("❌ Lỗi khi tạo ảnh:", err);
+  } catch (error) {
+    console.error("❌ Lỗi Replicate:", error);
     res.status(500).json({
       success: false,
-      message: "❌ Lỗi pipeline Imagen 3",
-      error: err.message,
+      message: "Lỗi khi tạo ảnh",
+      error: error.message || error,
     });
   }
 };

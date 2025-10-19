@@ -11,7 +11,6 @@ const aiRoutes = require("./routes/ai");
 const promptRoutes = require("./routes/prompts");
 const announcementRoutes = require("./routes/announcementRoutes");
 const profileRoutes = require("./routes/profileRoutes");
-const instantIdRoutes = require("./routes/instantIdRoutes");
 const app = express();
 
 app.use(cors());
@@ -34,10 +33,8 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/prompts", promptRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/profile", profileRoutes);
-app.use("/api/instantid", instantIdRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
-// Home route
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../Client/index.html"));
 });
