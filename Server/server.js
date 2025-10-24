@@ -13,6 +13,7 @@ const announcementRoutes = require("./routes/announcementRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const topupRoutes = require("./routes/topup");
 const historyRoutes = require("./routes/history");
+const adminRoutes = require("./routes/admin");
 const app = express();
 
 app.use(cors());
@@ -37,6 +38,7 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/topup", topupRoutes);
 app.use("/api/history", historyRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {

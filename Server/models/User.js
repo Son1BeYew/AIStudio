@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ["admin", "user"], default: "user" },
     googleId: { type: String, default: null, index: true },
     avatar: { type: String, default: null },
+    refreshToken: { type: String, default: null },
   },
   { timestamps: true }
 );

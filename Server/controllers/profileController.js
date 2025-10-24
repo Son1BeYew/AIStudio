@@ -10,15 +10,26 @@ exports.getMyProfile = async (req, res) => {
     const userId = req.user.id; // ✅ lấy từ JWT (middleware verifyToken)
 
     // Tìm hồ sơ và kèm thông tin user cơ bản
-    const profile = await Profile.findOne({ userId }).populate(
+    let profile = await Profile.findOne({ userId }).populate(
       "userId",
-      "fullname email role avatar"
+      "fullname email phone role avatar"
     );
 
+    // Nếu chưa có profile, tạo profile mới
     if (!profile) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy hồ sơ của người dùng" });
+      profile = await Profile.create({
+        userId,
+        bietDanh: "",
+        gioiTinh: "other",
+        mangXaHoi: {},
+        anhDaiDien: "",
+      });
+
+      // Populate user info
+      profile = await Profile.findOne({ userId }).populate(
+        "userId",
+        "fullname email phone role avatar"
+      );
     }
 
     res.status(200).json(profile);

@@ -10,7 +10,6 @@ router.get("/", async (req, res) => {
 
   try {
     const token = authHeader.split(" ")[1];
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findById(decoded.id).select("-password");
@@ -18,6 +17,11 @@ router.get("/", async (req, res) => {
 
     res.json({ user });
   } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      console.log("Access token expired");
+      return res.status(401).json({ error: "Token expired", code: "TOKEN_EXPIRED" });
+    }
+    
     console.error("JWT verify failed:", err.message);
     res.status(401).json({ error: "Invalid or expired token" });
   }

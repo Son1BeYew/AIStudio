@@ -30,14 +30,8 @@ body {
 
 /* ========== MAIN CONTAINER ========== */
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 30px;
-  flex-wrap: wrap;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px;
+  display: block;
+  width: 100%;
 }
 
 /* ========== BOX STYLE ========== */
@@ -48,7 +42,7 @@ body {
   border: 1px solid #ddd;
   border-radius: 12px;
   padding: 25px 30px;
-  width: 380px;
+  width: 100%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -246,22 +240,31 @@ body {
   }
 }
 
-@media (max-width: 1024px) {
-  .container {
-    flex-wrap: wrap;
-    justify-content: center;
+@media (max-width: 1400px) {
+  .content-wrapper {
     gap: 20px;
   }
+}
 
-  .upload-box,
-  .settings-box,
-  .output-box {
-    width: 90%;
-    max-width: 420px;
+@media (max-width: 1024px) {
+  .content-wrapper {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 20px;
   }
 }
 
 @media (max-width: 768px) {
+  .tab-navigation {
+    padding: 15px;
+    gap: 5px;
+  }
+
+  .tab-button {
+    padding: 8px 15px;
+    font-size: 13px;
+  }
+
   .title {
     font-size: 22px;
     margin-top: 20px;
@@ -269,6 +272,12 @@ body {
 
   .subtitle {
     font-size: 14px;
+  }
+
+  .content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 20px;
   }
 
   .upload-area {
@@ -361,6 +370,21 @@ body {
 @media (max-width: 480px) {
   .container {
     padding: 12px;
+    gap: 12px;
+  }
+
+  .tab-navigation {
+    padding: 12px 15px;
+    gap: 6px;
+  }
+
+  .tab-button {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .content-wrapper {
+    padding: 15px;
     gap: 12px;
   }
 
@@ -461,6 +485,21 @@ body {
     gap: 10px;
   }
 
+  .tab-navigation {
+    padding: 10px 12px;
+    gap: 5px;
+  }
+
+  .tab-button {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+
+  .content-wrapper {
+    padding: 12px;
+    gap: 10px;
+  }
+
   .upload-box,
   .settings-box,
   .output-box {
@@ -506,6 +545,134 @@ body {
   .output-area img {
     max-height: 220px;
   }
+}
+
+/* ========== TAB NAVIGATION ========== */
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 30px;
+  background-color: #a8a8a8;
+  border-bottom: 1px solid #999999;
+}
+
+.tab-button {
+  padding: 10px 24px;
+  border: none;
+  background-color: #999999;
+  color: #f5f5f5;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-button:hover {
+  color: #fff;
+  background-color: #888888;
+}
+
+.tab-button.active {
+  color: #fff;
+  background-color: #0088cc;
+  box-shadow: 0 2px 12px rgba(0, 136, 204, 0.4);
+}
+
+.tab-button.active:hover {
+  background-color: #0077bb;
+  box-shadow: 0 2px 14px rgba(0, 136, 204, 0.5);
+}
+
+.tab-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* ========== TAB CONTENT ========== */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  width: 100%;
+}
+
+/* ========== CONTENT WRAPPER ========== */
+.content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ========== TEXTAREA STYLING ========== */
+.settings-box textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.settings-box textarea:focus {
+  outline: none;
+  border-color: #555;
+  box-shadow: 0 0 5px rgba(85, 85, 85, 0.1);
+}
+
+/* ========== QUICK GUIDE SECTION ========== */
+.quick-guide {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  padding: 40px 20px;
+  margin: 40px 0 0 0;
+  border-top: 2px solid #333;
+}
+
+.quick-guide h3 {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 25px;
+  color: #fff;
+}
+
+.guide-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+.guide-content p {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.guide-content ol {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+.guide-content li {
+  margin-bottom: 8px;
+  color: #d0d0d0;
+}
+
+.guide-content li strong {
+  color: #e0e0e0;
 }
 
 /* ========== INTEGRATION WITH HEADER/FOOTER ========== */

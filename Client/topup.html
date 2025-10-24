@@ -235,6 +235,84 @@
         color: #721c24;
       }
 
+      .view-all-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 15px;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #555;
+        transition: all 0.3s;
+        font-size: 14px;
+      }
+
+      .view-all-btn:hover {
+        background: #e5e5e5;
+        border-color: #555;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 15px;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .close-btn:hover {
+        color: #333;
+      }
+
+      .modal-history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
       .info-message {
         background: #e7f3ff;
         border-left: 4px solid #0066cc;
@@ -291,17 +369,17 @@
     <div class="topup-container">
       <div class="topup-wrapper">
         <div class="topup-card">
-          <h2>💳 Nạp Tiền</h2>
-        <p>Nạp tiền vào tài khoản để sử dụng các tính năng cao cấp</p>
+          <h2> Nạp Tiền</h2>
+        <p>Nạp tiền vào tài khoản để sử dụng các tính năng tạo ảnh</p>
 
         <div class="info-message">
-          ℹ️ Hiện tại chúng tôi hỗ trợ thanh toán qua Momo. Key thanh toán sẽ được cập nhật sau.
+          Hiện tại chúng tôi hỗ trợ thanh toán qua Momo. Kênh thanh toán sẽ được cập nhật sau.
         </div>
 
         <div class="form-group">
           <label>Chọn số tiền nạp</label>
           <div class="amount-presets">
-            <button class="amount-btn" data-amount="10000">10K</button>
+            <button class="amount-btn" data-amount="20000">20K</button>
             <button class="amount-btn" data-amount="50000">50K</button>
             <button class="amount-btn" data-amount="100000">100K</button>
             <button class="amount-btn" data-amount="200000">200K</button>
@@ -327,7 +405,7 @@
                 value="momo"
                 checked
               />
-              <span>💰 Momo</span>
+              <span> Momo</span>
             </label>
           </div>
         </div>
@@ -338,11 +416,25 @@
 
       <div class="history-card">
         <div class="history-section">
-          <h3>📊 Lịch Sử Nạp Tiền</h3>
+          <h3> Lịch Sử Nạp Tiền</h3>
           <div class="history-list" id="history-list">
             <p style="text-align: center; color: #999;">Chưa có lịch sử nạp tiền</p>
           </div>
+          <button class="view-all-btn" id="view-all-btn" style="display: none;">Xem Tất Cả</button>
         </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal cho lịch sử đầy đủ -->
+    <div class="modal" id="history-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Lịch Sử Nạp Tiền</h2>
+          <button class="close-btn" id="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-history-list" id="modal-history-list">
+          <p style="text-align: center; color: #999;">Đang tải...</p>
         </div>
       </div>
     </div>
@@ -437,7 +529,34 @@
         }
       });
 
-      // Load topup history
+      function renderHistoryItems(items, limit = null) {
+        const itemsToShow = limit ? items.slice(0, limit) : items;
+        return itemsToShow
+          .map((item) => {
+            const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
+            const statusClass = `status-${item.status}`;
+            const statusText =
+              item.status === "success"
+                ? "✓ Thành công"
+                : item.status === "pending"
+                  ? " Chờ xử lý"
+                  : "✗ Thất bại";
+
+            return `
+              <div class="history-item">
+                <div class="history-info">
+                  <div class="history-amount">+${item.amount.toLocaleString()}đ</div>
+                  <div class="history-time">${date}</div>
+                </div>
+                <span class="history-status ${statusClass}">${statusText}</span>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      // Load topup history (10 items only)
+      let allHistory = [];
       async function loadHistory() {
         if (!checkLogin()) return;
 
@@ -447,36 +566,25 @@
             headers: { Authorization: `Bearer ${token}` },
           });
 
-          const history = await response.json();
+          allHistory = await response.json();
 
-          if (history.length === 0) {
+          if (allHistory.length === 0) {
             historyList.innerHTML =
               '<p style="text-align: center; color: #999;">Chưa có lịch sử nạp tiền</p>';
+            document.getElementById("view-all-btn").style.display = "none";
             return;
           }
 
-          historyList.innerHTML = history
-            .map((item) => {
-              const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
-              const statusClass = `status-${item.status}`;
-              const statusText =
-                item.status === "success"
-                  ? "✓ Thành công"
-                  : item.status === "pending"
-                    ? "⏳ Chờ xử lý"
-                    : "✗ Thất bại";
+          // Show only 10 items
+          historyList.innerHTML = renderHistoryItems(allHistory, 6);
 
-              return `
-                <div class="history-item">
-                  <div class="history-info">
-                    <div class="history-amount">+${item.amount.toLocaleString()}đ</div>
-                    <div class="history-time">${date}</div>
-                  </div>
-                  <span class="history-status ${statusClass}">${statusText}</span>
-                </div>
-              `;
-            })
-            .join("");
+          // Show "View All" button if more than 10 items
+          const viewAllBtn = document.getElementById("view-all-btn");
+          if (allHistory.length > 10) {
+            viewAllBtn.style.display = "block";
+          } else {
+            viewAllBtn.style.display = "none";
+          }
         } catch (error) {
           console.error("Lỗi load history:", error);
           historyList.innerHTML =
@@ -484,9 +592,42 @@
         }
       }
 
+      // Load all history in modal
+      function showAllHistory() {
+        const modal = document.getElementById("history-modal");
+        const modalHistoryList = document.getElementById("modal-history-list");
+
+        if (allHistory.length === 0) {
+          modalHistoryList.innerHTML =
+            '<p style="text-align: center; color: #999;">Không có lịch sử nạp tiền</p>';
+        } else {
+          modalHistoryList.innerHTML = renderHistoryItems(allHistory);
+        }
+
+        modal.classList.add("active");
+      }
+
+      // Close modal
+      function closeModal() {
+        document.getElementById("history-modal").classList.remove("active");
+      }
+
       // Load on page load
       document.addEventListener("DOMContentLoaded", () => {
         loadHistory();
+
+        // View All button
+        document.getElementById("view-all-btn").addEventListener("click", showAllHistory);
+
+        // Close modal button
+        document.getElementById("close-modal-btn").addEventListener("click", closeModal);
+
+        // Close modal when clicking outside
+        document.getElementById("history-modal").addEventListener("click", (e) => {
+          if (e.target.id === "history-modal") {
+            closeModal();
+          }
+        });
       });
     </script>
   </body>
