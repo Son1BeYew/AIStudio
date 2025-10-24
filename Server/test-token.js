@@ -10,8 +10,8 @@ const path = require("path");
 
     const client = await auth.getClient();
     const token = await client.getAccessToken();
-    console.log("✅ Access Token:", token.token || token);
+    console.log("Access Token:", token.token || token);
   } catch (error) {
-    console.error("❌ Lỗi khi tạo token:", error.message);
+    console.error(" Lỗi khi tạo token:", error.message);
   }
 })();

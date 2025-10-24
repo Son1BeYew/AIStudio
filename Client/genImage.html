@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EternaPicSHT Studio</title>
+    <link rel="stylesheet" href="assets/css/genr.css" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/features.css" />
+    <link rel="stylesheet" href="/assets/css/hero.css" />
+    <link rel="stylesheet" href="/assets/css/footer.css" />
+  </head>
+  <body>
+    <div id="header"></div>
+    <div class="container">
+      <!-- Upload Section -->
+      <div class="upload-box">
+        <h3>Tải ảnh lên ngay</h3>
+        <div class="upload-area" id="upload-area">
+          <div class="upload-content">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/1829/1829588.png"
+              alt="upload"
+              class="upload-icon"
+            />
+            <p><strong>Kéo thả hoặc tải ảnh tại đây</strong></p>
+            <p class="small">hoặc nhấn để chọn tệp</p>
+            <input type="file" id="file-input" hidden accept="image/*" />
+            <button class="btn" id="choose-btn">Chọn ảnh</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div class="settings-box">
+        <h3>Cài đặt ảnh</h3>
+
+        <label>Chế độ ảnh</label>
+        <select>
+          <option>Phục hồi ảnh cũ</option>
+          <option>Ảnh Studio Phong Cách Đen Trắng</option>
+          <option>Ảnh giáng sinh Phong Cách</option>
+          <option>Ảnh Sinh Nhật</option>
+        </select>
+
+        <label>Width: 80 characters</label>
+        <input type="range" min="40" max="200" value="80" />
+
+        <label>Dáng đứng</label>
+        <select>
+          <option>Nghiêng về bên trái</option>
+          <option>Nghiêng về bên phải</option>
+          <option>Nhìn về giữa</option>
+        </select>
+
+        <div class="invert-toggle">
+          <input type="checkbox" id="invert" />
+          <label for="invert">Invert colors</label>
+        </div>
+
+        <div class="color-pickers">
+          <div>
+            <label>Background</label>
+            <input type="color" value="#000000" />
+          </div>
+          <div>
+            <label>Text Color</label>
+            <input type="color" value="#ffffff" />
+          </div>
+        </div>
+
+        <button class="download-btn"><span>⬇</span>Tạo ảnh</button>
+      </div>
+    </div>
+
+    <script>
+      const uploadArea = document.getElementById("upload-area");
+      const fileInput = document.getElementById("file-input");
+      const chooseBtn = document.getElementById("choose-btn");
+
+      uploadArea.addEventListener("click", () => fileInput.click());
+      chooseBtn.addEventListener("click", () => fileInput.click());
+
+      uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = "#666";
+      });
+
+      uploadArea.addEventListener("dragleave", () => {
+        uploadArea.style.borderColor = "#ccc";
+      });
+
+      uploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) handleFile(file);
+      });
+
+      function handleFile(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          uploadArea.innerHTML = `
+            <img src="${reader.result}" 
+              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
+          `;
+        };
+        reader.readAsDataURL(file);
+      }
+    </script>
+    <div id="header"></div>
+    <div id="footer"></div>
+    <script src="/assets/js/main.js"></script>
+  </body>
+</html>
