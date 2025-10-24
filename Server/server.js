@@ -11,6 +11,8 @@ const aiRoutes = require("./routes/ai");
 const promptRoutes = require("./routes/prompts");
 const announcementRoutes = require("./routes/announcementRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const topupRoutes = require("./routes/topup");
+const historyRoutes = require("./routes/history");
 const app = express();
 
 app.use(cors());
@@ -33,6 +35,8 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/prompts", promptRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/topup", topupRoutes);
+app.use("/api/history", historyRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {

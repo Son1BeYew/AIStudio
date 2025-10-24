@@ -132,6 +132,7 @@ function checkAuth() {
     color: #374151 !important;
     font-weight: 500;
     transition: background 0.25s, color 0.25s;
+    text-decoration: none !important;
   }
   .dropdown a:hover, .dropdown button:hover {
     background: #f3f4f6 !important;

@@ -15,7 +15,7 @@
     <div class="container">
       <!-- Upload Section -->
       <div class="upload-box">
-        <h3>Tải ảnh lên ngay</h3>
+        <h3>📸 Tải ảnh lên</h3>
         <div class="upload-area" id="upload-area">
           <div class="upload-content">
             <img
@@ -33,14 +33,11 @@
 
       <!-- Settings Section -->
       <div class="settings-box">
-        <h3>Cài đặt ảnh</h3>
+        <h3>⚙️ Cài đặt</h3>
 
         <label>Chế độ ảnh</label>
-        <select>
-          <option>Phục hồi ảnh cũ</option>
-          <option>Ảnh Studio Phong Cách Đen Trắng</option>
-          <option>Ảnh giáng sinh Phong Cách</option>
-          <option>Ảnh Sinh Nhật</option>
+        <select id="prompt-select">
+          <option value="">Loading prompts...</option>
         </select>
 
         <label>Width: 80 characters</label>
@@ -53,23 +50,28 @@
           <option>Nhìn về giữa</option>
         </select>
 
-        <div class="invert-toggle">
-          <input type="checkbox" id="invert" />
-          <label for="invert">Invert colors</label>
-        </div>
-
-        <div class="color-pickers">
-          <div>
-            <label>Background</label>
-            <input type="color" value="#000000" />
-          </div>
-          <div>
-            <label>Text Color</label>
-            <input type="color" value="#ffffff" />
+        <button class="download-btn" id="generate-btn">
+          <span>✨</span>Tạo ảnh
+        </button>
+      </div>
+      <div class="output-box">
+        <h3>🎨 Kết quả</h3>
+        <div class="output-area" id="output-area">
+          <div class="output-placeholder">
+            <p>Ảnh kết quả sẽ xuất hiện tại đây</p>
           </div>
         </div>
-
-        <button class="download-btn"><span>⬇</span>Tạo ảnh</button>
+        <div class="output-info" id="output-info" style="display: none">
+          <p><strong>Chế độ:</strong> <span id="output-prompt-name"></span></p>
+          <p><strong>Mô tả:</strong> <span id="output-prompt-title"></span></p>
+        </div>
+        <button
+          class="download-btn download-result"
+          id="download-btn"
+          style="display: none"
+        >
+          <span>⬇️</span>Tải ảnh
+        </button>
       </div>
     </div>
 
@@ -77,6 +79,9 @@
       const uploadArea = document.getElementById("upload-area");
       const fileInput = document.getElementById("file-input");
       const chooseBtn = document.getElementById("choose-btn");
+      const promptSelect = document.getElementById("prompt-select");
+      const generateBtn = document.getElementById("generate-btn");
+      let selectedFile = null;
 
       uploadArea.addEventListener("click", () => fileInput.click());
       chooseBtn.addEventListener("click", () => fileInput.click());
@@ -102,6 +107,7 @@
       });
 
       function handleFile(file) {
+        selectedFile = file;
         const reader = new FileReader();
         reader.onload = () => {
           uploadArea.innerHTML = `
@@ -111,8 +117,112 @@
         };
         reader.readAsDataURL(file);
       }
+
+      // Load prompts từ API
+      async function loadPrompts() {
+        try {
+          const response = await fetch("/api/prompts");
+          const prompts = await response.json();
+          promptSelect.innerHTML = '<option value="">Chọn chế độ ảnh</option>';
+          prompts.forEach((prompt) => {
+            if (prompt.isActive) {
+              const option = document.createElement("option");
+              option.value = prompt.name;
+              option.textContent = prompt.title || prompt.name;
+              promptSelect.appendChild(option);
+            }
+          });
+        } catch (error) {
+          console.error("Lỗi load prompts:", error);
+          promptSelect.innerHTML = '<option value="">Lỗi load prompts</option>';
+        }
+      }
+
+      // Generate ảnh
+      let currentImageUrl = null;
+
+      generateBtn.addEventListener("click", async () => {
+        if (!selectedFile) {
+          alert("Vui lòng chọn ảnh trước");
+          return;
+        }
+        if (!promptSelect.value) {
+          alert("Vui lòng chọn chế độ ảnh");
+          return;
+        }
+
+        const token = localStorage.getItem("token");
+        
+        const formData = new FormData();
+        formData.append("promptName", promptSelect.value);
+        formData.append("image", selectedFile);
+
+        try {
+          generateBtn.disabled = true;
+          generateBtn.innerHTML = "<span>⏳</span>Đang xử lý...";
+
+          const response = await fetch("/api/ai/generate", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            currentImageUrl = result.localPath;
+            displayOutput(result);
+          } else {
+            alert("Lỗi: " + (result.error || result.message));
+          }
+        } catch (error) {
+          console.error("Lỗi:", error);
+          alert("Lỗi khi tạo ảnh: " + error.message);
+        } finally {
+          generateBtn.disabled = false;
+          generateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
+        }
+      });
+
+      // Hiển thị kết quả output
+      function displayOutput(result) {
+        const outputArea = document.getElementById("output-area");
+        const outputInfo = document.getElementById("output-info");
+        const downloadBtn = document.getElementById("download-btn");
+
+        // Hiển thị ảnh
+        outputArea.innerHTML = `
+          <img src="${result.localPath}?t=${Date.now()}" alt="Generated image">
+        `;
+
+        // Hiển thị thông tin
+        document.getElementById("output-prompt-name").textContent =
+          result.promptName;
+        document.getElementById("output-prompt-title").textContent =
+          result.promptTitle;
+        outputInfo.style.display = "block";
+
+        // Hiển thị nút download
+        downloadBtn.style.display = "flex";
+        downloadBtn.onclick = () =>
+          downloadImage(result.localPath, result.promptName);
+      }
+
+      // Download ảnh
+      function downloadImage(imagePath, promptName) {
+        const link = document.createElement("a");
+        link.href = imagePath;
+        link.download = `${promptName}_${Date.now()}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Load prompts khi page load
+      document.addEventListener("DOMContentLoaded", loadPrompts);
     </script>
-    <div id="header"></div>
     <div id="footer"></div>
     <script src="/assets/js/main.js"></script>
   </body>
