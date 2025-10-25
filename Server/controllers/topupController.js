@@ -332,3 +332,62 @@ exports.markTopupSuccess = async (req, res) => {
     res.status(500).json({ error: "Lỗi mark success" });
   }
 };
+
+// Debug: Get all users with their balances
+exports.getAllUserBalances = async (req, res) => {
+  try {
+    const TopUp = require("../models/TopUp");
+    const result = await TopUp.aggregate([
+      { $match: { status: "success" } },
+      { $group: { 
+        _id: "$userId", 
+        totalBalance: { $sum: "$amount" },
+        count: { $sum: 1 }
+      }},
+      { $sort: { totalBalance: -1 } }
+    ]);
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get user's current balance (sum of successful topups)
+exports.getBalance = async (req, res) => {
+  try {
+    console.log("\n📊 [getBalance] req.user:", req.user);
+    console.log("📊 [getBalance] req.user?.id:", req.user?.id);
+    console.log("📊 [getBalance] req.user?._id:", req.user?._id);
+    
+    let userId = req.user?.id || req.user?._id;
+
+    if (!userId) {
+      console.error("❌ No userId found in token");
+      return res.status(401).json({ error: "Bạn chưa đăng nhập" });
+    }
+
+    // Convert to ObjectId nếu là string
+    if (typeof userId === "string") {
+      userId = new mongoose.Types.ObjectId(userId);
+    }
+
+    console.log("💰 Getting balance for userId:", userId.toString());
+    
+    // Sum all successful topups
+    const result = await TopUp.aggregate([
+      { $match: { userId: userId, status: "success" } },
+      { $group: { _id: null, totalBalance: { $sum: "$amount" } } }
+    ]);
+
+    console.log("📊 [getBalance] Aggregation result:", result);
+    
+    const balance = result.length > 0 ? result[0].totalBalance : 0;
+    
+    console.log("💰 Final balance:", balance);
+    res.json({ balance });
+  } catch (error) {
+    console.error("❌ Lỗi lấy số dư:", error.message, error.stack);
+    res.status(500).json({ error: "Lỗi lấy số dư", details: error.message });
+  }
+};

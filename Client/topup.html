@@ -323,6 +323,35 @@
         color: #004085;
       }
 
+      .balance-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .balance-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        opacity: 0.9;
+        font-weight: 500;
+      }
+
+      .balance-amount {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.5px;
+      }
+
+      .balance-unit {
+        font-size: 18px;
+        opacity: 0.9;
+        margin-left: 5px;
+      }
+
       @media (max-width: 1024px) {
         .topup-container {
           grid-template-columns: 1fr;
@@ -369,6 +398,14 @@
     <div class="topup-container">
       <div class="topup-wrapper">
         <div class="topup-card">
+          <div class="balance-card">
+            <h3>Số Dư Tài Khoản</h3>
+            <div style="display: flex; align-items: baseline;">
+              <span class="balance-amount" id="balance-display">0</span>
+              <span class="balance-unit">đ</span>
+            </div>
+          </div>
+
           <h2> Nạp Tiền</h2>
         <p>Nạp tiền vào tài khoản để sử dụng các tính năng tạo ảnh</p>
 
@@ -555,6 +592,33 @@
           .join("");
       }
 
+      // Load user's current balance
+      async function loadBalance() {
+        if (!checkLogin()) return;
+
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/topup/balance", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!response.ok) {
+            console.error("❌ Balance API error:", response.status);
+            document.getElementById("balance-display").textContent = "0";
+            return;
+          }
+
+          const data = await response.json();
+          const balance = data.balance || 0;
+          
+          document.getElementById("balance-display").textContent = balance.toLocaleString("vi-VN");
+          console.log("✅ Balance loaded:", balance, "from:", data);
+        } catch (error) {
+          console.error("❌ Error loading balance:", error);
+          document.getElementById("balance-display").textContent = "0";
+        }
+      }
+
       // Load topup history (10 items only)
       let allHistory = [];
       async function loadHistory() {
@@ -618,6 +682,7 @@
       function startAutoRefresh() {
         if (refreshInterval) clearInterval(refreshInterval);
         refreshInterval = setInterval(() => {
+          loadBalance();
           loadHistory();
         }, 3000); // Refresh every 3 seconds
       }
@@ -631,6 +696,7 @@
 
       // Load on page load
       document.addEventListener("DOMContentLoaded", () => {
+        loadBalance();
         loadHistory();
 
         // Start auto-refresh when page gets focus (user comes back from payment)

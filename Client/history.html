@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="/assets/css/header.css" />
     <link rel="stylesheet" href="/assets/css/footer.css" />
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       .history-container {
         max-width: 1200px;
         margin: 40px auto;
@@ -64,6 +68,32 @@
         padding: 20px;
       }
 
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #999;
+        margin-top: 5px;
+      }
+
       .history-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -75,19 +105,24 @@
         border: 1px solid #e0e0e0;
         border-radius: 10px;
         overflow: hidden;
-        transition: transform 0.3s, box-shadow 0.3s;
+        transition: all 0.3s;
       }
 
       .history-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .history-image-wrapper {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        background: #ddd;
       }
 
       .history-image {
         width: 100%;
-        height: 200px;
+        height: 100%;
         object-fit: cover;
-        background: #e0e0e0;
       }
 
       .history-info {
@@ -107,29 +142,36 @@
       .history-time {
         font-size: 12px;
         color: #999;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
 
       .history-actions {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 8px;
+        margin-bottom: 8px;
       }
 
-      .btn-small {
-        flex: 1;
-        padding: 8px 12px;
+      .history-actions.full {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+      }
+
+      .btn-action {
+        padding: 8px 10px;
         border: 1px solid #ddd;
         background: #fff;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 600;
         transition: all 0.3s;
+        color: #555;
+        text-align: center;
       }
 
-      .btn-small:hover {
+      .btn-action:hover {
         border-color: #555;
-        color: #555;
+        background: #f5f5f5;
       }
 
       .btn-delete {
@@ -202,36 +244,22 @@
         margin-bottom: 10px;
       }
 
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        margin-bottom: 20px;
-      }
-
-      .stat-card {
-        background: #f5f5f5;
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-      }
-
-      .stat-number {
-        font-size: 24px;
-        font-weight: 700;
-        color: #333;
-      }
-
-      .stat-label {
-        font-size: 12px;
-        color: #999;
-        margin-top: 5px;
-      }
-
       .loading {
         text-align: center;
         padding: 40px;
         color: #999;
+      }
+
+      @media (max-width: 1024px) {
+        .history-grid {
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 18px;
+        }
+
+        .stats {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 15px;
+        }
       }
 
       @media (max-width: 768px) {
@@ -250,10 +278,6 @@
           gap: 15px;
         }
 
-        .history-image {
-          height: 150px;
-        }
-
         .stats {
           grid-template-columns: 1fr;
         }
@@ -265,16 +289,11 @@
       }
 
       @media (max-width: 480px) {
-        .history-tabs {
-          gap: 5px;
-        }
-
-        .tab-btn {
-          padding: 10px 12px;
-          font-size: 12px;
-        }
-
         .history-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
           grid-template-columns: 1fr;
         }
 
@@ -286,6 +305,11 @@
         .topup-table td {
           padding: 8px;
         }
+
+        .tab-btn {
+          padding: 10px 12px;
+          font-size: 12px;
+        }
       }
     </style>
   </head>
@@ -293,11 +317,11 @@
     <div id="header"></div>
 
     <div class="history-container">
-      <h1 class="history-title">📜 Lịch Sử</h1>
+      <h1 class="history-title">Lịch Sử</h1>
 
       <div class="history-tabs">
-        <button class="tab-btn active" data-tab="images">🖼️ Ảnh Tạo Ra</button>
-        <button class="tab-btn" data-tab="topups">💳 Lịch Sử Nạp Tiền</button>
+        <button class="tab-btn active" data-tab="images">Ảnh</button>
+        <button class="tab-btn" data-tab="topups">Lịch Sử Nạp Tiền</button>
       </div>
 
       <!-- Images History Tab -->
@@ -338,7 +362,9 @@
             </thead>
             <tbody id="topups-body">
               <tr>
-                <td colspan="4" style="text-align: center; color: #999;">Đang tải...</td>
+                <td colspan="4" style="text-align: center; color: #999">
+                  Đang tải...
+                </td>
               </tr>
             </tbody>
           </table>
@@ -354,12 +380,12 @@
       document.querySelectorAll(".tab-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
           const tabName = btn.dataset.tab;
-          document.querySelectorAll(".tab-btn").forEach((b) =>
-            b.classList.remove("active")
-          );
-          document.querySelectorAll(".tab-content").forEach((t) =>
-            t.classList.remove("active")
-          );
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((t) => t.classList.remove("active"));
           btn.classList.add("active");
           document.getElementById(`${tabName}-tab`).classList.add("active");
 
@@ -415,18 +441,32 @@
           imagesList.innerHTML = history
             .map((item) => {
               const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
-              const statusClass =
-                item.status === "success" ? "status-success" : "status-failed";
 
               return `
                 <div class="history-card">
-                  <img src="${item.outputImagePath}?t=${Date.now()}" alt="Generated" class="history-image" />
+                  <div class="history-image-wrapper">
+                    <img src="${
+                      item.outputImagePath
+                    }?t=${Date.now()}" alt="Generated" class="history-image" />
+                  </div>
                   <div class="history-info">
-                    <div class="history-prompt">${item.promptTitle || item.promptName}</div>
+                    <div class="history-prompt">${
+                      item.promptTitle || item.promptName
+                    }</div>
                     <div class="history-time">${date}</div>
-                    <div class="history-actions">
-                      <a href="${item.outputImagePath}" target="_blank" class="btn-small">Xem</a>
-                      <button class="btn-small btn-delete" onclick="deleteHistory('${item._id}')">Xóa</button>
+                    <div class="history-actions full">
+                      <a href="${
+                        item.outputImagePath
+                      }" target="_blank" class="btn-action" title="Xem ảnh">Xem</a>
+                      <button class="btn-action" onclick="downloadImage('${
+                        item.outputImagePath
+                      }', '${item.promptName}')" title="Tải về">Tải Về</button>
+                      <button class="btn-action" onclick="shareToFacebook('${
+                        item.outputImagePath
+                      }')" title="Chia sẻ Facebook">Chia Sẻ</button>
+                      <button class="btn-action btn-delete" onclick="deleteHistory('${
+                        item._id
+                      }')" title="Xóa">Xóa</button>
                     </div>
                   </div>
                 </div>
@@ -470,14 +510,14 @@
                 item.status === "success"
                   ? "✓ Thành công"
                   : item.status === "pending"
-                    ? "⏳ Chờ xử lý"
-                    : "✗ Thất bại";
+                  ? "⏳ Chờ xử lý"
+                  : "✗ Thất bại";
 
               return `
                 <tr>
                   <td>${date}</td>
                   <td class="topup-amount">${item.amount.toLocaleString()}đ</td>
-                  <td>${item.method === "momo" ? "💰 Momo" : item.method}</td>
+                  <td>${item.method === "momo" ? " Momo" : item.method}</td>
                   <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                 </tr>
               `;
@@ -510,6 +550,23 @@
           console.error("Lỗi:", error);
           alert("Lỗi khi xóa lịch sử");
         }
+      }
+
+      // Download image
+      function downloadImage(imagePath, promptName) {
+        const link = document.createElement('a');
+        link.href = imagePath;
+        link.download = `${promptName || 'generated'}-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Share to Facebook
+      function shareToFacebook(imagePath) {
+        const imageUrl = window.location.origin + imagePath;
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(imageUrl)}&quote=Ảnh được tạo bởi EternaPicSHT Studio`;
+        window.open(facebookUrl, 'facebook-share', 'width=600,height=400');
       }
 
       // Load on page load
