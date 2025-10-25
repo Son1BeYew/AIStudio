@@ -612,9 +612,33 @@
         document.getElementById("history-modal").classList.remove("active");
       }
 
+      // Auto-refresh history every 3 seconds while page is visible
+      let refreshInterval = null;
+
+      function startAutoRefresh() {
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+          loadHistory();
+        }, 3000); // Refresh every 3 seconds
+      }
+
+      function stopAutoRefresh() {
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          refreshInterval = null;
+        }
+      }
+
       // Load on page load
       document.addEventListener("DOMContentLoaded", () => {
         loadHistory();
+
+        // Start auto-refresh when page gets focus (user comes back from payment)
+        window.addEventListener("focus", startAutoRefresh);
+        window.addEventListener("blur", stopAutoRefresh);
+
+        // Also start auto-refresh on page load (in case user just returned)
+        startAutoRefresh();
 
         // View All button
         document.getElementById("view-all-btn").addEventListener("click", showAllHistory);
@@ -629,6 +653,9 @@
           }
         });
       });
+
+      // Stop refresh when page unloads
+      window.addEventListener("beforeunload", stopAutoRefresh);
     </script>
   </body>
 </html>
