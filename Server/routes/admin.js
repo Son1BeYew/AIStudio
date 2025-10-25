@@ -313,4 +313,47 @@ router.get("/dashboard-stats", verifyAdmin, async (req, res) => {
   }
 });
 
+// Verify and mark topup as success (for manual verification of Momo payments)
+router.put("/topup/:id/verify", verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("🔍 Admin verifying topup:", id);
+
+    const topUp = await TopUp.findById(id);
+    if (!topUp) {
+      return res.status(404).json({ error: "Không tìm thấy giao dịch" });
+    }
+
+    if (topUp.status === "success") {
+      return res.json({ message: "Giao dịch đã được xác nhận", topUp });
+    }
+
+    // Mark as success
+    topUp.status = "success";
+    await topUp.save();
+    console.log("✅ Admin marked topup as success:", id);
+
+    res.json({ message: "Đã xác nhận giao dịch thành công", topUp });
+  } catch (error) {
+    console.error("❌ Verify topup error:", error.message);
+    res.status(500).json({ error: "Lỗi xác nhận giao dịch" });
+  }
+});
+
+// Get all pending topups
+router.get("/topup/pending", verifyAdmin, async (req, res) => {
+  try {
+    console.log("📋 Fetching pending topups");
+    const pendingTopups = await TopUp.find({ status: "pending" })
+      .populate("userId", "email fullname")
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    res.json(pendingTopups);
+  } catch (error) {
+    console.error("❌ Get pending topups error:", error.message);
+    res.status(500).json({ error: "Lỗi lấy danh sách giao dịch chờ xử lý" });
+  }
+});
+
 module.exports = router;

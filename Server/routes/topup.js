@@ -5,6 +5,7 @@ const {
   createMomoPayment,
   momoCallback,
   mockMomoCallback,
+  checkPaymentStatusFromMomo,
   getTopupHistory,
   getTopupStatus,
   markTopupSuccess,
@@ -32,6 +33,7 @@ const checkAuth = (req, res, next) => {
 router.post("/create-momo", checkAuth, createMomoPayment);
 router.post("/callback", momoCallback);
 router.get("/mock-callback/:id", mockMomoCallback); // For development testing
+router.get("/check-momo-status/:id", checkPaymentStatusFromMomo); // For production - check if Momo callback arrived
 router.get("/history", checkAuth, getTopupHistory);
 router.get("/status/:id", getTopupStatus);
 router.put("/mark-success/:id", markTopupSuccess); // For development testing

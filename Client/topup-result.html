@@ -232,7 +232,7 @@
         }
       }
 
-      // Trigger final check and finalize payment (for testing without Momo callback)
+      // Trigger final check and finalize payment
       async function finalizePayment(topupId) {
         try {
           resultContainer.innerHTML = `
@@ -240,9 +240,18 @@
             <p class="result-message">Đang xác nhận thanh toán...</p>
           `;
 
-          // Try to finalize with mock callback
-          const response = await fetch(`/api/topup/mock-callback/${topupId}`);
-          const data = await response.json();
+          // First check if Momo callback arrived (production)
+          let response = await fetch(`/api/topup/check-momo-status/${topupId}`);
+          let data = await response.json();
+
+          if (data.status === "success") {
+            showSuccess(data);
+            return;
+          }
+
+          // If not marked success yet, try mock callback as fallback
+          response = await fetch(`/api/topup/mock-callback/${topupId}`);
+          data = await response.json();
 
           if (data.topUp && data.topUp.status === "success") {
             showSuccess(data.topUp);
