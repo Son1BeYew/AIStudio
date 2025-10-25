@@ -126,13 +126,23 @@
         display: inline-block;
       }
 
+      button.btn {
+        font-family: inherit;
+      }
+
       .btn-primary {
         background: #555;
         color: #fff;
       }
 
-      .btn-primary:hover {
+      .btn-primary:hover,
+      button.btn-primary:hover {
         background: #333;
+      }
+
+      .btn-primary:disabled {
+        background: #999;
+        cursor: not-allowed;
       }
 
       .btn-secondary {
@@ -141,7 +151,8 @@
         border: 1px solid #ddd;
       }
 
-      .btn-secondary:hover {
+      .btn-secondary:hover,
+      button.btn-secondary:hover {
         background: #e5e5e5;
       }
 
@@ -212,12 +223,52 @@
           if (checkCount < maxChecks) {
             setTimeout(checkPaymentStatus, 1000); // Check every 1 second
           } else {
-            showPending(data);
+            // If still pending after max checks, show option to finalize or check again
+            showTimeoutMessage(topupId);
           }
         } catch (error) {
           console.error("Lỗi kiểm tra trạng thái:", error);
           showError("Lỗi kiểm tra trạng thái: " + error.message);
         }
+      }
+
+      // Trigger final check and finalize payment (for testing without Momo callback)
+      async function finalizePayment(topupId) {
+        try {
+          resultContainer.innerHTML = `
+            <div class="loading-spinner"></div>
+            <p class="result-message">Đang xác nhận thanh toán...</p>
+          `;
+
+          // Try to finalize with mock callback
+          const response = await fetch(`/api/topup/mock-callback/${topupId}`);
+          const data = await response.json();
+
+          if (data.topUp && data.topUp.status === "success") {
+            showSuccess(data.topUp);
+          } else {
+            checkCount = 0;
+            checkPaymentStatus();
+          }
+        } catch (error) {
+          console.error("Lỗi xác nhận:", error);
+          showError("Lỗi xác nhận thanh toán: " + error.message);
+        }
+      }
+
+      function showTimeoutMessage(topupId) {
+        resultContainer.innerHTML = `
+          <div class="result-icon">⏳</div>
+          <div class="result-title status-pending">Chờ Xác Nhận Thanh Toán</div>
+          <div class="result-message">Hệ thống đang xác nhận giao dịch của bạn</div>
+          <div class="result-info">
+            Nếu bạn đã hoàn thành thanh toán trên Momo, vui lòng nhấn "Kiểm Tra Lại" để cập nhật trạng thái.
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="finalizePayment('${topupId}')">Kiểm Tra Lại</button>
+            <a href="/topup.html" class="btn btn-secondary">← Quay lại Nạp Tiền</a>
+          </div>
+        `;
       }
 
       function showSuccess(data) {
@@ -255,19 +306,7 @@
         `;
       }
 
-      function showPending(data) {
-        resultContainer.innerHTML = `
-          <div class="result-icon">⏳</div>
-          <div class="result-title status-pending">Đang Xử Lý</div>
-          <div class="result-message">Giao dịch của bạn đang được xử lý</div>
-          <div class="result-info">
-            Vui lòng không tắt trang. Hệ thống sẽ tự động cập nhật...
-          </div>
-          <div class="btn-group">
-            <a href="/topup.html" class="btn btn-primary">← Quay lại Nạp Tiền</a>
-          </div>
-        `;
-      }
+
 
       function showError(message) {
         resultContainer.innerHTML = `
