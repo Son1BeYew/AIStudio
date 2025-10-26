@@ -1,0 +1,270 @@
+body {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  background: #f8f9fd;
+  color: #333;
+}
+
+.admin-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background: #fff;
+  border-right: 1px solid #eee;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.menu a {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  color: #444;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.menu a:hover,
+.menu a.active {
+  background: #e8f3ff;
+  color: #007bff;
+}
+
+.icon {
+  margin-right: 10px;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 20px 30px;
+  overflow-y: auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: #f1f3f6;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 250px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Stats cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 24px;
+  color: #007bff;
+}
+
+/* Charts */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.chart-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* === Nâng cấp phong cách sáng & icon === */
+.menu i {
+  width: 18px;
+  height: 18px;
+}
+
+.menu a i {
+  stroke-width: 1.6;
+  color: #6c757d;
+}
+
+.menu a.active i {
+  color: #007bff;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f4fa;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.search-box i {
+  width: 18px;
+  height: 18px;
+  color: #6c757d;
+}
+
+/* --- Nút filter --- */
+.filter-btn {
+  border: none;
+  background: #fff;
+  padding: 10px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.filter-btn:hover {
+  background: #eaf2ff;
+  color: #007bff;
+}
+
+/* --- Card có icon --- */
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef3ff;
+}
+
+.icon-box i {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.6;
+}
+
+.icon-box.user {
+  background: #e3f2fd;
+  color: #2196f3;
+}
+.icon-box.prompt {
+  background: #fff3e0;
+  color: #ff9800;
+}
+.icon-box.image {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+.icon-box.money {
+  background: #fce4ec;
+  color: #e91e63;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===== SIDEBAR TINH CHỈNH ===== */
+.menu {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px; /* khoảng cách giữa các dòng */
+  margin-top: 10px;
+}
+
+.menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* khoảng cách icon – chữ */
+  padding: 10px 14px;
+  color: #444;
+  font-weight: 500;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.menu a i {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.6;
+  color: #6c757d;
+}
+
+.menu a span {
+  flex: 1;
+  font-size: 14px;
+}
+
+.menu a:hover {
+  background: #e8f1ff;
+  color: #007bff;
+}
+
+.menu a.active {
+  background: #e1ecff;
+  color: #007bff;
+  font-weight: 600;
+}
+
+.menu a.active i {
+  color: #007bff;
+}
+
+/* Giữa các nhóm menu có khoảng trắng */
+.menu a:nth-child(6) {
+  margin-bottom: 10px;
+}

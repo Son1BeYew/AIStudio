@@ -9,7 +9,7 @@ module.exports = (passport) => {
       { usernameField: "email" },
       async (email, password, done) => {
         try {
-          const user = await User.findOne({ email });
+          const user = await User.findOne({ email }).select("+role +password");
 
           if (!user)
             return done(null, false, { message: "Email không tồn tại" });

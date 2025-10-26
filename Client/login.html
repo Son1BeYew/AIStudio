@@ -279,7 +279,7 @@
         </div>
 
         <button type="submit" class="primary2">Đăng Nhập</button>
-        <p class="alt">Chưa có tài khoản? <a href="#">Đăng ký ngay</a></p>
+        <p class="alt">Chưa có tài khoản? <a href="/register.html">Đăng ký ngay</a></p>
 
         <div class="social-login">
           <button class="btn-social btn-google" onclick="window.location.href='http://localhost:5000/auth/google'">
@@ -321,13 +321,29 @@
 
           const data = await res.json();
 
-          if (data.token) {
-            localStorage.setItem("token", data.token);
-            alert("Đăng nhập thành công 🎉");
-            window.location.href = "/Client/dashboard.html";
+          if (data.accessToken) {
+            localStorage.setItem("token", data.accessToken);
+            if (data.refreshToken) {
+              localStorage.setItem("refreshToken", data.refreshToken);
+            }
+
+            const userRole =
+              (data.user && data.user.role) ||
+              data.role ||
+              JSON.parse(atob(data.accessToken.split(".")[1])).role;
+
+            alert(`Đăng nhập thành công (${userRole}) 🎉`);
+
+            const destination =
+              userRole && userRole.toLowerCase() === "admin"
+                ? "/admin/index.html"
+                : "/Client/dashboard.html";
+
+            window.location.href = destination;
           } else {
             alert(data.error || "Đăng nhập thất bại");
           }
+
         } catch (err) {
           alert("Có lỗi xảy ra: " + err.message);
         }
@@ -335,10 +351,33 @@
 
       const params = new URLSearchParams(window.location.search);
       if (params.get("token")) {
-        localStorage.setItem("token", params.get("token"));
-        window.location.href = "/Client/dashboard.html";
+        const token = params.get("token");
+        const refreshToken = params.get("refreshToken");
+
+        localStorage.setItem("token", token);
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
+
+        let role = params.get("role");
+        if (!role && token) {
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            role = payload?.role || null;
+          } catch (err) {
+            console.error("Không thể giải mã token:", err);
+          }
+        }
+
+        const destination =
+          role && role.toLowerCase() === "admin"
+            ? "/admin/index.html"
+            : "/Client/dashboard.html";
+
+        window.location.href = destination;
       }
     </script>
+
 </body>
 
 </html>

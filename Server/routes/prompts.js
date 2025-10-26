@@ -7,9 +7,7 @@ const {
   deletePrompt,
 } = require("../controllers/promptController");
 
-// Nếu m có middleware check admin, có thể thêm ở đây
-// const { verifyAdmin } = require("../middlewares/authMiddleware");
-
+// Các route CRUD cho Prompt
 router.get("/", getAllPrompts);
 router.post("/", createPrompt);
 router.put("/:id", updatePrompt);

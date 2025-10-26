@@ -1,68 +1,64 @@
 const fs = require("fs");
 const path = require("path");
-const Prompt = require("../models/Prompt");
+const Replicate = require("replicate");
+require("dotenv").config();
 
-const aiplatform = require("@google-cloud/aiplatform");
-const { PredictionServiceClient } = aiplatform.v1;
-
-const client = new PredictionServiceClient({
-  projectId: "gen-lang-client-0844887220",
-  apiEndpoint: "us-central1-aiplatform.googleapis.com",
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
 });
 
-exports.generateImage = async (req, res) => {
+exports.generateFaceImage = async (req, res) => {
   try {
-    const { style } = req.body;
+    const { mode, prompt } = req.body;
     const file = req.file;
+    if (!file) return res.status(400).json({ error: "Ảnh là bắt buộc" });
 
-    if (!style) return res.status(400).json({ message: "Thiếu style" });
-
-    const promptData = await Prompt.findOne({ name: style, isActive: true });
-    if (!promptData)
-      return res.status(404).json({ message: "Không tìm thấy prompt" });
-
-    const prompt = promptData.prompt;
-    console.log("📤 Gửi yêu cầu đến Imagen 3.0 (Vertex AI)...");
-    console.log("Prompt:", prompt);
-
-    const instance = {
-      prompt: {
-        text: prompt,
-      },
+    const promptMap = {
+      anime: "Turn the person in the image into an anime-style portrait.",
+      fantasy: "Create a cinematic fantasy portrait keeping the same face.",
+      realistic:
+        "Enhance the portrait naturally while preserving the same face.",
+      art: "Create an artistic oil-painting style portrait, keeping the face features intact.",
     };
 
-    if (file) {
-      const imagePath = path.join(__dirname, "../uploads", file.filename);
-      const imageBuffer = fs.readFileSync(imagePath);
-      const base64Image = imageBuffer.toString("base64");
+    const finalPrompt =
+      prompt?.trim() ||
+      promptMap[mode] ||
+      "Make this portrait look visually stunning while preserving the person's real face.";
 
-      instance.image = {
-        bytesBase64Encoded: base64Image,
-      };
-    }
+    const imagePath = path.join(__dirname, "../uploads", file.filename);
+    const imageBase64 = fs.readFileSync(imagePath, { encoding: "base64" });
 
-    const [response] = await client.predict({
-      endpoint: `projects/gen-lang-client-0844887220/locations/us-central1/publishers/google/models/imagen-3.0`,
-      instances: [instance],
+    console.log("📸 Running Replicate model...");
+    const output = await replicate.run("google/nano-banana", {
+      input: {
+        prompt: finalPrompt,
+        image_input: [`data:image/jpeg;base64,${imageBase64}`],
+      },
     });
 
-    const imageData = response?.predictions?.[0]?.bytesBase64Encoded;
+    const imageUrl = Array.isArray(output) ? output[0] : output;
+    console.log("✅ Output URL:", imageUrl);
 
-    if (!imageData) {
-      return res.status(500).json({
-        message: "Không nhận được ảnh từ Imagen",
-        raw: response,
-      });
-    }
-
-    if (file) fs.unlinkSync(path.join(__dirname, "../uploads", file.filename));
+    const response = await fetch(imageUrl);
+    const buffer = await response.arrayBuffer();
+    const outputName = `output_${Date.now()}.jpg`;
+    const outputPath = path.join(__dirname, "../outputs", outputName);
+    fs.writeFileSync(outputPath, Buffer.from(buffer));
 
     res.json({
-      message: "✅ Ảnh tạo thành công!",
-      image: imageData,
+      success: true,
+      model: "google/nano-banana",
+      prompt: finalPrompt,
+      imageUrl,
+      localPath: `/outputs/${outputName}`,
     });
-  } catch (err) {
-    console.error("❌ Lỗi Imagen:", err);
-    res.status(500).json({ message: "Lỗi tạo ảnh", error: err.message });
+  } catch (error) {
+    console.error("❌ Lỗi Replicate:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi khi tạo ảnh",
+      error: error.message || error,
+    });
   }
 };
