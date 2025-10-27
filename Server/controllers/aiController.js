@@ -15,12 +15,12 @@ exports.generateFaceImage = async (req, res) => {
     const { promptName } = req.body;
     const file = req.file;
     const userId = req.user?.id || req.user?._id;
-    
+
     if (!file) return res.status(400).json({ error: "Ảnh là bắt buộc" });
-    if (!promptName) return res.status(400).json({ error: "promptName là bắt buộc" });
+    if (!promptName)
+      return res.status(400).json({ error: "promptName là bắt buộc" });
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
 
-    // Lấy prompt từ database theo name
     const promptData = await Prompt.findOne({ name: promptName });
     if (!promptData) {
       return res.status(404).json({ error: "Không tìm thấy prompt" });
@@ -43,36 +43,31 @@ exports.generateFaceImage = async (req, res) => {
       },
     });
 
-    // Handle output - có thể là array hoặc string
     let imageUrl = Array.isArray(output) ? output[0] : output;
-    
-    // Convert to string nếu cần
-    if (typeof imageUrl !== 'string') {
+
+    if (typeof imageUrl !== "string") {
       imageUrl = String(imageUrl);
     }
-    
+
     console.log("✅ Output URL:", imageUrl);
 
-    // Download image từ URL
     const response = await fetch(imageUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.statusText}`);
     }
-    
+
     const buffer = await response.arrayBuffer();
     const outputName = `output_${Date.now()}.jpg`;
     const outputPath = path.join(__dirname, "../outputs", outputName);
     fs.writeFileSync(outputPath, Buffer.from(buffer));
     const localPath = `/outputs/${outputName}`;
-    
+
     console.log("💾 Ảnh đã lưu:", localPath);
 
-    // Lưu history vào database
     let history = null;
     try {
-      // Convert userId to ObjectId nếu là string
-      const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
-        ? userId 
+      const userObjectId = mongoose.Types.ObjectId.isValid(userId)
+        ? userId
         : new mongoose.Types.ObjectId(userId);
 
       history = await History.create({
@@ -89,7 +84,6 @@ exports.generateFaceImage = async (req, res) => {
     } catch (historyError) {
       console.error("⚠️ Lỗi lưu history:", historyError.message);
       console.error("   userId:", userId, "type:", typeof userId);
-      // Không fail request nếu history lưu lỗi
     }
 
     res.json({
