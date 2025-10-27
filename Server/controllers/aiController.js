@@ -4,7 +4,15 @@ const Replicate = require("replicate");
 const Prompt = require("../models/Prompt");
 const History = require("../models/History");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
@@ -13,10 +21,17 @@ const replicate = new Replicate({
 exports.generateFaceImage = async (req, res) => {
   try {
     const { promptName } = req.body;
-    const file = req.file;
     const userId = req.user?.id || req.user?._id;
+    const cloudinaryFile = req.cloudinaryFile;
 
-    if (!file) return res.status(400).json({ error: "Ảnh là bắt buộc" });
+    console.log("📝 Request body:", { promptName, userId });
+    console.log("📤 Cloudinary file:", cloudinaryFile);
+    console.log("📦 req.file:", req.file);
+
+    if (!cloudinaryFile) {
+      console.error("❌ No cloudinary file found");
+      return res.status(400).json({ error: "Ảnh là bắt buộc" });
+    }
     if (!promptName)
       return res.status(400).json({ error: "promptName là bắt buộc" });
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
@@ -32,8 +47,15 @@ exports.generateFaceImage = async (req, res) => {
 
     const finalPrompt = promptData.prompt;
 
-    const imagePath = path.join(__dirname, "../uploads", file.filename);
-    const imageBase64 = fs.readFileSync(imagePath, { encoding: "base64" });
+    // Fetch image from Cloudinary URL and convert to base64
+    console.log("🔄 Fetching image from:", cloudinaryFile.url);
+    const response = await fetch(cloudinaryFile.url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch from Cloudinary: ${response.statusText}`);
+    }
+    const buffer = await response.arrayBuffer();
+    const imageBase64 = Buffer.from(buffer).toString("base64");
+    console.log("✅ Image fetched and converted to base64");
 
     console.log("📸 Running Replicate model với prompt:", promptData.name);
     const output = await replicate.run("google/nano-banana", {
@@ -51,18 +73,28 @@ exports.generateFaceImage = async (req, res) => {
 
     console.log("✅ Output URL:", imageUrl);
 
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    // Download output image and upload to Cloudinary
+    const outputResponse = await fetch(imageUrl);
+    if (!outputResponse.ok) {
+      throw new Error(`Failed to fetch image: ${outputResponse.statusText}`);
     }
 
-    const buffer = await response.arrayBuffer();
-    const outputName = `output_${Date.now()}.jpg`;
-    const outputPath = path.join(__dirname, "../outputs", outputName);
-    fs.writeFileSync(outputPath, Buffer.from(buffer));
-    const localPath = `/outputs/${outputName}`;
+    const outputBuffer = await outputResponse.arrayBuffer();
+    const outputPath = path.join(__dirname, "../temp_output.jpg");
+    fs.writeFileSync(outputPath, Buffer.from(outputBuffer));
 
-    console.log("💾 Ảnh đã lưu:", localPath);
+    // Upload to Cloudinary
+    const cloudinaryResult = await cloudinary.uploader.upload(outputPath, {
+      folder: "ai-studio/outputs",
+      public_id: `output_${Date.now()}`,
+      resource_type: "auto",
+    });
+
+    // Clean up temp file
+    fs.unlinkSync(outputPath);
+
+    const cloudinaryOutputUrl = cloudinaryResult.secure_url;
+    console.log("💾 Ảnh đã lưu:", cloudinaryOutputUrl);
 
     let history = null;
     try {
@@ -75,8 +107,8 @@ exports.generateFaceImage = async (req, res) => {
         promptId: promptData._id,
         promptName: promptData.name,
         promptTitle: promptData.title,
-        originalImagePath: `/uploads/${file.filename}`,
-        outputImagePath: localPath,
+        originalImagePath: cloudinaryFile.url,
+        outputImagePath: cloudinaryOutputUrl,
         outputImageUrl: imageUrl,
         status: "success",
       });
@@ -94,14 +126,19 @@ exports.generateFaceImage = async (req, res) => {
       promptTitle: promptData.title,
       prompt: finalPrompt,
       imageUrl,
-      localPath,
+      localPath: cloudinaryOutputUrl,
     });
   } catch (error) {
     console.error("❌ Lỗi Replicate:", error);
-    res.status(500).json({
-      success: false,
-      message: "Lỗi khi tạo ảnh",
-      error: error.message || error,
-    });
+    console.error("Error stack:", error.stack);
+    
+    // Only send JSON response if we haven't already sent a response
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: "Lỗi khi tạo ảnh",
+        error: error.message || String(error),
+      });
+    }
   }
 };

@@ -1,10 +1,9 @@
 const express = require("express");
-const multer = require("multer");
 const jwt = require("jsonwebtoken");
 const { generateFaceImage } = require("../controllers/aiController");
+const { upload, attachCloudinaryFile } = require("../config/multerCloudinary");
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" });
 
 // Middleware auth
 const checkAuth = (req, res, next) => {
@@ -23,6 +22,31 @@ const checkAuth = (req, res, next) => {
   }
 };
 
-router.post("/generate", checkAuth, upload.single("image"), generateFaceImage);
+// Error handling for multer
+const handleMulterError = (err, req, res, next) => {
+  if (err) {
+    console.error("❌ Multer Error:", err);
+    return res.status(400).json({
+      success: false,
+      message: "Lỗi upload file",
+      error: err.message,
+    });
+  }
+  next();
+};
+
+router.post(
+  "/generate",
+  checkAuth,
+  (req, res, next) => {
+    console.log("📬 POST /generate request received");
+    upload.single("image")(req, res, (err) => {
+      handleMulterError(err, req, res, () => {
+        attachCloudinaryFile(req, res, next);
+      });
+    });
+  },
+  generateFaceImage
+);
 
 module.exports = router;
