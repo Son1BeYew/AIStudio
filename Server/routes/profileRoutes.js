@@ -10,7 +10,6 @@ router.post("/me", verifyToken, profileController.createMyProfile);
 // 🟡 Cập nhật hồ sơ
 router.put("/me", verifyToken, profileController.updateMyProfile);
 
-// 🔴 Xóa hồ sơ (nếu muốn)
 router.delete("/me", verifyToken, profileController.deleteMyProfile);
 
 module.exports = router;

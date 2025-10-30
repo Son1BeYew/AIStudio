@@ -1,0 +1,685 @@
+/* ========== GLOBAL RESET ========== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #fff;
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== TITLE & SUBTITLE ========== */
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 30px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.subtitle {
+  color: #555;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* ========== MAIN CONTAINER ========== */
+.container {
+  display: block;
+  width: 100%;
+}
+
+/* ========== BOX STYLE ========== */
+.upload-box,
+.settings-box,
+.output-box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 25px 30px;
+  width: 100%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.upload-box h3,
+.settings-box h3,
+.output-box h3 {
+  text-align: left;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ========== UPLOAD AREA ========== */
+.upload-area {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 40px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.upload-area:hover {
+  border-color: #555;
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-icon {
+  width: 50px;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.small {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.btn {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background-color: #e9e9e9;
+}
+
+/* ========== SETTINGS ========== */
+.settings-box label {
+  display: block;
+  text-align: left;
+  margin: 15px 0 5px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.settings-box select,
+.settings-box input[type="range"] {
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.invert-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  text-align: left;
+}
+
+.color-pickers {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.color-pickers input[type="color"] {
+  width: 80px;
+  height: 40px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  background: none;
+}
+
+/* ========== OUTPUT SECTION ========== */
+.output-area {
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.output-placeholder {
+  text-align: center;
+  color: #999;
+}
+
+.output-area img {
+  max-width: 100%;
+  max-height: 350px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.output-info {
+  background-color: #f5f5f5;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 13px;
+}
+
+.output-info p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.output-info strong {
+  color: #333;
+}
+
+/* ========== BUTTON ========== */
+.download-btn {
+  background-color: #555;
+  color: #fff;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+  margin-top: 15px;
+}
+
+.download-btn:hover:not(:disabled) {
+  background-color: #333;
+}
+
+.download-btn:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.download-result {
+  background-color: #2ecc71;
+}
+
+.download-result:hover {
+  background-color: #27ae60;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1400px) {
+  .upload-box,
+  .settings-box,
+  .output-box {
+    width: 360px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .container {
+    gap: 20px;
+  }
+
+  .upload-box,
+  .settings-box,
+  .output-box {
+    width: 340px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .content-wrapper {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .content-wrapper {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tab-navigation {
+    padding: 15px;
+    gap: 5px;
+  }
+
+  .tab-button {
+    padding: 8px 15px;
+    font-size: 13px;
+  }
+
+  .title {
+    font-size: 22px;
+    margin-top: 20px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .upload-area {
+    padding: 30px 12px;
+    min-height: 200px;
+  }
+
+  .output-area {
+    min-height: 250px;
+  }
+
+  .download-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .upload-box,
+  .settings-box,
+  .output-box {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .upload-box,
+  .settings-box,
+  .output-box {
+    width: 100%;
+    padding: 15px 20px;
+  }
+
+  .upload-box h3,
+  .settings-box h3,
+  .output-box h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  .upload-area {
+    padding: 25px 10px;
+    min-height: 180px;
+  }
+
+  .upload-icon {
+    width: 45px;
+  }
+
+  .output-area {
+    min-height: 220px;
+    padding: 15px;
+  }
+
+  .output-area img {
+    max-height: 280px;
+  }
+
+  .settings-box label {
+    font-size: 13px;
+    margin: 12px 0 4px;
+  }
+
+  .settings-box select,
+  .settings-box input[type="range"] {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .btn {
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+
+  .download-btn {
+    font-size: 13px;
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .output-info {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .tab-navigation {
+    padding: 12px 15px;
+    gap: 6px;
+  }
+
+  .tab-button {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .content-wrapper {
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .upload-box,
+  .settings-box,
+  .output-box {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 10px;
+  }
+
+  .upload-box h3,
+  .settings-box h3,
+  .output-box h3 {
+    font-size: 15px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .upload-area {
+    padding: 20px 8px;
+    min-height: 160px;
+  }
+
+  .upload-icon {
+    width: 40px;
+    margin-bottom: 8px;
+  }
+
+  .upload-content p {
+    font-size: 13px;
+  }
+
+  .small {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .settings-box label {
+    font-size: 12px;
+    margin: 10px 0 3px;
+  }
+
+  .settings-box select,
+  .settings-box input[type="range"] {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .output-area {
+    min-height: 200px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .output-area img {
+    max-height: 250px;
+  }
+
+  .output-placeholder {
+    font-size: 13px;
+  }
+
+  .output-placeholder p {
+    margin: 0;
+  }
+
+  .output-info {
+    font-size: 11px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+  }
+
+  .output-info p {
+    margin: 3px 0;
+  }
+
+  .download-btn {
+    font-size: 12px;
+    padding: 10px;
+    margin-top: 10px;
+    gap: 5px;
+  }
+
+  .download-btn span {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .tab-navigation {
+    padding: 10px 12px;
+    gap: 5px;
+  }
+
+  .tab-button {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+
+  .content-wrapper {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .upload-box,
+  .settings-box,
+  .output-box {
+    padding: 10px 12px;
+  }
+
+  .upload-box h3,
+  .settings-box h3,
+  .output-box h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .upload-area {
+    padding: 15px 6px;
+    min-height: 150px;
+  }
+
+  .upload-icon {
+    width: 35px;
+  }
+
+  .upload-content p {
+    font-size: 12px;
+  }
+
+  .settings-box label,
+  .output-info {
+    font-size: 11px;
+  }
+
+  .btn,
+  .download-btn {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+
+  .output-area {
+    min-height: 180px;
+    padding: 10px;
+  }
+
+  .output-area img {
+    max-height: 220px;
+  }
+}
+
+/* ========== TAB NAVIGATION ========== */
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 30px;
+  background-color: #a8a8a8;
+  border-bottom: 1px solid #999999;
+}
+
+.tab-button {
+  padding: 10px 24px;
+  border: none;
+  background-color: #999999;
+  color: #f5f5f5;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-button:hover {
+  color: #fff;
+  background-color: #888888;
+}
+
+.tab-button.active {
+  color: #fff;
+  background-color: #0088cc;
+  box-shadow: 0 2px 12px rgba(0, 136, 204, 0.4);
+}
+
+.tab-button.active:hover {
+  background-color: #0077bb;
+  box-shadow: 0 2px 14px rgba(0, 136, 204, 0.5);
+}
+
+.tab-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* ========== TAB CONTENT ========== */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  width: 100%;
+}
+
+/* ========== CONTENT WRAPPER ========== */
+.content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ========== TEXTAREA STYLING ========== */
+.settings-box textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.settings-box textarea:focus {
+  outline: none;
+  border-color: #555;
+  box-shadow: 0 0 5px rgba(85, 85, 85, 0.1);
+}
+
+/* ========== QUICK GUIDE SECTION ========== */
+.quick-guide {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  padding: 40px 20px;
+  margin: 40px 0 0 0;
+  border-top: 2px solid #333;
+}
+
+.quick-guide h3 {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 25px;
+  color: #fff;
+}
+
+.guide-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+.guide-content p {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.guide-content ol {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+.guide-content li {
+  margin-bottom: 8px;
+  color: #d0d0d0;
+}
+
+.guide-content li strong {
+  color: #e0e0e0;
+}
+
+/* ========== INTEGRATION WITH HEADER/FOOTER ========== */
+#header {
+  margin-bottom: 0 !important;
+}
+
+body > .container {
+  margin-top: 10px;
+}

@@ -4,9 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Đăng Nhập | ArtifyAI Clone</title>
+  <title>Đăng Ký | ArtifyAI Clone</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
+    /* Tổng thể layout */
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
@@ -20,6 +21,7 @@
       height: 100vh;
     }
 
+    /* ========== VIDEO BÊN TRÁI (65%) ========== */
     .login-video {
       flex: 0 0 65%;
       position: relative;
@@ -71,13 +73,15 @@
       overflow: hidden;
     }
 
+    /* ========== FORM BÊN PHẢI (35%) ========== */
     .login-container {
       flex: 0 0 35%;
       display: flex;
       justify-content: center;
       align-items: center;
       background: #f8f8f8;
-      padding: 60px;
+      padding: 40px;
+      overflow-y: auto;
     }
 
     .login-container form {
@@ -96,6 +100,7 @@
     .logo {
       display: flex;
       justify-content: center;
+      margin-bottom: 15px;
     }
 
     .logo img {
@@ -104,9 +109,10 @@
       object-fit: contain;
     }
 
+    /* ========== INPUT STYLE ========== */
     .input-group {
       text-align: left;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
     .input-group label {
@@ -119,10 +125,10 @@
 
     .input-group input {
       width: 100%;
-      padding: 15px 16px;
+      padding: 12px 16px;
       border-radius: 12px;
       border: 1px solid #d1d5db;
-      font-size: 1.05rem;
+      font-size: 1rem;
       background: #f9fafb;
       transition: all 0.3s ease;
     }
@@ -134,11 +140,12 @@
       background: white;
     }
 
+    /* ========== BUTTON REGISTER ========== */
     .primary2 {
       background: black;
       color: white;
       border: none;
-      padding: 15px;
+      padding: 12px;
       border-radius: 12px;
       cursor: pointer;
       width: 100%;
@@ -146,6 +153,7 @@
       font-weight: 600;
       letter-spacing: 0.4px;
       transition: transform 0.2s ease, background 0.4s ease;
+      margin-top: 10px;
     }
 
     .primary2:hover {
@@ -153,8 +161,15 @@
       transform: scale(1.02);
     }
 
+    .primary2:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: scale(1);
+    }
+
+    /* ========== TEXT NHỎ DƯỚI NÚT ========== */
     .alt {
-      margin-top: 18px;
+      margin-top: 15px;
       font-size: 1rem;
       color: #6b7280;
       text-align: center;
@@ -171,6 +186,7 @@
       text-decoration: underline;
     }
 
+    /* ========== GOOGLE BUTTON ========== */
     .btn-social {
       display: flex;
       align-items: center;
@@ -178,7 +194,7 @@
       gap: 12px;
       border: none;
       border-radius: 12px;
-      padding: 14px 20px;
+      padding: 12px 20px;
       font-size: 1rem;
       width: 100%;
       font-weight: 600;
@@ -207,18 +223,14 @@
       padding: 3px;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .error-message {
+      color: #dc2626;
+      font-size: 0.875rem;
+      margin-top: 5px;
+      display: none;
     }
 
+    /* RESPONSIVE */
     @media (max-width: 900px) {
       .login-wrapper {
         flex-direction: column;
@@ -232,7 +244,7 @@
       .login-container {
         flex: none;
         height: auto;
-        padding: 60px 20px;
+        padding: 40px 20px;
       }
     }
   </style>
@@ -249,27 +261,41 @@
     </form>
 
     <div class="login-container">
-      <form id="loginForm">
+      <form id="registerForm">
         <div class="logo">
           <img src="/assets/images/logo.png" alt="logo" />
         </div>
-        <h2>Đăng Nhập</h2>
+        <h2>Đăng Ký</h2>
+
+        <div class="input-group">
+          <label for="fullname">Họ và Tên</label>
+          <input type="text" id="fullname" placeholder="Nhập họ và tên" required />
+          <div class="error-message" id="fullname-error"></div>
+        </div>
 
         <div class="input-group">
           <label for="email">Email</label>
           <input type="email" id="email" placeholder="Nhập email của bạn" required />
+          <div class="error-message" id="email-error"></div>
         </div>
 
         <div class="input-group">
           <label for="password">Mật khẩu</label>
-          <input type="password" id="password" placeholder="Nhập mật khẩu" required />
+          <input type="password" id="password" placeholder="Nhập mật khẩu (ít nhất 6 ký tự)" required />
+          <div class="error-message" id="password-error"></div>
         </div>
 
-        <button type="submit" class="primary2">Đăng Nhập</button>
-        <p class="alt">Chưa có tài khoản? <a href="/register.html">Đăng ký ngay</a></p>
+        <div class="input-group">
+          <label for="confirmPassword">Xác nhận Mật khẩu</label>
+          <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required />
+          <div class="error-message" id="confirmPassword-error"></div>
+        </div>
+
+        <button type="submit" class="primary2">Đăng Ký</button>
+        <p class="alt">Đã có tài khoản? <a href="/login.html">Đăng nhập tại đây</a></p>
 
         <div class="social-login">
-          <button class="btn-social btn-google" onclick="window.location.href='http://localhost:5000/auth/google'">
+          <button type="button" class="btn-social btn-google" onclick="window.location.href='http://localhost:5000/auth/google'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24" height="24">
               <path fill="#EA4335"
                 d="M24 9.5c3.94 0 6.63 1.7 8.15 3.12l5.92-5.77C34.35 3.24 29.55 1 24 1 14.65 1 7.01 6.82 3.69 14.77l6.98 5.43C12.11 13.15 17.59 9.5 24 9.5z" />
@@ -280,80 +306,92 @@
               <path fill="#4285F4"
                 d="M24 47c6.55 0 12.04-2.17 16.05-5.89l-7.27-5.65C30.83 37.58 27.72 38.5 24 38.5c-6.41 0-11.89-3.65-14.33-8.77l-7.13 6.06C7.01 41.18 14.65 47 24 47z" />
             </svg>
-            <span>Đăng nhập với Google</span>
+            <span>Đăng ký với Google</span>
           </button>
         </div>
       </form>
     </div>
 
     <script>
-      const form = document.getElementById("loginForm");
+      const form = document.getElementById("registerForm");
+
+      // Xoá error message khi user typing
+      document.querySelectorAll("input").forEach((input) => {
+        input.addEventListener("input", () => {
+          const errorEl = document.getElementById(`${input.id}-error`);
+          if (errorEl) {
+            errorEl.style.display = "none";
+          }
+        });
+      });
+
+      function showError(fieldId, message) {
+        const errorEl = document.getElementById(`${fieldId}-error`);
+        if (errorEl) {
+          errorEl.textContent = message;
+          errorEl.style.display = "block";
+        }
+      }
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const email = document.getElementById("email").value;
+        const fullname = document.getElementById("fullname").value.trim();
+        const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        // Validation
+        if (!fullname) {
+          showError("fullname", "Vui lòng nhập họ và tên");
+          return;
+        }
+
+        if (!email) {
+          showError("email", "Vui lòng nhập email");
+          return;
+        }
+
+        if (password.length < 6) {
+          showError("password", "Mật khẩu phải có ít nhất 6 ký tự");
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          showError("confirmPassword", "Mật khẩu xác nhận không khớp");
+          return;
+        }
 
         try {
-          const res = await fetch("http://localhost:5000/auth/login", {
+          const res = await fetch("http://localhost:5000/auth/register", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ fullname, email, password }),
           });
 
           const data = await res.json();
 
           if (data.accessToken) {
             localStorage.setItem("token", data.accessToken);
-            if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
+            if (data.refreshToken) {
+              localStorage.setItem("refreshToken", data.refreshToken);
+            }
 
-            const userRole =
-              (data.user && data.user.role) ||
-              data.role ||
-              JSON.parse(atob(data.accessToken.split(".")[1])).role;
-
-            alert(`Đăng nhập thành công (${userRole}) 🎉`);
-
-            const destination =
-              userRole && userRole.toLowerCase() === "admin"
-                ? "/admin/index.html"
-                : "/Client/dashboard.html";
-
-            window.location.href = destination;
+            alert("Đăng ký thành công! 🎉");
+            window.location.href = "/Client/dashboard.html";
           } else {
-            alert(data.error || "Đăng nhập thất bại");
+            if (data.error.includes("already registered")) {
+              showError("email", "Email này đã được đăng ký");
+            } else {
+              alert(data.error || "Đăng ký thất bại");
+            }
           }
         } catch (err) {
           alert("Có lỗi xảy ra: " + err.message);
         }
       });
-
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("token")) {
-        const token = params.get("token");
-        const refreshToken = params.get("refreshToken");
-
-        localStorage.setItem("token", token);
-        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
-
-        let role = params.get("role");
-        if (!role && token) {
-          try {
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            role = payload?.role || null;
-          } catch (err) {
-            console.error("Không thể giải mã token:", err);
-          }
-        }
-
-        const destination =
-          role && role.toLowerCase() === "admin"
-            ? "/admin/index.html"
-            : "/Client/dashboard.html";
-
-        window.location.href = destination;
-      }
     </script>
 
 </body>

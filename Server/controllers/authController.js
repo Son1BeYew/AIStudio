@@ -3,11 +3,19 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const User = require("../models/User");
 
-const signToken = (user) => {
+const signAccessToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "1h" }
+  );
+};
+
+const signRefreshToken = (user) => {
+  return jwt.sign(
+    { id: user._id, email: user.email },
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+    { expiresIn: "7d" }
   );
 };
 
@@ -30,37 +38,59 @@ exports.register = async (req, res) => {
       fullname,
       email,
       password: hashedPassword,
-      role: role || "user", // ✅ Cho phép nhận role từ body (Postman)
+      role: role || "user",
     });
 
-    const token = signToken(user);
-    res.json({ message: "User registered successfully", token, user });
+    const accessToken = signAccessToken(user);
+    const refreshToken = signRefreshToken(user);
+    
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.json({ 
+      message: "User registered successfully", 
+      accessToken, 
+      refreshToken,
+      user 
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
 exports.login = (req, res, next) => {
-  passport.authenticate("local", { session: false }, (err, user, info) => {
+  passport.authenticate("local", { session: false }, async (err, user, info) => {
     if (err || !user)
       return res.status(400).json({ error: info?.message || "Login failed" });
 
     console.log("✅ Login:", user.email, "Role:", user.role);
-    const token = signToken(user);
-    res.json({ token, user });
+    
+    const accessToken = signAccessToken(user);
+    const refreshToken = signRefreshToken(user);
+    
+    user.refreshToken = refreshToken;
+    await user.save();
+    
+    res.json({ accessToken, refreshToken, user });
   })(req, res, next);
 };
 
-exports.googleCallback = (req, res) => {
+exports.googleCallback = async (req, res) => {
   if (!req.user) return res.redirect("/login.html?error=google_failed");
 
-  const token = signToken(req.user);
+  const accessToken = signAccessToken(req.user);
+  const refreshToken = signRefreshToken(req.user);
+  
+  req.user.refreshToken = refreshToken;
+  await req.user.save();
+  
   const role = (req.user?.role || "user").toLowerCase();
   const baseUrl = process.env.CLIENT_BASE_URL || "http://localhost:5000";
   const targetPath =
     role === "admin" ? "/admin/index.html" : "/Client/dashboard.html";
   const redirectUrl = new URL(targetPath, baseUrl);
-  redirectUrl.searchParams.set("token", token);
+  redirectUrl.searchParams.set("token", accessToken);
+  redirectUrl.searchParams.set("refreshToken", refreshToken);
   redirectUrl.searchParams.set("role", role);
 
   res.redirect(redirectUrl.toString());

@@ -11,103 +11,997 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="../assets/css/admin/admin.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Tab Navigation */
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 15px;
+      }
+
+      .tab-btn {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+      }
+
+      .tab-btn.active {
+        color: #007bff;
+        border-bottom-color: #007bff;
+      }
+
+      .tab-btn:hover {
+        color: #333;
+      }
+
+      /* Tab Content */
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Tables */
+      .table-container {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        background: #f5f7fa;
+        border-bottom: 2px solid #e0e0e0;
+      }
+
+      th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #333;
+      }
+
+      td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      tr:hover {
+        background: #f9fafb;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .badge.active {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .badge.inactive {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .badge.admin {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      .badge.user {
+        background: #e2e3e5;
+        color: #383d41;
+      }
+
+      .action-btn {
+        padding: 6px 12px;
+        margin: 0 2px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .btn-edit {
+        background: #cfe2ff;
+        color: #084298;
+      }
+
+      .btn-edit:hover {
+        background: #b6d4fe;
+      }
+
+      .btn-delete {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .btn-delete:hover {
+        background: #f5c2c7;
+      }
+
+      .btn-primary {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .btn-primary:hover {
+        background: #0056b3;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: inherit;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .search-filter {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .search-filter input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+    </style>
   </head>
 
   <body>
     <div class="admin-container">
       <aside class="sidebar">
         <div class="logo">
-          <p>Hệ Thống Quản Lý</p>
+          <p>🎨 Admin Panel</p>
         </div>
         <nav class="menu">
-          <a class="active"
-            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
-          >
-          <a><i data-lucide="users"></i><span>Danh Sách Account</span></a>
-          <a><i data-lucide="user"></i><span>Người Dùng</span></a>
-          <a><i data-lucide="activity"></i><span>Phân Tích</span></a>
-          <a><i data-lucide="palette"></i><span>Prompts</span></a>
-          <a><i data-lucide="bell"></i><span>Tạo Thông Báo</span></a>
-          <a><i data-lucide="info"></i><span>Thông Tin Người Dùng</span></a>
-          <a><i data-lucide="calendar"></i><span>Thời Gian Biểu</span></a>
-          <a><i data-lucide="bar-chart-3"></i><span>Thống Kê</span></a>
-          <a><i data-lucide="message-square"></i><span>Chat</span></a>
-          <a><i data-lucide="wallet"></i><span>Wallet</span></a>
-          <a><i data-lucide="log-out"></i><span>Đăng Xuất</span></a>
+          <a class="menu-link active" data-section="dashboard">
+            <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+          </a>
+          <a class="menu-link" data-section="account-list">
+            <i data-lucide="users"></i><span>Danh Sách Account</span>
+          </a>
+          <a class="menu-link" data-section="users">
+            <i data-lucide="user"></i><span>Người Dùng</span>
+          </a>
+          <a class="menu-link" data-section="analysis">
+            <i data-lucide="activity"></i><span>Phân Tích</span>
+          </a>
+          <a class="menu-link" data-section="prompts">
+            <i data-lucide="palette"></i><span>Quản Lý Prompts</span>
+          </a>
+          <a class="menu-link" data-section="announcements">
+            <i data-lucide="bell"></i><span>Quản Lý Thông Báo</span>
+          </a>
+          <a class="menu-link" data-section="user-info">
+            <i data-lucide="info"></i><span>Thông Tin Người Dùng</span>
+          </a>
+          <a class="menu-link" data-section="schedule">
+            <i data-lucide="calendar"></i><span>Thời Gian Biểu</span>
+          </a>
+          <a class="menu-link" data-section="statistics">
+            <i data-lucide="bar-chart-3"></i><span>Thống Kê</span>
+          </a>
+          <a class="menu-link" data-section="chat">
+            <i data-lucide="message-square"></i><span>Chat</span>
+          </a>
+          <a class="menu-link" data-section="wallet">
+            <i data-lucide="wallet"></i><span>Wallet</span>
+          </a>
+          <a onclick="logout()" style="cursor: pointer">
+            <i data-lucide="log-out"></i><span>Đăng Xuất</span>
+          </a>
         </nav>
       </aside>
+
       <main class="main">
         <header class="topbar">
           <div class="search-box">
             <i data-lucide="search"></i>
             <input type="text" placeholder="Tìm kiếm..." class="search-input" />
           </div>
-
           <div class="topbar-right">
-            <i data-lucide="bell"></i>
-            <i data-lucide="settings"></i>
             <div class="profile">
-              <img src="../assets/images/avatar.png" alt="avatar" />
-              <span>Hello, <b>Admin</b></span>
+              <span>Admin Account</span>
             </div>
           </div>
         </header>
 
         <section class="content">
-          <div class="header-row">
-            <div>
-              <h2>Dashboard</h2>
-              <p>Hi, chào mừng quay lại</p>
+          <!-- DASHBOARD TAB -->
+          <div class="tab-content active" id="dashboard-tab">
+            <div class="header-row">
+              <div>
+                <h2>Dashboard</h2>
+                <p>Chào mừng quay lại, Admin</p>
+              </div>
             </div>
-            <button class="filter-btn">
-              <i data-lucide="calendar"></i> 17 Apr 2025 - 21 May 2025
-            </button>
+
+            <div class="stats-grid" id="dashboard-stats">
+              <div class="card">
+                <div class="icon-box user"><i data-lucide="users"></i></div>
+                <div>
+                  <h3>-</h3>
+                  <p>Tổng Users</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="icon-box prompt"><i data-lucide="palette"></i></div>
+                <div>
+                  <h3>-</h3>
+                  <p>Tổng Prompts</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="icon-box image"><i data-lucide="image"></i></div>
+                <div>
+                  <h3>-</h3>
+                  <p>Tổng Ảnh Tạo</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="icon-box money">
+                  <i data-lucide="dollar-sign"></i>
+                </div>
+                <div>
+                  <h3>-</h3>
+                  <p>Tổng Tiền</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="charts-grid">
+              <div class="chart-card">
+                <canvas id="userChart"></canvas>
+              </div>
+              <div class="chart-card">
+                <canvas id="imageChart"></canvas>
+              </div>
+            </div>
           </div>
 
-          <div class="stats-grid">
-            <div class="card">
-              <div class="icon-box user"><i data-lucide="users"></i></div>
+          <!-- USERS TAB -->
+          <div class="tab-content" id="users-tab">
+            <div class="header-row">
               <div>
-                <h3>75</h3>
-                <p>Tổng Người Dùng</p>
+                <h2>Quản Lý Users</h2>
+                <p>Danh sách tất cả người dùng trong hệ thống</p>
+              </div>
+              <button class="btn-primary" onclick="openModal('add-user-modal')">
+                <i data-lucide="plus"></i> Thêm User
+              </button>
+            </div>
+
+            <div class="search-filter">
+              <input
+                type="text"
+                id="user-search"
+                placeholder="Tìm theo email hoặc tên..."
+              />
+              <select id="user-role-filter">
+                <option value="">Tất cả Role</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            <div class="table-container">
+              <table id="users-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Ngày Tạo</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="users-tbody">
+                  <tr>
+                    <td colspan="6" class="loading">Đang tải...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PROMPTS TAB -->
+          <div class="tab-content" id="prompts-tab">
+            <div class="header-row">
+              <div>
+                <h2>Quản Lý Prompts</h2>
+                <p>Quản lý các template tạo ảnh</p>
+              </div>
+              <button
+                class="btn-primary"
+                onclick="openModal('add-prompt-modal')"
+              >
+                <i data-lucide="plus"></i> Thêm Prompt
+              </button>
+            </div>
+
+            <div class="search-filter">
+              <input
+                type="text"
+                id="prompt-search"
+                placeholder="Tìm theo tên..."
+              />
+            </div>
+
+            <div class="table-container">
+              <table id="prompts-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Tiêu Đề</th>
+                    <th>Trạng Thái</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="prompts-tbody">
+                  <tr>
+                    <td colspan="5" class="loading">Đang tải...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ANNOUNCEMENTS TAB -->
+          <div class="tab-content" id="announcements-tab">
+            <div class="header-row">
+              <div>
+                <h2>Quản Lý Thông Báo</h2>
+                <p>Tạo và quản lý thông báo cho người dùng</p>
+              </div>
+              <button
+                class="btn-primary"
+                onclick="openModal('add-announcement-modal')"
+              >
+                <i data-lucide="plus"></i> Tạo Thông Báo
+              </button>
+            </div>
+
+            <div class="table-container">
+              <table id="announcements-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tiêu Đề</th>
+                    <th>Nội Dung</th>
+                    <th>Ngày Tạo</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="announcements-tbody">
+                  <tr>
+                    <td colspan="5" class="loading">Đang tải...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ACCOUNT LIST TAB -->
+          <div class="tab-content" id="account-list-tab">
+            <div class="header-row">
+              <h2>Danh Sách Account</h2>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Tên</th>
+                    <th>Role</th>
+                    <th>Trạng Thái</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="account-list-tbody">
+                  <tr>
+                    <td colspan="6" class="loading">Đang tải...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ANALYSIS TAB -->
+          <div class="tab-content" id="analysis-tab">
+            <div class="header-row">
+              <h2>Phân Tích</h2>
+            </div>
+            <div class="stats-row">
+              <div class="card">
+                <div class="icon-box user">
+                  <i data-lucide="trending-up"></i>
+                </div>
+                <div>
+                  <h3 id="analysis-growth">-</h3>
+                  <p>Tăng Trưởng</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="icon-box image"><i data-lucide="zap"></i></div>
+                <div>
+                  <h3 id="analysis-performance">-</h3>
+                  <p>Performance</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="icon-box prompt"><i data-lucide="award"></i></div>
+                <div>
+                  <h3 id="analysis-engagement">-</h3>
+                  <p>Engagement</p>
+                </div>
               </div>
             </div>
-            <div class="card">
-              <div class="icon-box prompt"><i data-lucide="palette"></i></div>
-              <div>
-                <h3>357</h3>
-                <p>Tổng Prompts</p>
-              </div>
-            </div>
-            <div class="card">
-              <div class="icon-box image"><i data-lucide="image"></i></div>
-              <div>
-                <h3>65</h3>
-                <p>Số Lượng Ảnh</p>
-              </div>
-            </div>
-            <div class="card">
-              <div class="icon-box money">
-                <i data-lucide="dollar-sign"></i>
-              </div>
-              <div>
-                <h3>$128</h3>
-                <p>Tổng Tiền</p>
+            <div class="charts-grid">
+              <div class="chart-card">
+                <canvas id="analysisChart"></canvas>
               </div>
             </div>
           </div>
 
-          <!-- BIỂU ĐỒ -->
-          <div class="charts-grid">
-            <div class="chart-card"><canvas id="pieChart"></canvas></div>
-            <div class="chart-card"><canvas id="lineChart"></canvas></div>
-            <div class="chart-card"><canvas id="barChart"></canvas></div>
+          <!-- USER INFO TAB -->
+          <div class="tab-content" id="user-info-tab">
+            <div class="header-row">
+              <h2>Thông Tin Người Dùng</h2>
+            </div>
+            <div class="search-filter">
+              <input
+                type="text"
+                id="user-info-search"
+                placeholder="Tìm theo email..."
+              />
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Ngày Tạo</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="user-info-tbody">
+                  <tr>
+                    <td colspan="5" class="loading">Đang tải...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SCHEDULE TAB -->
+          <div class="tab-content" id="schedule-tab">
+            <div class="header-row">
+              <h2>Thời Gian Biểu</h2>
+            </div>
+            <div style="background: #fff; padding: 20px; border-radius: 12px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Thời Gian</th>
+                    <th>Sự Kiện</th>
+                    <th>Mô Tả</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody id="schedule-tbody">
+                  <tr>
+                    <td colspan="4" class="empty-state">
+                      Không có sự kiện nào được lên lịch
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- CHAT TAB -->
+          <div class="tab-content" id="chat-tab">
+            <div class="header-row">
+              <h2>Chat</h2>
+            </div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 250px 1fr;
+                gap: 15px;
+                height: 500px;
+              "
+            >
+              <div
+                style="
+                  background: #fff;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  display: flex;
+                  flex-direction: column;
+                "
+              >
+                <div
+                  style="
+                    padding: 15px;
+                    border-bottom: 1px solid #e0e0e0;
+                    font-weight: 600;
+                  "
+                >
+                  Cuộc trò chuyện
+                </div>
+                <div
+                  id="chat-list"
+                  style="flex: 1; overflow-y: auto; padding: 10px"
+                ></div>
+              </div>
+              <div
+                style="
+                  background: #fff;
+                  border-radius: 12px;
+                  display: flex;
+                  flex-direction: column;
+                "
+              >
+                <div
+                  style="
+                    padding: 15px;
+                    border-bottom: 1px solid #e0e0e0;
+                    font-weight: 600;
+                  "
+                  id="chat-title"
+                >
+                  Chọn cuộc trò chuyện
+                </div>
+                <div
+                  id="chat-messages"
+                  style="flex: 1; overflow-y: auto; padding: 15px"
+                ></div>
+                <div
+                  style="
+                    padding: 15px;
+                    border-top: 1px solid #e0e0e0;
+                    display: flex;
+                    gap: 10px;
+                  "
+                >
+                  <input
+                    type="text"
+                    id="chat-input"
+                    placeholder="Nhập tin nhắn..."
+                    style="
+                      flex: 1;
+                      padding: 10px;
+                      border: 1px solid #ddd;
+                      border-radius: 8px;
+                    "
+                  />
+                  <button class="btn-primary" style="padding: 10px 20px">
+                    Gửi
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WALLET TAB -->
+          <div class="tab-content" id="wallet-tab">
+            <div class="header-row">
+              <h2>Wallet</h2>
+            </div>
+            <div class="stats-row">
+              <div class="card">
+                <div class="icon-box money">
+                  <i data-lucide="dollar-sign"></i>
+                </div>
+                <div>
+                  <h3 id="wallet-balance">-</h3>
+                  <p>Số Dư</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="icon-box money">
+                  <i data-lucide="arrow-down"></i>
+                </div>
+                <div>
+                  <h3 id="wallet-received">-</h3>
+                  <p>Đã Nhận</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="icon-box money"><i data-lucide="arrow-up"></i></div>
+                <div>
+                  <h3 id="wallet-spent">-</h3>
+                  <p>Đã Chi</p>
+                </div>
+              </div>
+            </div>
+            <div class="search-filter">
+              <input type="text" placeholder="Tìm giao dịch..." />
+              <select>
+                <option>Tất cả</option>
+                <option>Nhận</option>
+                <option>Chi</option>
+              </select>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ngày</th>
+                    <th>Loại</th>
+                    <th>Số Tiền</th>
+                    <th>Mô Tả</th>
+                    <th>Trạng Thái</th>
+                  </tr>
+                </thead>
+                <tbody id="wallet-tbody">
+                  <tr>
+                    <td colspan="5" class="empty-state">
+                      Không có giao dịch nào
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- STATISTICS TAB -->
+          <div class="tab-content" id="statistics-tab">
+            <div class="header-row">
+              <div>
+                <h2>📊 Thống Kê Hôm Nay</h2>
+                <p id="today-date"></p>
+              </div>
+            </div>
+
+            <div class="stats-row" id="stats-details">
+              <div
+                class="card"
+                style="
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: white;
+                  border: none;
+                "
+              >
+                <div
+                  class="icon-box user"
+                  style="background: rgba(255, 255, 255, 0.2); color: white"
+                >
+                  <i data-lucide="image"></i>
+                </div>
+                <div>
+                  <h3
+                    id="stat-images-today"
+                    style="color: white; margin: 0; font-size: 28px"
+                  >
+                    -
+                  </h3>
+                  <p style="color: rgba(255, 255, 255, 0.9); margin: 0">
+                    Ảnh Tạo Hôm Nay
+                  </p>
+                </div>
+              </div>
+              <div
+                class="card"
+                style="
+                  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                  color: white;
+                  border: none;
+                "
+              >
+                <div
+                  class="icon-box image"
+                  style="background: rgba(255, 255, 255, 0.2); color: white"
+                >
+                  <i data-lucide="palette"></i>
+                </div>
+                <div>
+                  <h3
+                    id="stat-prompts-today"
+                    style="color: white; margin: 0; font-size: 28px"
+                  >
+                    -
+                  </h3>
+                  <p style="color: rgba(255, 255, 255, 0.9); margin: 0">
+                    Prompt Tạo Hôm Nay
+                  </p>
+                </div>
+              </div>
+              <div
+                class="card"
+                style="
+                  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                  color: white;
+                  border: none;
+                "
+              >
+                <div
+                  class="icon-box prompt"
+                  style="background: rgba(255, 255, 255, 0.2); color: white"
+                >
+                  <i data-lucide="dollar-sign"></i>
+                </div>
+                <div>
+                  <h3
+                    id="stat-revenue-today"
+                    style="color: white; margin: 0; font-size: 28px"
+                  >
+                    -
+                  </h3>
+                  <p style="color: rgba(255, 255, 255, 0.9); margin: 0">
+                    Doanh Thu Hôm Nay
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 30px">
+              <h3 style="margin-bottom: 20px">📈 Biểu Đồ Chi Tiết</h3>
+              <div class="charts-grid">
+                <div class="chart-card">
+                  <h3>Ảnh Tạo Theo Giờ</h3>
+                  <canvas id="imagesPerHourChart"></canvas>
+                </div>
+                <div class="chart-card">
+                  <h3>Prompts Được Sử Dụng</h3>
+                  <canvas id="promptsUsageChart"></canvas>
+                </div>
+                <div class="chart-card">
+                  <h3>Doanh Thu Theo Giờ</h3>
+                  <canvas id="revenuePerHourChart"></canvas>
+                </div>
+                <div class="chart-card">
+                  <h3>Top Prompts</h3>
+                  <canvas id="topPromptsChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 30px">
+              <h3 style="margin-bottom: 20px">📋 Chi Tiết Giao Dịch Hôm Nay</h3>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Thời Gian</th>
+                      <th>Loại</th>
+                      <th>Số Lượng</th>
+                      <th>Số Tiền</th>
+                      <th>Người Dùng</th>
+                    </tr>
+                  </thead>
+                  <tbody id="stats-transactions-tbody">
+                    <tr>
+                      <td colspan="5" class="loading">Đang tải...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
       </main>
     </div>
 
-    <script src="../assets/js/admin/dashboard.js"></script>
+    <!-- MODALS -->
+    <!-- Add User Modal -->
+    <div class="modal" id="add-user-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span>Thêm User Mới</span>
+          <button class="close-btn" onclick="closeModal('add-user-modal')">
+            &times;
+          </button>
+        </div>
+        <form id="add-user-form">
+          <div class="form-group">
+            <label>Tên</label>
+            <input type="text" id="user-fullname" required />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="user-email" required />
+          </div>
+          <div class="form-group">
+            <label>Mật Khẩu</label>
+            <input type="password" id="user-password" required />
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="user-role">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%">
+            Thêm
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Prompt Modal -->
+    <div class="modal" id="add-prompt-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span>Thêm Prompt Mới</span>
+          <button class="close-btn" onclick="closeModal('add-prompt-modal')">
+            &times;
+          </button>
+        </div>
+        <form id="add-prompt-form">
+          <div class="form-group">
+            <label>Tên (name)</label>
+            <input type="text" id="prompt-name" required />
+          </div>
+          <div class="form-group">
+            <label>Tiêu Đề (title)</label>
+            <input type="text" id="prompt-title" required />
+          </div>
+          <div class="form-group">
+            <label>Mô Tả</label>
+            <textarea id="prompt-description"></textarea>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="prompt-active" checked /> Kích Hoạt
+            </label>
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%">
+            Thêm
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Announcement Modal -->
+    <div class="modal" id="add-announcement-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span>Tạo Thông Báo</span>
+          <button
+            class="close-btn"
+            onclick="closeModal('add-announcement-modal')"
+          >
+            &times;
+          </button>
+        </div>
+        <form id="add-announcement-form">
+          <div class="form-group">
+            <label>Tiêu Đề</label>
+            <input type="text" id="announcement-title" required />
+          </div>
+          <div class="form-group">
+            <label>Nội Dung</label>
+            <textarea id="announcement-content" required></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%">
+            Gửi
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="../assets/js/admin/admin-app.js"></script>
     <script>
       lucide.createIcons();
     </script>

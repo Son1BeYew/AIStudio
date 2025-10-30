@@ -128,20 +128,21 @@ function checkAuth() {
   }
 
   .dropdown a,
-  .dropdown button {
-    padding: 12px 12px;
-    text-align: left;
-    background: transparent;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    font-size: 14px;
-    color: #2a2a2aff;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    position: relative;
-     text-decoration: none; 
-  }
+.dropdown button {
+  padding: 12px 12px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2a2a2aff;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  text-decoration: none !important;
+}
+
 
   .dropdown a:hover,
   .dropdown button:hover {

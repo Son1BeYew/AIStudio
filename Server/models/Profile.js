@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 
-// 🧩 Định nghĩa cấu trúc (Schema) cho Hồ sơ cá nhân người dùng
 const profileSchema = new mongoose.Schema(
   {
-    // Liên kết với bảng User (mỗi người dùng chỉ có 1 hồ sơ)
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // liên kết (reference) tới model "User"
+      ref: "User",
       required: true,
       unique: true, // mỗi user chỉ có 1 hồ sơ
     },

@@ -1,10 +1,12 @@
 const express = require("express");
-const multer = require("multer");
 const jwt = require("jsonwebtoken");
-const { generateFaceImage } = require("../controllers/aiController");
-
 const router = express.Router();
-const upload = multer({ dest: "uploads/" });
+const {
+  getUserHistory,
+  getHistoryById,
+  deleteHistory,
+  getHistoryStats,
+} = require("../controllers/historyController");
 
 // Middleware auth
 const checkAuth = (req, res, next) => {
@@ -23,6 +25,9 @@ const checkAuth = (req, res, next) => {
   }
 };
 
-router.post("/generate", checkAuth, upload.single("image"), generateFaceImage);
+router.get("/stats", checkAuth, getHistoryStats);
+router.get("/:id", checkAuth, getHistoryById);
+router.delete("/:id", checkAuth, deleteHistory);
+router.get("/", checkAuth, getUserHistory);
 
 module.exports = router;

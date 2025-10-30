@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nạp Tiền - EternaPicSHT Studio</title>
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/header.css" />
+    <link rel="stylesheet" href="/assets/css/footer.css" />
+    <style>
+      .topup-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      .topup-wrapper {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topup-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .topup-card h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #222;
+      }
+
+      .topup-card p {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+
+      .history-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #555;
+        box-shadow: 0 0 0 3px rgba(85, 85, 85, 0.1);
+      }
+
+      .amount-presets {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .amount-btn {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f5f5f5;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        font-size: 13px;
+      }
+
+      .amount-btn:hover {
+        background: #e5e5e5;
+        border-color: #555;
+      }
+
+      .amount-btn.active {
+        background: #555;
+        color: #fff;
+        border-color: #555;
+      }
+
+      .payment-method {
+        margin: 20px 0;
+      }
+
+      .payment-method h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #333;
+      }
+
+      .method-options {
+        display: flex;
+        gap: 10px;
+      }
+
+      .method-option {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s;
+      }
+
+      .method-option:hover {
+        border-color: #555;
+      }
+
+      .method-option.active {
+        border-color: #555;
+        background: #f5f5f5;
+      }
+
+      .method-option input {
+        display: none;
+      }
+
+      .topup-btn {
+        width: 100%;
+        padding: 14px;
+        background: #555;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 10px;
+      }
+
+      .topup-btn:hover:not(:disabled) {
+        background: #333;
+      }
+
+      .topup-btn:disabled {
+        background: #999;
+        cursor: not-allowed;
+      }
+
+      .history-section {
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      .history-section h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+      }
+
+      .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .history-item {
+        padding: 12px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .history-info {
+        flex: 1;
+      }
+
+      .history-amount {
+        font-weight: 600;
+        color: #2ecc71;
+      }
+
+      .history-time {
+        font-size: 12px;
+        color: #999;
+      }
+
+      .history-status {
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .status-success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-pending {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .status-failed {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .view-all-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 15px;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #555;
+        transition: all 0.3s;
+        font-size: 14px;
+      }
+
+      .view-all-btn:hover {
+        background: #e5e5e5;
+        border-color: #555;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 15px;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .close-btn:hover {
+        color: #333;
+      }
+
+      .modal-history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .info-message {
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: #004085;
+      }
+
+      .balance-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .balance-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        opacity: 0.9;
+        font-weight: 500;
+      }
+
+      .balance-amount {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.5px;
+      }
+
+      .balance-unit {
+        font-size: 18px;
+        opacity: 0.9;
+        margin-left: 5px;
+      }
+
+      @media (max-width: 1024px) {
+        .topup-container {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .history-card {
+          position: static;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .topup-container {
+          padding: 15px;
+          margin: 20px auto;
+        }
+
+        .topup-card,
+        .history-card {
+          padding: 20px;
+        }
+
+        .topup-card h2 {
+          font-size: 20px;
+        }
+
+        .history-section h3 {
+          font-size: 16px;
+        }
+
+        .amount-presets {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .method-options {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header"></div>
+
+    <div class="topup-container">
+      <div class="topup-wrapper">
+        <div class="topup-card">
+          <div class="balance-card">
+            <h3>Số Dư Tài Khoản</h3>
+            <div style="display: flex; align-items: baseline;">
+              <span class="balance-amount" id="balance-display">0</span>
+              <span class="balance-unit">đ</span>
+            </div>
+          </div>
+
+          <h2> Nạp Tiền</h2>
+        <p>Nạp tiền vào tài khoản để sử dụng các tính năng tạo ảnh</p>
+
+        <div class="info-message">
+          Hiện tại chúng tôi hỗ trợ thanh toán qua Momo. Kênh thanh toán sẽ được cập nhật sau.
+        </div>
+
+        <div class="form-group">
+          <label>Chọn số tiền nạp</label>
+          <div class="amount-presets">
+            <button class="amount-btn" data-amount="20000">20K</button>
+            <button class="amount-btn" data-amount="50000">50K</button>
+            <button class="amount-btn" data-amount="100000">100K</button>
+            <button class="amount-btn" data-amount="200000">200K</button>
+            <button class="amount-btn" data-amount="500000">500K</button>
+            <button class="amount-btn" data-amount="1000000">1M</button>
+          </div>
+          <input
+            type="number"
+            id="amount-input"
+            placeholder="Hoặc nhập số tiền (VNĐ)"
+            min="1000"
+            step="1000"
+          />
+        </div>
+
+        <div class="payment-method">
+          <h3>Phương thức thanh toán</h3>
+          <div class="method-options">
+            <label class="method-option active">
+              <input
+                type="radio"
+                name="payment-method"
+                value="momo"
+                checked
+              />
+              <span> Momo</span>
+            </label>
+          </div>
+        </div>
+
+        <button class="topup-btn" id="topup-btn" disabled>Nạp Tiền Ngay</button>
+        </div>
+      </div>
+
+      <div class="history-card">
+        <div class="history-section">
+          <h3> Lịch Sử Nạp Tiền</h3>
+          <div class="history-list" id="history-list">
+            <p style="text-align: center; color: #999;">Chưa có lịch sử nạp tiền</p>
+          </div>
+          <button class="view-all-btn" id="view-all-btn" style="display: none;">Xem Tất Cả</button>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal cho lịch sử đầy đủ -->
+    <div class="modal" id="history-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Lịch Sử Nạp Tiền</h2>
+          <button class="close-btn" id="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-history-list" id="modal-history-list">
+          <p style="text-align: center; color: #999;">Đang tải...</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer"></div>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+      const amountInput = document.getElementById("amount-input");
+      const topupBtn = document.getElementById("topup-btn");
+      const amountBtns = document.querySelectorAll(".amount-btn");
+      const historyList = document.getElementById("history-list");
+      let selectedAmount = null;
+
+      // Check login
+      function checkLogin() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Vui lòng đăng nhập trước");
+          window.location.href = "/login.html";
+          return false;
+        }
+        return true;
+      }
+
+      amountBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          amountBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedAmount = parseInt(btn.dataset.amount);
+          amountInput.value = selectedAmount;
+          updateTopupBtn();
+        });
+      });
+
+      amountInput.addEventListener("input", () => {
+        amountBtns.forEach((b) => b.classList.remove("active"));
+        selectedAmount = parseInt(amountInput.value) || null;
+        updateTopupBtn();
+      });
+
+      function updateTopupBtn() {
+        topupBtn.disabled = !selectedAmount || selectedAmount < 1000;
+      }
+
+      // Topup button
+      topupBtn.addEventListener("click", async () => {
+        if (!checkLogin()) return;
+
+        const token = localStorage.getItem("token");
+        const amount = selectedAmount || parseInt(amountInput.value);
+
+        if (!amount || amount < 1000) {
+          alert("Vui lòng nhập số tiền hợp lệ (tối thiểu 1000đ)");
+          return;
+        }
+
+        try {
+          topupBtn.disabled = true;
+          topupBtn.textContent = "⏳ Đang xử lý...";
+
+          const response = await fetch("/api/topup/create-momo", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ amount }),
+          });
+
+          console.log("📡 Response status:", response.status);
+          console.log("📡 Response headers:", response.headers);
+          
+          const text = await response.text();
+          console.log("📡 Response body:", text);
+          
+          const result = JSON.parse(text);
+          console.log("📡 Parsed result:", result);
+
+          if (result.success && result.payUrl) {
+            // Redirect to Momo payment
+            window.location.href = result.payUrl;
+          } else {
+            alert("Lỗi: " + (result.error || result.message || "Không thể tạo link thanh toán"));
+          }
+        } catch (error) {
+          console.error("❌ Lỗi:", error);
+          alert("Lỗi khi tạo link thanh toán: " + error.message);
+        } finally {
+          topupBtn.disabled = false;
+          topupBtn.textContent = "Nạp Tiền Ngay";
+        }
+      });
+
+      function renderHistoryItems(items, limit = null) {
+        const itemsToShow = limit ? items.slice(0, limit) : items;
+        return itemsToShow
+          .map((item) => {
+            const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
+            const statusClass = `status-${item.status}`;
+            const statusText =
+              item.status === "success"
+                ? "✓ Thành công"
+                : item.status === "pending"
+                  ? " Chờ xử lý"
+                  : "✗ Thất bại";
+
+            return `
+              <div class="history-item">
+                <div class="history-info">
+                  <div class="history-amount">+${item.amount.toLocaleString()}đ</div>
+                  <div class="history-time">${date}</div>
+                </div>
+                <span class="history-status ${statusClass}">${statusText}</span>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      // Load user's current balance
+      async function loadBalance() {
+        if (!checkLogin()) return;
+
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/topup/balance", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!response.ok) {
+            console.error("❌ Balance API error:", response.status);
+            document.getElementById("balance-display").textContent = "0";
+            return;
+          }
+
+          const data = await response.json();
+          const balance = data.balance || 0;
+          
+          document.getElementById("balance-display").textContent = balance.toLocaleString("vi-VN");
+          console.log("✅ Balance loaded:", balance, "from:", data);
+        } catch (error) {
+          console.error("❌ Error loading balance:", error);
+          document.getElementById("balance-display").textContent = "0";
+        }
+      }
+
+      // Load topup history (10 items only)
+      let allHistory = [];
+      async function loadHistory() {
+        if (!checkLogin()) return;
+
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/topup/history", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          allHistory = await response.json();
+
+          if (allHistory.length === 0) {
+            historyList.innerHTML =
+              '<p style="text-align: center; color: #999;">Chưa có lịch sử nạp tiền</p>';
+            document.getElementById("view-all-btn").style.display = "none";
+            return;
+          }
+
+          // Show only 10 items
+          historyList.innerHTML = renderHistoryItems(allHistory, 6);
+
+          // Show "View All" button if more than 10 items
+          const viewAllBtn = document.getElementById("view-all-btn");
+          if (allHistory.length > 10) {
+            viewAllBtn.style.display = "block";
+          } else {
+            viewAllBtn.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Lỗi load history:", error);
+          historyList.innerHTML =
+            '<p style="text-align: center; color: #f00;">Không thể tải lịch sử nạp tiền</p>';
+        }
+      }
+
+      // Load all history in modal
+      function showAllHistory() {
+        const modal = document.getElementById("history-modal");
+        const modalHistoryList = document.getElementById("modal-history-list");
+
+        if (allHistory.length === 0) {
+          modalHistoryList.innerHTML =
+            '<p style="text-align: center; color: #999;">Không có lịch sử nạp tiền</p>';
+        } else {
+          modalHistoryList.innerHTML = renderHistoryItems(allHistory);
+        }
+
+        modal.classList.add("active");
+      }
+
+      // Close modal
+      function closeModal() {
+        document.getElementById("history-modal").classList.remove("active");
+      }
+
+      // Auto-refresh history every 3 seconds while page is visible
+      let refreshInterval = null;
+
+      function startAutoRefresh() {
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+          loadBalance();
+          loadHistory();
+        }, 3000); // Refresh every 3 seconds
+      }
+
+      function stopAutoRefresh() {
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          refreshInterval = null;
+        }
+      }
+
+      // Load on page load
+      document.addEventListener("DOMContentLoaded", () => {
+        loadBalance();
+        loadHistory();
+
+        // Start auto-refresh when page gets focus (user comes back from payment)
+        window.addEventListener("focus", startAutoRefresh);
+        window.addEventListener("blur", stopAutoRefresh);
+
+        // Also start auto-refresh on page load (in case user just returned)
+        startAutoRefresh();
+
+        // View All button
+        document.getElementById("view-all-btn").addEventListener("click", showAllHistory);
+
+        // Close modal button
+        document.getElementById("close-modal-btn").addEventListener("click", closeModal);
+
+        // Close modal when clicking outside
+        document.getElementById("history-modal").addEventListener("click", (e) => {
+          if (e.target.id === "history-modal") {
+            closeModal();
+          }
+        });
+      });
+
+      // Stop refresh when page unloads
+      window.addEventListener("beforeunload", stopAutoRefresh);
+    </script>
+  </body>
+</html>

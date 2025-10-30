@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kết Quả Nạp Tiền - EternaPicSHT Studio</title>
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/header.css" />
+    <link rel="stylesheet" href="/assets/css/footer.css" />
+    <style>
+      .result-container {
+        max-width: 600px;
+        margin: 80px auto;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .result-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 40px 30px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .result-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      .result-icon.success {
+        animation: scaleIn 0.5s ease-out;
+      }
+
+      @keyframes scaleIn {
+        0% {
+          transform: scale(0);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .result-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #222;
+      }
+
+      .result-message {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      .result-amount {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2ecc71;
+        margin: 20px 0;
+      }
+
+      .result-info {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #ddd;
+        border-top-color: #555;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .status-success {
+        color: #155724;
+      }
+
+      .status-failed {
+        color: #721c24;
+      }
+
+      .status-pending {
+        color: #856404;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+        justify-content: center;
+      }
+
+      .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      button.btn {
+        font-family: inherit;
+      }
+
+      .btn-primary {
+        background: #555;
+        color: #fff;
+      }
+
+      .btn-primary:hover,
+      button.btn-primary:hover {
+        background: #333;
+      }
+
+      .btn-primary:disabled {
+        background: #999;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        background: #f5f5f5;
+        color: #555;
+        border: 1px solid #ddd;
+      }
+
+      .btn-secondary:hover,
+      button.btn-secondary:hover {
+        background: #e5e5e5;
+      }
+
+      .error-box {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 15px;
+        color: #721c24;
+        margin-top: 20px;
+      }
+
+      .success-box {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        padding: 15px;
+        color: #155724;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header"></div>
+
+    <div class="result-container">
+      <div class="result-card">
+        <div id="result-content">
+          <div class="loading-spinner"></div>
+          <p class="result-message">Đang kiểm tra kết quả thanh toán...</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer"></div>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+      const resultContainer = document.getElementById("result-content");
+      let checkCount = 0;
+      const maxChecks = 30; // Check for 30 seconds max
+
+      async function checkPaymentStatus() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const topupId = params.get("id");
+
+          if (!topupId) {
+            showError("Không tìm thấy ID giao dịch");
+            return;
+          }
+
+          const response = await fetch(`/api/topup/status/${topupId}`);
+          const data = await response.json();
+
+          if (data.status === "success") {
+            showSuccess(data);
+            return;
+          }
+
+          if (data.status === "failed") {
+            showFailed(data);
+            return;
+          }
+
+          // Still pending, check again
+          checkCount++;
+          if (checkCount < maxChecks) {
+            setTimeout(checkPaymentStatus, 1000); // Check every 1 second
+          } else {
+            // If still pending after max checks, show option to finalize or check again
+            showTimeoutMessage(topupId);
+          }
+        } catch (error) {
+          console.error("Lỗi kiểm tra trạng thái:", error);
+          showError("Lỗi kiểm tra trạng thái: " + error.message);
+        }
+      }
+
+      // Trigger final check and finalize payment
+      async function finalizePayment(topupId) {
+        try {
+          resultContainer.innerHTML = `
+            <div class="loading-spinner"></div>
+            <p class="result-message">Đang xác nhận thanh toán...</p>
+          `;
+
+          // First check if Momo callback arrived (production)
+          let response = await fetch(`/api/topup/check-momo-status/${topupId}`);
+          let data = await response.json();
+
+          if (data.status === "success") {
+            showSuccess(data);
+            return;
+          }
+
+          // If not marked success yet, try mock callback as fallback
+          response = await fetch(`/api/topup/mock-callback/${topupId}`);
+          data = await response.json();
+
+          if (data.topUp && data.topUp.status === "success") {
+            showSuccess(data.topUp);
+          } else {
+            checkCount = 0;
+            checkPaymentStatus();
+          }
+        } catch (error) {
+          console.error("Lỗi xác nhận:", error);
+          showError("Lỗi xác nhận thanh toán: " + error.message);
+        }
+      }
+
+      function showTimeoutMessage(topupId) {
+        resultContainer.innerHTML = `
+          <div class="result-icon">⏳</div>
+          <div class="result-title status-pending">Chờ Xác Nhận Thanh Toán</div>
+          <div class="result-message">Hệ thống đang xác nhận giao dịch của bạn</div>
+          <div class="result-info">
+            Nếu bạn đã hoàn thành thanh toán trên Momo, vui lòng nhấn "Kiểm Tra Lại" để cập nhật trạng thái.
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="finalizePayment('${topupId}')">Kiểm Tra Lại</button>
+            <a href="/topup.html" class="btn btn-secondary">← Quay lại Nạp Tiền</a>
+          </div>
+        `;
+      }
+
+      function showSuccess(data) {
+        resultContainer.innerHTML = `
+          <div class="result-icon success">✓</div>
+          <div class="result-title status-success">Nạp Tiền Thành Công!</div>
+          <div class="result-message">Tiền đã được nạp vào tài khoản của bạn</div>
+          <div class="result-amount">+${data.amount.toLocaleString()}đ</div>
+          <div class="result-info">
+            <strong>Mã giao dịch:</strong> ${data._id}<br>
+            <strong>Phương thức:</strong> ${data.method}<br>
+            <strong>Thời gian:</strong> ${new Date(data.createdAt).toLocaleString("vi-VN")}
+          </div>
+          <div class="success-box">
+            ✓ Bạn có thể sử dụng tiền nạp để tạo ảnh ngay lập tức
+          </div>
+          <div class="btn-group">
+            <a href="/topup.html" class="btn btn-primary">← Quay lại Nạp Tiền</a>
+            <a href="/studio.html" class="btn btn-secondary">Tạo Ảnh →</a>
+          </div>
+        `;
+      }
+
+      function showFailed(data) {
+        resultContainer.innerHTML = `
+          <div class="result-icon">✗</div>
+          <div class="result-title status-failed">Nạp Tiền Thất Bại</div>
+          <div class="result-message">Giao dịch không thành công. Vui lòng thử lại.</div>
+          <div class="error-box">
+            Giao dịch đã bị hủy hoặc thất bại. Không có tiền nào bị trừ từ tài khoản Momo của bạn.
+          </div>
+          <div class="btn-group">
+            <a href="/topup.html" class="btn btn-primary">← Quay lại Nạp Tiền</a>
+          </div>
+        `;
+      }
+
+
+
+      function showError(message) {
+        resultContainer.innerHTML = `
+          <div class="result-icon">⚠</div>
+          <div class="result-title">Lỗi</div>
+          <div class="error-box">${message}</div>
+          <div class="btn-group">
+            <a href="/topup.html" class="btn btn-primary">← Quay lại Nạp Tiền</a>
+          </div>
+        `;
+      }
+
+      // Check payment status on page load
+      document.addEventListener("DOMContentLoaded", checkPaymentStatus);
+    </script>
+  </body>
+</html>
