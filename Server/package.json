@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "node server.js"
+    "test": "node server.js",
+    "seed:outfits": "node scripts/seedOutfitStyles.js",
+    "reseed:outfits": "node scripts/clearAndSeedOutfits.js",
+    "seed:trends": "node scripts/seedTrendingPrompts.js"
   },
   "keywords": [],
   "author": "",
