@@ -361,21 +361,46 @@ button.full {
 /* --- Mobile lớn (≤768px) --- */
 @media (max-width: 768px) {
   /* HEADER */
+  header {
+    padding: 12px 20px;
+  }
+
   nav {
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+  }
+
+  nav .logo {
+    font-size: 1.3rem;
+  }
+
+  nav .logo img {
+    width: 45px;
   }
 
   nav .nav-links {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
+    order: 3;
+    width: 100%;
+  }
+
+  nav .nav-links a {
+    margin: 0;
+    font-size: 0.85rem;
+    padding: 6px 10px;
   }
 
   nav .auth {
     flex-direction: column;
     gap: 10px;
+  }
+
+  nav .auth button {
+    padding: 12px 24px !important;
+    font-size: 0.9rem !important;
   }
 
   /* HERO SECTION */
