@@ -1,6 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const { generateFaceImage } = require("../controllers/aiController");
+const { generateFaceImage, generateOutfit, generateBackground } = require("../controllers/aiController");
 const { upload, attachCloudinaryFile } = require("../config/multerCloudinary");
 
 const router = express.Router();
@@ -47,6 +47,34 @@ router.post(
     });
   },
   generateFaceImage
+);
+
+router.post(
+  "/generate-outfit",
+  checkAuth,
+  (req, res, next) => {
+    console.log("📬 POST /generate-outfit request received");
+    upload.single("image")(req, res, (err) => {
+      handleMulterError(err, req, res, () => {
+        attachCloudinaryFile(req, res, next);
+      });
+    });
+  },
+  generateOutfit
+);
+
+router.post(
+  "/generate-background",
+  checkAuth,
+  (req, res, next) => {
+    console.log("📬 POST /generate-background request received");
+    upload.single("image")(req, res, (err) => {
+      handleMulterError(err, req, res, () => {
+        attachCloudinaryFile(req, res, next);
+      });
+    });
+  },
+  generateBackground
 );
 
 module.exports = router;

@@ -177,9 +177,153 @@ function checkAuth() {
 
 function logout() {
   localStorage.removeItem("token");
-  if (window.location.pathname.toLowerCase().includes("/index.html")) {
-    window.location.reload();
+  localStorage.removeItem("refreshToken");
+  window.location.href = "/index.html";
+}
+
+function redirectToGenImage() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    showLoginModalHome();
+    return;
+  }
+  window.location.href = "/genImage.html";
+}
+
+function showLoginModalHome() {
+  // Tạo modal nếu chưa có
+  let modal = document.getElementById("loginModalHome");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "loginModalHome";
+    modal.className = "login-modal-home";
+    modal.innerHTML = `
+      <div class="modal-overlay-home"></div>
+      <div class="modal-content-home">
+        <button class="modal-close-home" onclick="closeLoginModalHome()">×</button>
+        <div class="modal-icon-home">🔐</div>
+        <h2>Vui lòng đăng nhập</h2>
+        <p>Bạn cần đăng nhập để sử dụng các chức năng này</p>
+        <a href="/login.html" class="modal-btn-login-home">Đến trang đăng nhập</a>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Thêm CSS
+    const style = document.createElement("style");
+    style.innerHTML = `
+      .login-modal-home {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .modal-overlay-home {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content-home {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        animation: slideInHome 0.3s ease;
+      }
+
+      .modal-close-home {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 32px;
+        cursor: pointer;
+        color: #999;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .modal-close-home:hover {
+        background: #f3f4f6;
+        color: #333;
+      }
+
+      .modal-icon-home {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .modal-content-home h2 {
+        font-size: 20px;
+        color: #1f2937;
+        margin: 0 0 12px 0;
+      }
+
+      .modal-content-home p {
+        color: #6b7280;
+        margin: 0 0 24px 0;
+        font-size: 14px;
+      }
+
+      .modal-btn-login-home {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .modal-btn-login-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      @keyframes slideInHome {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Xử lý click overlay
+    const overlay = modal.querySelector(".modal-overlay-home");
+    overlay.addEventListener("click", closeLoginModalHome);
   } else {
-    window.location.href = "./login.html";
+    modal.style.display = "flex";
+  }
+}
+
+function closeLoginModalHome() {
+  const modal = document.getElementById("loginModalHome");
+  if (modal) {
+    modal.style.display = "none";
   }
 }
