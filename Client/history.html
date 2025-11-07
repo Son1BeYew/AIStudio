@@ -554,9 +554,9 @@
 
       // Download image
       function downloadImage(imagePath, promptName) {
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = imagePath;
-        link.download = `${promptName || 'generated'}-${Date.now()}.png`;
+        link.download = `${promptName || "generated"}-${Date.now()}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -565,11 +565,12 @@
       // Share to Facebook
       function shareToFacebook(imagePath) {
         const imageUrl = window.location.origin + imagePath;
-        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(imageUrl)}&quote=Ảnh được tạo bởi EternaPicSHT Studio`;
-        window.open(facebookUrl, 'facebook-share', 'width=600,height=400');
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          imageUrl
+        )}&quote=Ảnh được tạo bởi EternaPicSHT Studio`;
+        window.open(facebookUrl, "facebook-share", "width=600,height=400");
       }
 
-      // Load on page load
       document.addEventListener("DOMContentLoaded", () => {
         if (checkLogin()) {
           loadImagesHistory();

@@ -247,37 +247,64 @@ body {
 }
 
 @media (max-width: 1024px) {
-  .content-wrapper {
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    padding: 20px;
+  .container {
+    padding: 15px 0;
   }
-}
 
-@media (max-width: 768px) {
   .tab-navigation {
-    padding: 15px;
-    gap: 5px;
+    padding: 15px 20px;
+    gap: 8px;
   }
 
   .tab-button {
-    padding: 8px 15px;
+    padding: 9px 18px;
     font-size: 13px;
   }
 
   .title {
-    font-size: 22px;
+    font-size: 24px;
     margin-top: 20px;
   }
 
   .subtitle {
     font-size: 14px;
   }
+}
+
+@media (max-width: 768px) {
+  .tab-navigation {
+    padding: 12px 15px;
+    gap: 6px;
+  }
+
+  .tab-button {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .title {
+    font-size: 20px;
+    margin-top: 15px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
 
   .content-wrapper {
     grid-template-columns: 1fr;
     gap: 15px;
-    padding: 20px;
+    padding: 15px;
+    margin: 0 10px;
+  }
+
+  .upload-box,
+  .settings-box,
+  .output-box {
+    padding: 18px 20px;
+    width: 100%;
+    margin: 0;
   }
 
   .upload-area {
@@ -290,35 +317,42 @@ body {
   }
 
   .download-btn {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .upload-box,
-  .settings-box,
-  .output-box {
-    padding: 20px;
+    font-size: 13px;
+    padding: 11px;
+    margin-top: 12px;
   }
 }
 
 @media (max-width: 640px) {
   .container {
-    padding: 15px;
-    gap: 15px;
+    padding: 0;
+    gap: 0;
+  }
+
+  .tab-navigation {
+    padding: 10px 12px;
+    gap: 5px;
+  }
+
+  .tab-button {
+    padding: 8px 12px;
+    font-size: 11px;
   }
 
   .upload-box,
   .settings-box,
   .output-box {
     width: 100%;
-    padding: 15px 20px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    margin: 0;
   }
 
   .upload-box h3,
   .settings-box h3,
   .output-box h3 {
-    font-size: 16px;
-    margin-bottom: 15px;
+    font-size: 15px;
+    margin-bottom: 14px;
   }
 
   .upload-area {
@@ -341,11 +375,12 @@ body {
 
   .settings-box label {
     font-size: 13px;
-    margin: 12px 0 4px;
+    margin: 12px 0 5px;
   }
 
   .settings-box select,
-  .settings-box input[type="range"] {
+  .settings-box input[type="range"],
+  .settings-box textarea {
     padding: 8px;
     font-size: 13px;
   }
@@ -356,52 +391,68 @@ body {
   }
 
   .download-btn {
-    font-size: 13px;
+    font-size: 12px;
     padding: 10px 12px;
     gap: 6px;
+    margin-top: 10px;
   }
 
   .output-info {
     font-size: 12px;
     padding: 10px 12px;
+    margin-bottom: 10px;
   }
 }
 
 @media (max-width: 480px) {
   .container {
-    padding: 12px;
-    gap: 12px;
+    padding: 0;
+    gap: 0;
   }
 
   .tab-navigation {
-    padding: 12px 15px;
-    gap: 6px;
+    padding: 10px 10px;
+    gap: 4px;
   }
 
   .tab-button {
-    padding: 8px 12px;
-    font-size: 11px;
+    padding: 7px 10px;
+    font-size: 10px;
+  }
+
+  .title {
+    font-size: 18px;
+    margin-top: 12px;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    margin-bottom: 15px;
   }
 
   .content-wrapper {
-    padding: 15px;
+    padding: 12px;
     gap: 12px;
+    margin: 0;
+    border: none;
+    box-shadow: none;
   }
 
   .upload-box,
   .settings-box,
   .output-box {
     width: 100%;
-    padding: 12px 15px;
-    border-radius: 10px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin: 0;
   }
 
   .upload-box h3,
   .settings-box h3,
   .output-box h3 {
-    font-size: 15px;
+    font-size: 14px;
     margin-bottom: 12px;
-    font-weight: 600;
   }
 
   .upload-area {
@@ -425,17 +476,18 @@ body {
 
   .btn {
     font-size: 12px;
-    padding: 6px 12px;
+    padding: 7px 13px;
   }
 
   .settings-box label {
     font-size: 12px;
-    margin: 10px 0 3px;
+    margin: 10px 0 4px;
   }
 
   .settings-box select,
-  .settings-box input[type="range"] {
-    padding: 6px;
+  .settings-box input[type="range"],
+  .settings-box textarea {
+    padding: 7px;
     font-size: 12px;
   }
 
@@ -450,7 +502,7 @@ body {
   }
 
   .output-placeholder {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .output-placeholder p {
@@ -468,48 +520,63 @@ body {
   }
 
   .download-btn {
-    font-size: 12px;
-    padding: 10px;
-    margin-top: 10px;
+    font-size: 11px;
+    padding: 9px 10px;
+    margin-top: 9px;
     gap: 5px;
   }
 
   .download-btn span {
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 
 @media (max-width: 360px) {
   .container {
-    padding: 10px;
-    gap: 10px;
+    padding: 0;
+    gap: 0;
   }
 
   .tab-navigation {
-    padding: 10px 12px;
-    gap: 5px;
+    padding: 8px 8px;
+    gap: 3px;
   }
 
   .tab-button {
-    padding: 6px 10px;
-    font-size: 10px;
+    padding: 6px 9px;
+    font-size: 9px;
+  }
+
+  .title {
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    margin-bottom: 12px;
   }
 
   .content-wrapper {
-    padding: 12px;
+    padding: 10px;
     gap: 10px;
+    margin: 0;
+    border: none;
+    box-shadow: none;
   }
 
   .upload-box,
   .settings-box,
   .output-box {
-    padding: 10px 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
   }
 
   .upload-box h3,
   .settings-box h3,
   .output-box h3 {
-    font-size: 14px;
+    font-size: 13px;
     margin-bottom: 10px;
   }
 
@@ -520,30 +587,59 @@ body {
 
   .upload-icon {
     width: 35px;
+    margin-bottom: 6px;
   }
 
   .upload-content p {
     font-size: 12px;
   }
 
-  .settings-box label,
-  .output-info {
+  .small {
     font-size: 11px;
   }
 
-  .btn,
-  .download-btn {
+  .btn {
     font-size: 11px;
-    padding: 8px 10px;
+    padding: 6px 11px;
+  }
+
+  .settings-box label {
+    font-size: 11px;
+    margin: 8px 0 3px;
+  }
+
+  .settings-box select,
+  .settings-box input[type="range"],
+  .settings-box textarea {
+    padding: 6px;
+    font-size: 11px;
   }
 
   .output-area {
     min-height: 180px;
     padding: 10px;
+    margin-bottom: 8px;
   }
 
   .output-area img {
     max-height: 220px;
+  }
+
+  .output-info {
+    font-size: 10px;
+    padding: 7px 9px;
+    margin-bottom: 8px;
+  }
+
+  .download-btn {
+    font-size: 10px;
+    padding: 8px 9px;
+    margin-top: 8px;
+    gap: 4px;
+  }
+
+  .download-btn span {
+    font-size: 12px;
   }
 }
 
@@ -556,6 +652,21 @@ body {
   padding: 20px 30px;
   background-color: #a8a8a8;
   border-bottom: 1px solid #999999;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.tab-navigation::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tab-navigation::-webkit-scrollbar-track {
+  background: #999;
+}
+
+.tab-navigation::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 2px;
 }
 
 .tab-button {
@@ -569,6 +680,8 @@ body {
   border-radius: 8px;
   transition: all 0.3s ease;
   position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tab-button:hover {
@@ -616,6 +729,33 @@ body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
+@media (max-width: 1200px) {
+  .content-wrapper {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+}
+
 /* ========== TEXTAREA STYLING ========== */
 .settings-box textarea {
   width: 100%;
@@ -631,6 +771,246 @@ body {
   outline: none;
   border-color: #555;
   box-shadow: 0 0 5px rgba(85, 85, 85, 0.1);
+}
+
+/* ========== HOT TREND SECTION ========== */
+.content-wrapper-trends {
+  padding: 20px;
+}
+
+.trends-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.trends-section h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.trend-creator-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.trend-creator-section .content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 1200px) {
+  .trend-creator-section .content-wrapper {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .trend-creator-section .content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+.trends-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 220px;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.trend-card {
+  cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.trend-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(0, 136, 204, 0.3);
+}
+
+.trend-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.trend-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.trend-card:hover .trend-image {
+  transform: scale(1.1);
+}
+
+.trend-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.trend-card:hover .trend-overlay {
+  opacity: 1;
+}
+
+.trend-overlay p {
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  padding: 10px;
+}
+
+#hot-trend-tab .content-wrapper {
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 30px;
+  gap: 30px;
+}
+
+/* Trend notification */
+.trend-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  opacity: 0;
+  transform: translateX(400px);
+  transition: all 0.3s ease;
+  z-index: 10000;
+  max-width: 300px;
+}
+
+.trend-notification.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.notification-content strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+
+.notification-content p {
+  font-size: 12px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .trends-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .trends-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 160px;
+    gap: 12px;
+  }
+
+  .trend-notification {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .trends-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 140px;
+    gap: 10px;
+  }
+
+  #hot-trend-tab .content-wrapper {
+    padding: 15px;
+  }
+
+  #hot-trend-tab h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+}
+
+/* ========== LOADING SPINNER ========== */
+.loading-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.output-area .loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #666;
+}
+
+.output-area .loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 136, 204, 0.2);
+  border-top-color: #0088cc;
+}
+
+.output-area .loading-text {
+  font-size: 16px;
+  font-weight: 500;
 }
 
 /* ========== QUICK GUIDE SECTION ========== */

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bảng Giá | EternaPicSHT Studio</title>
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/header.css" />
+    <link rel="stylesheet" href="/assets/css/footer.css" />
+    <link rel="stylesheet" href="/assets/css/pricing.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div id="header"></div>
+
+    <div class="pricing-container">
+      <!-- Hero Section -->
+      <section class="pricing-hero">
+        <h1>Bảng Giá Dịch Vụ</h1>
+        <p>Chọn gói cước phù hợp với nhu cầu của bạn</p>
+      </section>
+
+      <!-- Pricing Trends Chart -->
+      <section class="pricing-trends">
+        <div class="trends-header">
+          <h2>📊 Xu Hướng Giá Tháng Này</h2>
+          <p>Biểu đồ thay đổi giá tạo ảnh trong 30 ngày qua</p>
+        </div>
+        <div class="chart-container">
+          <canvas id="pricingChart"></canvas>
+        </div>
+        <div class="trends-stats">
+          <div class="stat-card">
+            <h3>Giá Bình Quân</h3>
+            <p class="stat-value">₫2,500</p>
+          </div>
+          <div class="stat-card">
+            <h3>Giá Thấp Nhất</h3>
+            <p class="stat-value">₫2,000</p>
+          </div>
+          <div class="stat-card">
+            <h3>Giá Cao Nhất</h3>
+            <p class="stat-value">₫3,000</p>
+          </div>
+          <div class="stat-card">
+            <h3>Tổng Ảnh Tạo</h3>
+            <p class="stat-value">125,450</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing Table -->
+      <section class="pricing-table-section">
+        <h2>💳 Bảng Giá Tạo Ảnh</h2>
+        <div class="pricing-table-wrapper">
+          <table class="pricing-table">
+            <thead>
+              <tr>
+                <th>Chế Độ Tạo</th>
+                <th>Chi Phí / Lần</th>
+                <th>Giới Hạn / Ngày</th>
+                <th>Chất Lượng</th>
+                <th>Tốc Độ</th>
+                <th>Hỗ Trợ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Cá Nhân</strong></td>
+                <td class="price">₫2,500</td>
+                <td>Không giới hạn</td>
+                <td><span class="quality-badge standard">Chuẩn</span></td>
+                <td>⚡ 30 giây</td>
+                <td>📧 Email</td>
+              </tr>
+              <tr>
+                <td><strong>Bối Cảnh</strong></td>
+                <td class="price">₫3,000</td>
+                <td>Không giới hạn</td>
+                <td><span class="quality-badge standard">Chuẩn</span></td>
+                <td>⚡ 45 giây</td>
+                <td>📧 Email</td>
+              </tr>
+              <tr>
+                <td><strong>Trang Phục/Tóc</strong></td>
+                <td class="price">₫2,500</td>
+                <td>Không giới hạn</td>
+                <td><span class="quality-badge standard">Chuẩn</span></td>
+                <td>⚡ 30 giây</td>
+                <td>📧 Email</td>
+              </tr>
+              <tr>
+                <td><strong>Hot Trend</strong></td>
+                <td class="price">₫5,000</td>
+                <td>5 ảnh/ngày</td>
+                <td><span class="quality-badge premium">Premium</span></td>
+                <td>⚡ 20 giây</td>
+                <td>📱 Chat 24/7</td>
+              </tr>
+              <tr>
+                <td><strong>Batch Processing</strong></td>
+                <td class="price">₫20,000</td>
+                <td>50 ảnh/ngày</td>
+                <td><span class="quality-badge premium">Premium</span></td>
+                <td>⚡ 15 giây/ảnh</td>
+                <td>📱 Chat + Phone</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Pricing Plans -->
+      <section class="pricing-plans">
+        <h2>📦 Gói Thanh Toán Nạp Tiền</h2>
+        <div class="plans-grid">
+          <div class="plan-card starter">
+            <div class="plan-header">
+              <h3>🌟 Khởi Động</h3>
+              <p class="plan-price">₫50,000</p>
+              <p class="plan-credit">~20 ảnh</p>
+            </div>
+            <ul class="plan-features">
+              <li>✓ 200 credits tạo ảnh</li>
+              <li>✓ Hỗ trợ email</li>
+              <li>✓ Lưu trữ 30 ngày</li>
+              <li>✓ Tốc độ chuẩn</li>
+            </ul>
+            <button class="plan-btn" onclick="toTopup(50000)">Nạp Tiền</button>
+          </div>
+
+          <div class="plan-card professional">
+            <div class="plan-header">
+              <h3>🚀 Chuyên Nghiệp</h3>
+              <p class="plan-price">₫150,000</p>
+              <p class="plan-credit">~60 ảnh</p>
+            </div>
+            <div class="plan-badge">Phổ Biến</div>
+            <ul class="plan-features">
+              <li>✓ 600 credits tạo ảnh</li>
+              <li>✓ Hỗ trợ chat 24/7</li>
+              <li>✓ Lưu trữ 90 ngày</li>
+              <li>✓ Ưu tiên xử lý</li>
+              <li>✓ Batch processing</li>
+            </ul>
+            <button class="plan-btn professional-btn" onclick="toTopup(150000)">Nạp Tiền</button>
+          </div>
+
+          <div class="plan-card enterprise">
+            <div class="plan-header">
+              <h3>👑 Doanh Nghiệp</h3>
+              <p class="plan-price">₫500,000</p>
+              <p class="plan-credit">~200 ảnh</p>
+            </div>
+            <ul class="plan-features">
+              <li>✓ 2,000 credits tạo ảnh</li>
+              <li>✓ Hỗ trợ điện thoại 24/7</li>
+              <li>✓ Lưu trữ vô thời hạn</li>
+              <li>✓ Ưu tiên tối đa</li>
+              <li>✓ API access</li>
+              <li>✓ Quản lý team</li>
+            </ul>
+            <button class="plan-btn" onclick="toTopup(500000)">Nạp Tiền</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section class="pricing-faq">
+        <h2>❓ Câu Hỏi Thường Gặp</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <h3>Giá tạo ảnh được tính như thế nào?</h3>
+            <p>Mỗi lần tạo ảnh tính từ 2,500₫ - 5,000₫ tùy vào loại chế độ. Hot Trend tính cao hơn vì chất lượng cao hơn.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Có thể hoàn tiền không?</h3>
+            <p>Chúng tôi hỗ trợ hoàn tiền trong 7 ngày nếu bạn chưa sử dụng credits. Liên hệ hỗ trợ để xử lý.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Credits hết hạn khi nào?</h3>
+            <p>Credits không bao giờ hết hạn. Bạn có thể sử dụng bất cứ lúc nào không có thời gian giới hạn.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Có giảm giá cho khách hàng thường xuyên?</h3>
+            <p>Có! Khách hàng nạp trên 500,000₫/tháng được giảm 10%. Liên hệ để được hỗ trợ đặc biệt.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Tôi có thể tạo ảnh bao nhiêu lần mỗi ngày?</h3>
+            <p>Không có giới hạn số lần/ngày. Chỉ cần có credits, bạn có thể tạo liên tục.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Chất lượng ảnh khác nhau như thế nào?</h3>
+            <p>Chế độ Premium (Hot Trend) dùng mô hình AI cao cấp hơn, cho ảnh chi tiết và sắc nét hơn.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="pricing-cta">
+        <h2>Sẵn Sàng Bắt Đầu?</h2>
+        <p>Nạp tiền ngay để tạo ảnh đẹp nhất của bạn</p>
+        <div class="cta-buttons">
+          <button class="btn-primary" onclick="window.location.href='/topup.html'">💰 Nạp Tiền Ngay</button>
+          <button class="btn-secondary" onclick="window.location.href='/genImage.html'">🎨 Thử Miễn Phí</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="footer"></div>
+
+    <script src="/assets/js/auth-utils.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script>
+      // Initialize chart
+      const ctx = document.getElementById('pricingChart').getContext('2d');
+      
+      // Sample data for the last 30 days
+      const days = Array.from({length: 30}, (_, i) => `Ngày ${i + 1}`);
+      const prices = [
+        2500, 2500, 2600, 2500, 2400, 2500, 2500, 2550, 2500, 2480,
+        2500, 2520, 2500, 2500, 2600, 2500, 2450, 2500, 2500, 2500,
+        2550, 2500, 2500, 2470, 2500, 2500, 2600, 2500, 2500, 2500
+      ];
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: days,
+          datasets: [
+            {
+              label: 'Giá Tạo Ảnh (VND)',
+              data: prices,
+              borderColor: '#4CAF50',
+              backgroundColor: 'rgba(76, 175, 80, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#4CAF50',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+                font: { size: 12, weight: 'bold' }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              min: 2000,
+              max: 3500,
+              ticks: {
+                callback: function(value) {
+                  return '₫' + value.toLocaleString('vi-VN');
+                }
+              }
+            },
+            x: {
+              display: true
+            }
+          }
+        }
+      });
+
+      // Navigate to topup with amount
+      function toTopup(amount) {
+        window.location.href = `/topup.html?amount=${amount}`;
+      }
+    </script>
+  </body>
+</html>

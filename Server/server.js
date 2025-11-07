@@ -9,11 +9,13 @@ const authRoutes = require("./routes/auth");
 const protectedRoutes = require("./routes/protected");
 const aiRoutes = require("./routes/ai");
 const promptRoutes = require("./routes/prompts");
+const promptTrendingRoutes = require("./routes/promptTrending");
 const announcementRoutes = require("./routes/announcementRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const topupRoutes = require("./routes/topup");
 const historyRoutes = require("./routes/history");
 const adminRoutes = require("./routes/admin");
+const outfitStyleRoutes = require("./routes/outfitStyles");
 const app = express();
 
 app.use(cors());
@@ -34,11 +36,13 @@ app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/prompts", promptRoutes);
+app.use("/api/prompts-trending", promptTrendingRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/topup", topupRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/outfit-styles", outfitStyleRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {
@@ -62,6 +66,7 @@ app.get("*", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () =>
   console.log(`🚀 Server running on http://localhost:${PORT}`)
 );

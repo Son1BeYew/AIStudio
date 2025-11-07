@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EternaPicSHT Studio</title>
-    <link rel="stylesheet" href="assets/css/genr.css" />
+    <link rel="stylesheet" href="assets/css/genr.css?v=1.1" />
     <link rel="stylesheet" href="/assets/css/styles.css" />
     <link rel="stylesheet" href="/assets/css/features.css" />
     <link rel="stylesheet" href="/assets/css/hero.css" />
@@ -13,16 +13,31 @@
   <body>
     <div id="header"></div>
 
+    <!-- Login Required Modal -->
+    <div id="loginModal" class="login-modal hidden">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeLoginModal()">×</button>
+        <div class="modal-icon">🔐</div>
+        <h2>Vui lòng đăng nhập</h2>
+        <p>Bạn cần đăng nhập để sử dụng các chức năng này</p>
+        <a href="/login.html" class="modal-btn-login">Đến trang đăng nhập</a>
+      </div>
+    </div>
+
     <!-- Tab Navigation -->
     <div class="tab-navigation">
       <button class="tab-button active" data-tab="ascii-art">
-        <span class="tab-icon"></span>Tạo ASCII Art
+        <span class="tab-icon"></span>Tạo ảnh cá nhân
       </button>
       <button class="tab-button" data-tab="background">
         <span class="tab-icon"></span>Tạo Ảnh Bối Cảnh
       </button>
       <button class="tab-button" data-tab="outfit">
         <span class="tab-icon"></span>Đổi Trang Phục/Tóc
+      </button>
+      <button class="tab-button" data-tab="hot-trend">
+        <span class="tab-icon"></span>Hot Trend
       </button>
     </div>
 
@@ -187,22 +202,21 @@
           <div class="settings-box">
             <h3>Cài đặt</h3>
 
+            <label>Giới tính</label>
+            <select id="outfit-gender-select">
+              <option value="">Chọn giới tính</option>
+              <option value="male">Nam</option>
+              <option value="female">Nữ</option>
+            </select>
+
             <label>Loại trang phục/tóc</label>
-            <select id="outfit-type-select">
+            <select id="outfit-type-select" disabled>
               <option value="">Chọn loại</option>
-              <option value="casual">Áo phông thường ngày</option>
-              <option value="formal">Áo vest chính thức</option>
-              <option value="elegant">Váy lộng lẫy</option>
-              <option value="sporty">Áo thể thao</option>
             </select>
 
             <label>Kiểu tóc</label>
-            <select id="outfit-hairstyle-select">
+            <select id="outfit-hairstyle-select" disabled>
               <option value="">Chọn kiểu tóc</option>
-              <option value="long">Tóc dài</option>
-              <option value="short">Tóc ngắn</option>
-              <option value="curly">Tóc xoăn</option>
-              <option value="straight">Tóc thẳng</option>
             </select>
 
             <label>Mô tả chi tiết</label>
@@ -234,9 +248,315 @@
           </div>
         </div>
       </div>
+
+      <!-- Hot Trend Tab -->
+      <div class="tab-content" id="hot-trend-tab">
+        <div class="content-wrapper-trends">
+          <div class="trends-section">
+            <h3>Những Phong Cách Đang Hot</h3>
+            <div class="trends-grid" id="trendsGrid"></div>
+          </div>
+
+          <div class="trend-creator-section" id="trendCreatorSection" style="display: none;">
+            <div class="content-wrapper">
+              <!-- Upload Section -->
+              <div class="upload-box">
+                <h3>Tải ảnh lên</h3>
+                <div class="upload-area" id="trend-upload-area">
+                  <div class="upload-content">
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/512/1829/1829588.png"
+                      alt="upload"
+                      class="upload-icon"
+                    />
+                    <p><strong>Kéo thả hoặc tải ảnh tại đây</strong></p>
+                    <p class="small">hoặc nhấn để chọn tệp</p>
+                    <input type="file" id="trend-file-input" hidden accept="image/*" />
+                    <button class="btn" id="trend-choose-btn">Chọn ảnh</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Settings Section -->
+              <div class="settings-box">
+                <h3>Cài đặt</h3>
+                <label>Phong Cách Được Chọn</label>
+                <div id="trend-selected-style" style="padding: 10px; background: #f0f0f0; border-radius: 6px; margin-bottom: 15px; font-weight: 500;">
+                  Chưa chọn
+                </div>
+
+                <label>Mô tả thêm (tùy chọn)</label>
+                <textarea
+                  id="trend-additional-desc"
+                  placeholder="Thêm mô tả chi tiết để tạo ra kết quả tốt hơn..."
+                  rows="3"
+                  style="margin-bottom: 15px;"
+                ></textarea>
+
+                <button class="download-btn" id="trend-generate-btn">
+                  <span>✨</span>Tạo ảnh
+                </button>
+
+                <button class="download-btn" onclick="resetTrendCreator()" style="background-color: #999; margin-top: 8px;">
+                  <span>↺</span>Chọn Phong Cách Khác
+                </button>
+              </div>
+
+              <!-- Output Section -->
+              <div class="output-box">
+                <h3>Kết Quả</h3>
+                <div class="output-area" id="trend-output-area">
+                  <div class="output-placeholder">
+                    <p>Ảnh kết quả sẽ xuất hiện tại đây</p>
+                  </div>
+                </div>
+                <button
+                  class="download-btn download-result"
+                  id="trend-download-btn"
+                  style="display: none"
+                >
+                  <span>⬇</span>Tải Ảnh
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
+      let trendData = [];
+
+      // Load trending prompts từ API
+      async function loadTrendingPrompts() {
+        try {
+          const response = await fetch("/api/prompts-trending");
+          if (!response.ok) {
+            console.error("Lỗi khi load trending prompts");
+            return;
+          }
+
+          trendData = await response.json();
+          initTrendsGrid();
+        } catch (error) {
+          console.error("Lỗi load trending prompts:", error);
+        }
+      }
+
+      // Initialize trends grid
+      function initTrendsGrid() {
+        const trendsGrid = document.getElementById("trendsGrid");
+        if (trendData.length === 0) {
+          trendsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">Không có trending prompts</p>';
+          return;
+        }
+
+        trendsGrid.innerHTML = trendData.map((trend, index) => `
+          <div class="trend-card" onclick="selectTrend(${index})">
+            <div class="trend-image-wrapper">
+              <img src="${trend.image || 'https://via.placeholder.com/300'}" alt="${trend.title}" class="trend-image">
+              <div class="trend-overlay">
+                <p>${trend.title}</p>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      // Select trend and populate prompt
+      function selectTrend(index) {
+        if (!checkAuthBeforeAction()) return;
+
+        const trend = trendData[index];
+        if (!trend) return;
+
+        // Show trend creator section
+        document.getElementById("trendCreatorSection").style.display = "block";
+        document.querySelector(".trends-section").style.display = "none";
+        
+        // Update trend name display
+        document.getElementById("trend-selected-style").textContent = trend.title;
+        
+        // Store trend data globally
+        window.currentTrend = trend;
+        window.trendSelectedFile = null;
+        window.currentTrendIndex = index;
+
+        // Setup upload area
+        const uploadArea = document.getElementById("trend-upload-area");
+        const fileInput = document.getElementById("trend-file-input");
+        const chooseBtn = document.getElementById("trend-choose-btn");
+
+        uploadArea.addEventListener("click", () => fileInput.click());
+        chooseBtn.addEventListener("click", () => fileInput.click());
+
+        uploadArea.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          uploadArea.style.borderColor = "#666";
+        });
+
+        uploadArea.addEventListener("dragleave", () => {
+          uploadArea.style.borderColor = "#ccc";
+        });
+
+        uploadArea.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const file = e.dataTransfer.files[0];
+          if (file) handleTrendFile(file);
+        });
+
+        fileInput.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (file) handleTrendFile(file);
+        });
+
+        // Scroll to top
+        window.scrollTo(0, 0);
+
+        // Show notification
+        const notification = document.createElement("div");
+        notification.className = "trend-notification";
+        notification.innerHTML = `
+          <div class="notification-content">
+            <strong>✨ ${trend.title}</strong> đã được chọn!
+            <p>Hãy tải ảnh lên và nhấn "Tạo ảnh"</p>
+          </div>
+        `;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 10);
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+
+      // Handle trend file upload
+      function handleTrendFile(file) {
+        window.trendSelectedFile = file;
+        const uploadArea = document.getElementById("trend-upload-area");
+        const reader = new FileReader();
+        reader.onload = () => {
+          uploadArea.innerHTML = `
+            <img src="${reader.result}" 
+              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
+          `;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Reset trend creator
+      function resetTrendCreator() {
+        document.getElementById("trendCreatorSection").style.display = "none";
+        document.querySelector(".trends-section").style.display = "block";
+        window.currentTrend = null;
+        window.trendSelectedFile = null;
+        document.getElementById("trend-additional-desc").value = "";
+        document.getElementById("trend-output-area").innerHTML = `
+          <div class="output-placeholder">
+            <p>Ảnh kết quả sẽ xuất hiện tại đây</p>
+          </div>
+        `;
+        document.getElementById("trend-download-btn").style.display = "none";
+      }
+
+      // Generate trend image
+      document.addEventListener("DOMContentLoaded", () => {
+        const generateBtn = document.getElementById("trend-generate-btn");
+        if (generateBtn) {
+          generateBtn.addEventListener("click", async () => {
+            if (!checkAuthBeforeAction()) return;
+
+            if (!window.trendSelectedFile) {
+              alert("Vui lòng chọn ảnh trước");
+              return;
+            }
+
+            const token = localStorage.getItem("token");
+            const additionalDesc = document.getElementById("trend-additional-desc").value;
+            const trend = window.currentTrend;
+
+            const formData = new FormData();
+            formData.append("promptName", trend.name);
+            formData.append("image", window.trendSelectedFile);
+            formData.append("isTrend", true);
+
+            try {
+              generateBtn.disabled = true;
+              generateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+              
+              // Show loading in output area
+              const outputArea = document.getElementById("trend-output-area");
+              outputArea.innerHTML = `
+                <div class="loading-container">
+                  <div class="loading-spinner"></div>
+                  <div class="loading-text">Đang tạo ảnh...</div>
+                </div>
+              `;
+
+              const response = await fetch("/api/ai/generate", {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                displayTrendOutput(result);
+              } else {
+                const outputArea = document.getElementById("trend-output-area");
+                outputArea.innerHTML = `
+                  <div class="output-placeholder" style="color: #d32f2f;">
+                    <p>❌ ${result.error || result.message}</p>
+                  </div>
+                `;
+                alert("Lỗi: " + (result.error || result.message));
+              }
+            } catch (error) {
+              console.error("Lỗi:", error);
+              const outputArea = document.getElementById("trend-output-area");
+              outputArea.innerHTML = `
+                <div class="output-placeholder" style="color: #d32f2f;">
+                  <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
+                </div>
+              `;
+              alert("Lỗi khi tạo ảnh: " + error.message);
+            } finally {
+              generateBtn.disabled = false;
+              generateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
+            }
+          });
+        }
+      });
+
+      function displayTrendOutput(result) {
+        const outputArea = document.getElementById("trend-output-area");
+        const downloadBtn = document.getElementById("trend-download-btn");
+
+        outputArea.innerHTML = `
+          <img src="${result.localPath}?t=${Date.now()}" alt="Generated image">
+        `;
+
+        downloadBtn.style.display = "flex";
+        downloadBtn.onclick = () =>
+          downloadImage(result.localPath, `trend_${window.currentTrend.title}`);
+      }
+
+      function downloadImage(imagePath, name) {
+        const link = document.createElement("a");
+        link.href = imagePath;
+        link.download = `${name}_${Date.now()}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
       // Tab switching
       const tabButtons = document.querySelectorAll(".tab-button");
       const tabContents = document.querySelectorAll(".tab-content");
@@ -253,6 +573,11 @@
           button.classList.add("active");
           document.getElementById(`${tabName}-tab`).classList.add("active");
         });
+      });
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", () => {
+        loadTrendingPrompts();
       });
 
       // ASCII Art Generation
@@ -322,6 +647,8 @@
       let currentImageUrl = null;
 
       generateBtn.addEventListener("click", async () => {
+        if (!checkAuthBeforeAction()) return;
+
         if (!selectedFile) {
           alert("Vui lòng chọn ảnh trước");
           return;
@@ -339,7 +666,15 @@
 
         try {
           generateBtn.disabled = true;
-          generateBtn.innerHTML = "<span>⏳</span>Đang xử lý...";
+          generateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+          
+          const outputArea = document.getElementById("output-area");
+          outputArea.innerHTML = `
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <div class="loading-text">Đang tạo ảnh...</div>
+            </div>
+          `;
 
           const response = await fetch("/api/ai/generate", {
             method: "POST",
@@ -355,10 +690,22 @@
             currentImageUrl = result.localPath;
             displayOutput(result);
           } else {
+            const outputArea = document.getElementById("output-area");
+            outputArea.innerHTML = `
+              <div class="output-placeholder" style="color: #d32f2f;">
+                <p>❌ ${result.error || result.message}</p>
+              </div>
+            `;
             alert("Lỗi: " + (result.error || result.message));
           }
         } catch (error) {
           console.error("Lỗi:", error);
+          const outputArea = document.getElementById("output-area");
+          outputArea.innerHTML = `
+            <div class="output-placeholder" style="color: #d32f2f;">
+              <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
+            </div>
+          `;
           alert("Lỗi khi tạo ảnh: " + error.message);
         } finally {
           generateBtn.disabled = false;
@@ -401,7 +748,9 @@
       }
 
       // Load prompts khi page load
-      document.addEventListener("DOMContentLoaded", loadPrompts);
+      document.addEventListener("DOMContentLoaded", () => {
+        loadPrompts();
+      });
 
       // Background Image Generation
       const bgUploadArea = document.getElementById("bg-upload-area");
@@ -447,6 +796,8 @@
       }
 
       bgGenerateBtn.addEventListener("click", async () => {
+        if (!checkAuthBeforeAction()) return;
+
         if (!bgSelectedFile) {
           alert("Vui lòng chọn ảnh trước");
           return;
@@ -466,7 +817,15 @@
 
         try {
           bgGenerateBtn.disabled = true;
-          bgGenerateBtn.innerHTML = "<span>⏳</span>Đang xử lý...";
+          bgGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+          
+          const bgOutputArea = document.getElementById("bg-output-area");
+          bgOutputArea.innerHTML = `
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <div class="loading-text">Đang tạo bối cảnh...</div>
+            </div>
+          `;
 
           const response = await fetch("/api/ai/generate-background", {
             method: "POST",
@@ -481,10 +840,22 @@
           if (result.success) {
             displayBgOutput(result);
           } else {
+            const bgOutputArea = document.getElementById("bg-output-area");
+            bgOutputArea.innerHTML = `
+              <div class="output-placeholder" style="color: #d32f2f;">
+                <p>❌ ${result.error || result.message}</p>
+              </div>
+            `;
             alert("Lỗi: " + (result.error || result.message));
           }
         } catch (error) {
           console.error("Lỗi:", error);
+          const bgOutputArea = document.getElementById("bg-output-area");
+          bgOutputArea.innerHTML = `
+            <div class="output-placeholder" style="color: #d32f2f;">
+              <p>❌ Lỗi khi tạo bối cảnh: ${error.message}</p>
+            </div>
+          `;
           alert("Lỗi khi tạo bối cảnh: " + error.message);
         } finally {
           bgGenerateBtn.disabled = false;
@@ -511,12 +882,72 @@
       const outfitUploadArea = document.getElementById("outfit-upload-area");
       const outfitFileInput = document.getElementById("outfit-file-input");
       const outfitChooseBtn = document.getElementById("outfit-choose-btn");
+      const outfitGenderSelect = document.getElementById("outfit-gender-select");
       const outfitTypeSelect = document.getElementById("outfit-type-select");
       const outfitHairstyleSelect = document.getElementById(
         "outfit-hairstyle-select"
       );
       const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
       let outfitSelectedFile = null;
+
+      // Load outfit types and hairstyles based on gender
+      async function loadOutfitStyles(gender) {
+        try {
+          const response = await fetch(`/api/outfit-styles?gender=${gender}`);
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || "Lỗi load dữ liệu");
+          }
+
+          // Load outfit types
+          outfitTypeSelect.innerHTML = '<option value="">Chọn loại</option>';
+          if (data.outfitTypes && data.outfitTypes.length > 0) {
+            data.outfitTypes.forEach((type) => {
+              const option = document.createElement("option");
+              option.value = type.value;
+              option.textContent = type.name;
+              outfitTypeSelect.appendChild(option);
+            });
+            outfitTypeSelect.disabled = false;
+          } else {
+            outfitTypeSelect.disabled = true;
+          }
+
+          // Load hairstyles
+          outfitHairstyleSelect.innerHTML = '<option value="">Chọn kiểu tóc</option>';
+          if (data.hairstyles && data.hairstyles.length > 0) {
+            data.hairstyles.forEach((hairstyle) => {
+              const option = document.createElement("option");
+              option.value = hairstyle.value;
+              option.textContent = hairstyle.name;
+              outfitHairstyleSelect.appendChild(option);
+            });
+            outfitHairstyleSelect.disabled = false;
+          } else {
+            outfitHairstyleSelect.disabled = true;
+          }
+        } catch (error) {
+          console.error("Lỗi load outfit styles:", error);
+          outfitTypeSelect.innerHTML = '<option value="">Lỗi load dữ liệu</option>';
+          outfitHairstyleSelect.innerHTML = '<option value="">Lỗi load dữ liệu</option>';
+          outfitTypeSelect.disabled = true;
+          outfitHairstyleSelect.disabled = true;
+        }
+      }
+
+      // Gender selection event
+      outfitGenderSelect.addEventListener("change", (e) => {
+        const gender = e.target.value;
+        if (gender) {
+          loadOutfitStyles(gender);
+        } else {
+          outfitTypeSelect.innerHTML = '<option value="">Chọn loại</option>';
+          outfitHairstyleSelect.innerHTML = '<option value="">Chọn kiểu tóc</option>';
+          outfitTypeSelect.disabled = true;
+          outfitHairstyleSelect.disabled = true;
+        }
+      });
 
       outfitUploadArea.addEventListener("click", () => outfitFileInput.click());
       outfitChooseBtn.addEventListener("click", () => outfitFileInput.click());
@@ -554,8 +985,14 @@
       }
 
       outfitGenerateBtn.addEventListener("click", async () => {
+        if (!checkAuthBeforeAction()) return;
+
         if (!outfitSelectedFile) {
           alert("Vui lòng chọn ảnh trước");
+          return;
+        }
+        if (!outfitGenderSelect.value) {
+          alert("Vui lòng chọn giới tính");
           return;
         }
         if (!outfitTypeSelect.value || !outfitHairstyleSelect.value) {
@@ -575,7 +1012,15 @@
 
         try {
           outfitGenerateBtn.disabled = true;
-          outfitGenerateBtn.innerHTML = "<span>⏳</span>Đang xử lý...";
+          outfitGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+          
+          const outfitOutputArea = document.getElementById("outfit-output-area");
+          outfitOutputArea.innerHTML = `
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+              <div class="loading-text">Đang thay đổi trang phục...</div>
+            </div>
+          `;
 
           const response = await fetch("/api/ai/generate-outfit", {
             method: "POST",
@@ -590,10 +1035,22 @@
           if (result.success) {
             displayOutfitOutput(result);
           } else {
+            const outfitOutputArea = document.getElementById("outfit-output-area");
+            outfitOutputArea.innerHTML = `
+              <div class="output-placeholder" style="color: #d32f2f;">
+                <p>❌ ${result.error || result.message}</p>
+              </div>
+            `;
             alert("Lỗi: " + (result.error || result.message));
           }
         } catch (error) {
           console.error("Lỗi:", error);
+          const outfitOutputArea = document.getElementById("outfit-output-area");
+          outfitOutputArea.innerHTML = `
+            <div class="output-placeholder" style="color: #d32f2f;">
+              <p>❌ Lỗi khi thay đổi trang phục: ${error.message}</p>
+            </div>
+          `;
           alert("Lỗi khi thay đổi trang phục: " + error.message);
         } finally {
           outfitGenerateBtn.disabled = false;
@@ -649,5 +1106,166 @@
     <div id="footer"></div>
     <script src="/assets/js/auth-utils.js"></script>
     <script src="/assets/js/main.js"></script>
+
+    <style>
+      /* Trend upload area styling */
+      #trend-upload-area {
+        padding: 20px 10px !important;
+        min-height: 150px !important;
+      }
+
+      #trend-upload-area .upload-icon {
+        width: 35px !important;
+        margin-bottom: 8px !important;
+      }
+
+      #trend-upload-area .upload-content p {
+        font-size: 13px !important;
+        margin: 5px 0 !important;
+      }
+
+      #trend-upload-area .upload-content p.small {
+        font-size: 11px !important;
+      }
+
+      #trend-upload-area .btn {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+      }
+
+      .login-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .login-modal.hidden {
+        display: none !important;
+      }
+
+      .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        animation: slideIn 0.3s ease;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 32px;
+        cursor: pointer;
+        color: #999;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .modal-close:hover {
+        background: #f3f4f6;
+        color: #333;
+      }
+
+      .modal-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .modal-content h2 {
+        font-size: 20px;
+        color: #1f2937;
+        margin: 0 0 12px 0;
+      }
+
+      .modal-content p {
+        color: #6b7280;
+        margin: 0 0 24px 0;
+        font-size: 14px;
+      }
+
+      .modal-btn-login {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .modal-btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+
+    <script>
+      // Check authentication and show modal if needed
+      function checkAuthBeforeAction() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          showLoginModal();
+          return false;
+        }
+        return true;
+      }
+
+      function showLoginModal() {
+        const modal = document.getElementById("loginModal");
+        modal.classList.remove("hidden");
+      }
+
+      function closeLoginModal() {
+        const modal = document.getElementById("loginModal");
+        modal.classList.add("hidden");
+      }
+
+      // Close modal when clicking overlay
+      document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("loginModal");
+        const overlay = modal.querySelector(".modal-overlay");
+        if (overlay) {
+          overlay.addEventListener("click", closeLoginModal);
+        }
+      });
+    </script>
   </body>
 </html>

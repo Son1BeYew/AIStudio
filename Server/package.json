@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "node server.js"
+    "test": "node server.js",
+    "seed:outfits": "node scripts/seedOutfitStyles.js",
+    "reseed:outfits": "node scripts/clearAndSeedOutfits.js",
+    "seed:trends": "node scripts/seedTrendingPrompts.js"
   },
   "keywords": [],
   "author": "",
@@ -11,10 +14,12 @@
   "description": "",
   "dependencies": {
     "@google-cloud/aiplatform": "^5.7.0",
+    "@google-cloud/storage": "^7.17.2",
     "@google-cloud/vertexai": "^1.10.0",
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
@@ -24,6 +29,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.0",
     "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "node-fetch": "^2.7.0",
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",

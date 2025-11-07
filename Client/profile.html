@@ -16,10 +16,10 @@
 
       .profile-card {
         background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
         padding: 40px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
       }
 
       .profile-header {
@@ -34,7 +34,7 @@
         height: 120px;
         border-radius: 50%;
         background: #f5f5f5;
-        border: 2px solid #ddd;
+        border: 1px solid #ddd;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -50,21 +50,22 @@
       }
 
       .profile-info h1 {
-        margin: 0 0 5px 0;
-        font-size: 28px;
-        color: #333;
+        margin: 0 0 8px 0;
+        font-size: 26px;
+        color: #222;
+        font-weight: 500;
       }
 
       .profile-info p {
-        margin: 0;
-        color: #999;
+        margin: 4px 0;
+        color: #666;
         font-size: 14px;
       }
 
       .profile-section {
-        margin-bottom: 30px;
-        padding-bottom: 30px;
-        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 35px;
+        padding-bottom: 35px;
+        border-bottom: 1px solid #eee;
       }
 
       .profile-section:last-child {
@@ -72,10 +73,10 @@
       }
 
       .section-title {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 600;
         margin-bottom: 20px;
-        color: #333;
+        color: #222;
       }
 
       .info-grid {
@@ -91,16 +92,26 @@
 
       .info-label {
         font-size: 12px;
-        color: #999;
-        font-weight: 600;
+        color: #888;
+        font-weight: 500;
         text-transform: uppercase;
-        margin-bottom: 5px;
+        margin-bottom: 6px;
+        letter-spacing: 0.3px;
       }
 
       .info-value {
         font-size: 15px;
         color: #333;
-        font-weight: 500;
+        font-weight: 400;
+      }
+
+      .info-value a {
+        color: #0066cc;
+        text-decoration: none;
+      }
+
+      .info-value a:hover {
+        text-decoration: underline;
       }
 
       .form-group {
@@ -109,9 +120,9 @@
 
       .form-group label {
         display: block;
-        font-weight: 600;
+        font-weight: 500;
         margin-bottom: 8px;
-        color: #333;
+        color: #222;
         font-size: 14px;
       }
 
@@ -119,20 +130,26 @@
       .form-group select,
       .form-group textarea {
         width: 100%;
-        padding: 12px;
+        padding: 10px 12px;
         border: 1px solid #ddd;
-        border-radius: 8px;
+        border-radius: 4px;
         font-size: 14px;
         font-family: inherit;
         box-sizing: border-box;
+        background: #fff;
+      }
+
+      .form-group input::placeholder,
+      .form-group textarea::placeholder {
+        color: #999;
       }
 
       .form-group input:focus,
       .form-group select:focus,
       .form-group textarea:focus {
         outline: none;
-        border-color: #555;
-        box-shadow: 0 0 0 3px rgba(85, 85, 85, 0.1);
+        border-color: #0066cc;
+        box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
       }
 
       .form-group textarea {
@@ -151,7 +168,7 @@
         height: 100px;
         border-radius: 50%;
         background: #f5f5f5;
-        border: 2px solid #ddd;
+        border: 1px solid #ddd;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -165,18 +182,18 @@
       }
 
       .upload-btn {
-        padding: 10px 20px;
+        padding: 8px 16px;
         background: #f5f5f5;
         border: 1px solid #ddd;
-        border-radius: 8px;
+        border-radius: 4px;
         cursor: pointer;
         font-weight: 500;
-        transition: all 0.3s;
+        font-size: 13px;
+        transition: background 0.2s;
       }
 
       .upload-btn:hover {
-        background: #e5e5e5;
-        border-color: #555;
+        background: #efefef;
       }
 
       #avatar-input {
@@ -191,19 +208,19 @@
 
       .btn-save {
         flex: 1;
-        padding: 14px;
-        background: #555;
+        padding: 12px;
+        background: #0066cc;
         color: #fff;
         border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
-        transition: background 0.3s;
+        transition: background 0.2s;
       }
 
       .btn-save:hover:not(:disabled) {
-        background: #333;
+        background: #0052a3;
       }
 
       .btn-save:disabled {
@@ -213,38 +230,36 @@
 
       .btn-edit {
         flex: 1;
-        padding: 14px;
-        background: #f5f5f5;
-        color: #333;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 16px;
+        padding: 12px;
+        background: #0066cc;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: background 0.2s;
       }
 
       .btn-edit:hover {
-        background: #e5e5e5;
-        border-color: #555;
+        background: #0052a3;
       }
 
       .btn-cancel {
         flex: 1;
-        padding: 14px;
+        padding: 12px;
         background: #f5f5f5;
         color: #333;
         border: 1px solid #ddd;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.2s;
       }
 
       .btn-cancel:hover {
-        background: #e5e5e5;
-        border-color: #555;
+        background: #efefef;
       }
 
       .view-mode .form-group,
@@ -263,7 +278,7 @@
         border: 1px solid #c3e6cb;
         color: #155724;
         padding: 12px;
-        border-radius: 8px;
+        border-radius: 4px;
         margin-bottom: 20px;
         display: none;
       }
@@ -273,19 +288,20 @@
         border: 1px solid #f5c6cb;
         color: #721c24;
         padding: 12px;
-        border-radius: 8px;
+        border-radius: 4px;
         margin-bottom: 20px;
         display: none;
       }
 
       .loading-spinner {
         display: inline-block;
-        width: 14px;
-        height: 14px;
-        border: 2px solid rgba(85, 85, 85, 0.3);
-        border-top-color: #555;
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        border-top-color: #333;
         border-radius: 50%;
         animation: spin 0.6s linear infinite;
+        margin-right: 6px;
       }
 
       @keyframes spin {
