@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản Lý Trending Prompts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .image-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            border-radius: 6px;
+            max-height: 200px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #dee2e6;
+        }
+
+        .trending-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .trending-card {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .trending-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .trending-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .trending-card h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .trending-card p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #0056b3;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Quản Lý Trending Prompts</h1>
+
+        <div class="alert" id="alert"></div>
+
+        <div class="form-section">
+            <h2 style="margin-bottom: 20px; color: #333;">Thêm/Sửa Trending Prompt</h2>
+            <form id="trendingForm">
+                <input type="hidden" id="promptId">
+
+                <div class="form-group">
+                    <label for="promptName">Tên Prompt (Name) *</label>
+                    <input type="text" id="promptName" required placeholder="VD: fantasy_hero">
+                </div>
+
+                <div class="form-group">
+                    <label for="promptTitle">Tiêu Đề (Title) *</label>
+                    <input type="text" id="promptTitle" required placeholder="VD: Anh Hùng Giả Tưởng">
+                </div>
+
+                <div class="form-group">
+                    <label for="promptDescription">Mô Tả (Description)</label>
+                    <textarea id="promptDescription" placeholder="Mô tả chi tiết về prompt này..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="promptText">Prompt Text *</label>
+                    <textarea id="promptText" required placeholder="Nhập prompt AI..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="promptImage">Ảnh Đại Diện (Image)</label>
+                    <input type="file" id="promptImage" accept="image/*">
+                    <img id="imagePreview" class="image-preview" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="promptOrder">Thứ Tự (Order)</label>
+                    <input type="number" id="promptOrder" value="0">
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-submit">💾 Lưu Trending Prompt</button>
+                    <button type="reset" class="btn-reset">↺ Đặt Lại</button>
+                </div>
+            </form>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Đang xử lý...</p>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 30px; margin-bottom: 20px; color: #333;">📋 Danh Sách Trending Prompts</h2>
+        <div class="trending-grid" id="trendingGrid">
+            <p style="grid-column: 1/-1; text-align: center; color: #999;">Đang tải...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "/api/prompts-trending";
+
+        // Load trending prompts
+        async function loadTrendingPrompts() {
+            try {
+                const response = await fetch(API_BASE);
+                if (!response.ok) throw new Error("Lỗi khi tải dữ liệu");
+
+                const prompts = await response.json();
+                displayTrendingPrompts(prompts);
+            } catch (error) {
+                console.error("Lỗi:", error);
+                showAlert("Lỗi khi tải trending prompts", "error");
+            }
+        }
+
+        function displayTrendingPrompts(prompts) {
+            const grid = document.getElementById("trendingGrid");
+            if (prompts.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">Chưa có trending prompts</p>';
+                return;
+            }
+
+            grid.innerHTML = prompts.map(prompt => `
+                <div class="trending-card">
+                    ${prompt.image ? `<img src="${prompt.image}" alt="${prompt.title}">` : '<div style="width:100%; height:150px; background:#ddd; border-radius:6px;"></div>'}
+                    <h3>${prompt.title}</h3>
+                    <p>${prompt.name}</p>
+                    <div class="card-actions">
+                        <button class="btn-small btn-edit" onclick="editPrompt('${prompt._id}')">Sửa</button>
+                        <button class="btn-small btn-delete" onclick="deletePrompt('${prompt._id}')">Xóa</button>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function editPrompt(id) {
+            fetch(`${API_BASE}/${id}`)
+                .then(res => res.json())
+                .then(prompt => {
+                    document.getElementById("promptId").value = prompt._id;
+                    document.getElementById("promptName").value = prompt.name;
+                    document.getElementById("promptTitle").value = prompt.title;
+                    document.getElementById("promptDescription").value = prompt.description || "";
+                    document.getElementById("promptText").value = prompt.prompt;
+                    document.getElementById("promptOrder").value = prompt.order || 0;
+                    
+                    if (prompt.image) {
+                        const preview = document.getElementById("imagePreview");
+                        preview.src = prompt.image;
+                        preview.style.display = "block";
+                    }
+                    
+                    window.scrollTo(0, 0);
+                })
+                .catch(error => {
+                    console.error("Lỗi:", error);
+                    showAlert("Lỗi khi tải prompt để sửa", "error");
+                });
+        }
+
+        async function deletePrompt(id) {
+            if (!confirm("Bạn chắc chắn muốn xóa prompt này?")) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+                if (!response.ok) throw new Error("Lỗi khi xóa");
+
+                showAlert("Xóa thành công!", "success");
+                loadTrendingPrompts();
+            } catch (error) {
+                console.error("Lỗi:", error);
+                showAlert("Lỗi khi xóa prompt", "error");
+            }
+        }
+
+        // Handle form submission
+        document.getElementById("trendingForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const promptId = document.getElementById("promptId").value;
+            const promptName = document.getElementById("promptName").value;
+            const promptTitle = document.getElementById("promptTitle").value;
+            const promptDescription = document.getElementById("promptDescription").value;
+            const promptText = document.getElementById("promptText").value;
+            const promptOrder = document.getElementById("promptOrder").value;
+            const promptImage = document.getElementById("promptImage").files[0];
+
+            const formData = new FormData();
+            formData.append("name", promptName);
+            formData.append("title", promptTitle);
+            formData.append("description", promptDescription);
+            formData.append("prompt", promptText);
+            formData.append("order", promptOrder);
+            if (promptImage) {
+                formData.append("image", promptImage);
+            }
+
+            showLoading(true);
+
+            try {
+                let url = `${API_BASE}/upload`;
+                let method = "POST";
+
+                if (promptId) {
+                    url = `${API_BASE}/${promptId}/upload`;
+                    method = "PUT";
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || "Lỗi khi lưu");
+                }
+
+                showAlert(promptId ? "Cập nhật thành công!" : "Thêm mới thành công!", "success");
+                document.getElementById("trendingForm").reset();
+                document.getElementById("promptId").value = "";
+                document.getElementById("imagePreview").style.display = "none";
+                loadTrendingPrompts();
+            } catch (error) {
+                console.error("Lỗi:", error);
+                showAlert(error.message || "Lỗi khi lưu prompt", "error");
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        function showAlert(message, type) {
+            const alert = document.getElementById("alert");
+            alert.textContent = message;
+            alert.className = `alert ${type}`;
+            setTimeout(() => {
+                alert.className = "alert";
+            }, 3000);
+        }
+
+        function showLoading(show) {
+            document.getElementById("loading").style.display = show ? "block" : "none";
+        }
+
+        // Image preview
+        document.getElementById("promptImage").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const preview = document.getElementById("imagePreview");
+                    preview.src = event.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Load on page load
+        loadTrendingPrompts();
+    </script>
+</body>
+</html>

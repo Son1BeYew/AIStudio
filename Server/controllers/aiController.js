@@ -162,35 +162,61 @@ exports.generateOutfit = async (req, res) => {
   try {
     const { type, hairstyle, description } = req.body;
     const userId = req.user?.id || req.user?._id;
-    const cloudinaryFile = req.cloudinaryFile;
+    const cloudinaryFiles = req.cloudinaryFiles || {};
+    console.log("📦 Full cloudinaryFiles:", JSON.stringify(cloudinaryFiles, null, 2));
+    console.log("📦 req.file:", req.file);
+    console.log("📦 req.files:", req.files);
+    
+    let personImage = cloudinaryFiles.image || req.cloudinaryFile;
+    let clothingImage = cloudinaryFiles.clothing;
 
     console.log("📝 Request body:", { type, hairstyle, description, userId });
-    console.log("📤 Cloudinary file:", cloudinaryFile);
+    console.log("📤 Cloudinary files keys:", Object.keys(cloudinaryFiles));
+    console.log("📤 Person image:", personImage);
+    console.log("📤 Clothing image:", clothingImage);
 
-    if (!cloudinaryFile) {
-      console.error("❌ No cloudinary file found");
-      return res.status(400).json({ error: "Ảnh là bắt buộc" });
+    if (!personImage) {
+      console.error("❌ No person image found");
+      return res.status(400).json({ error: "Ảnh người là bắt buộc" });
     }
-    if (!type || !hairstyle)
-      return res.status(400).json({ error: "Loại trang phục và kiểu tóc là bắt buộc" });
+
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
 
-    const outfitPrompt = `Transform the person in this image by changing their outfit to: ${type} and hairstyle to: ${hairstyle}${description ? `. Additional details: ${description}` : ""}. Keep the person's face and body structure similar, only change the clothing and hair style.`;
+    let outfitPrompt;
+    if (clothingImage) {
+      outfitPrompt = `The person in the first image should wear the outfit from the second image. Keep the person's face and body structure similar, but change their clothing to match the style and appearance of the clothing shown in the second image.${description ? ` Additional details: ${description}` : ""}`;
+    } else {
+      outfitPrompt = `Transform the person in this image by changing their outfit to: ${type} and hairstyle to: ${hairstyle}${description ? `. Additional details: ${description}` : ""}. Keep the person's face and body structure similar, only change the clothing and hair style.`;
+    }
 
-    console.log("🔄 Fetching image from:", cloudinaryFile.url);
-    const response = await fetch(cloudinaryFile.url);
+    console.log("🔄 Fetching person image from:", personImage.url);
+    const response = await fetch(personImage.url);
     if (!response.ok) {
       throw new Error(`Failed to fetch from Cloudinary: ${response.statusText}`);
     }
     const buffer = await response.arrayBuffer();
     const imageBase64 = Buffer.from(buffer).toString("base64");
-    console.log("✅ Image fetched and converted to base64");
+    console.log("✅ Person image fetched and converted to base64");
+
+    let imageInputs = [`data:image/jpeg;base64,${imageBase64}`];
+
+    if (clothingImage) {
+      console.log("🔄 Fetching clothing image from:", clothingImage.url);
+      const clothingResponse = await fetch(clothingImage.url);
+      if (!clothingResponse.ok) {
+        throw new Error(`Failed to fetch clothing image: ${clothingResponse.statusText}`);
+      }
+      const clothingBuffer = await clothingResponse.arrayBuffer();
+      const clothingBase64 = Buffer.from(clothingBuffer).toString("base64");
+      console.log("✅ Clothing image fetched and converted to base64");
+      imageInputs.push(`data:image/jpeg;base64,${clothingBase64}`);
+    }
 
     console.log("📸 Running Replicate model for outfit generation");
     const output = await replicate.run("google/nano-banana", {
       input: {
         prompt: outfitPrompt,
-        image_input: [`data:image/jpeg;base64,${imageBase64}`],
+        image_input: imageInputs,
       },
     });
 
@@ -227,11 +253,14 @@ exports.generateOutfit = async (req, res) => {
         ? userId
         : new mongoose.Types.ObjectId(userId);
 
+      const promptName = clothingImage ? `outfit_custom_clothing` : `outfit_${type}_${hairstyle}`;
+      const promptTitle = clothingImage ? `Đổi trang phục: Tùy chỉnh` : `Đổi trang phục: ${type}, tóc: ${hairstyle}`;
+
       history = await History.create({
         userId: userObjectId,
-        promptName: `outfit_${type}_${hairstyle}`,
-        promptTitle: `Đổi trang phục: ${type}, tóc: ${hairstyle}`,
-        originalImagePath: cloudinaryFile.url,
+        promptName: promptName,
+        promptTitle: promptTitle,
+        originalImagePath: personImage.url,
         outputImagePath: cloudinaryOutputUrl,
         outputImageUrl: imageUrl,
         status: "success",

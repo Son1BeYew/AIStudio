@@ -555,6 +555,9 @@
       const outfitUploadArea = document.getElementById("outfit-upload-area");
       const outfitFileInput = document.getElementById("outfit-file-input");
       const outfitChooseBtn = document.getElementById("outfit-choose-btn");
+      const clothingUploadArea = document.getElementById("clothing-upload-area");
+      const clothingFileInput = document.getElementById("clothing-file-input");
+      const clothingChooseBtn = document.getElementById("clothing-choose-btn");
       const outfitGenderSelect = document.getElementById("outfit-gender-select");
       const outfitTypeSelect = document.getElementById("outfit-type-select");
       const outfitHairstyleSelect = document.getElementById(
@@ -562,6 +565,7 @@
       );
       const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
       let outfitSelectedFile = null;
+      let clothingSelectedFile = null;
 
       // Load outfit types and hairstyles based on gender
       async function loadOutfitStyles(gender) {
@@ -657,20 +661,59 @@
         reader.readAsDataURL(file);
       }
 
+      // Clothing upload handlers
+      clothingUploadArea.addEventListener("click", () => clothingFileInput.click());
+      clothingChooseBtn.addEventListener("click", () => clothingFileInput.click());
+
+      clothingUploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        clothingUploadArea.style.borderColor = "#666";
+      });
+
+      clothingUploadArea.addEventListener("dragleave", () => {
+        clothingUploadArea.style.borderColor = "#ccc";
+      });
+
+      clothingUploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file) handleClothingFile(file);
+      });
+
+      clothingFileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) handleClothingFile(file);
+      });
+
+      function handleClothingFile(file) {
+        clothingSelectedFile = file;
+        const reader = new FileReader();
+        reader.onload = () => {
+          clothingUploadArea.innerHTML = `
+            <img src="${reader.result}" 
+              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
+          `;
+        };
+        reader.readAsDataURL(file);
+      }
+
       outfitGenerateBtn.addEventListener("click", async () => {
         if (!checkAuthBeforeAction()) return;
 
         if (!outfitSelectedFile) {
-          alert("Vui lòng chọn ảnh trước");
+          alert("Vui lòng chọn ảnh người trước");
           return;
         }
-        if (!outfitGenderSelect.value) {
-          alert("Vui lòng chọn giới tính");
-          return;
-        }
-        if (!outfitTypeSelect.value || !outfitHairstyleSelect.value) {
-          alert("Vui lòng chọn loại trang phục và kiểu tóc");
-          return;
+
+        if (!clothingSelectedFile) {
+          if (!outfitGenderSelect.value) {
+            alert("Vui lòng chọn giới tính");
+            return;
+          }
+          if (!outfitTypeSelect.value || !outfitHairstyleSelect.value) {
+            alert("Vui lòng chọn loại trang phục và kiểu tóc");
+            return;
+          }
         }
 
         const token = localStorage.getItem("token");
@@ -682,6 +725,20 @@
         formData.append("hairstyle", outfitHairstyleSelect.value);
         formData.append("description", outfitDescription);
         formData.append("image", outfitSelectedFile);
+        if (clothingSelectedFile) {
+          formData.append("clothing", clothingSelectedFile);
+        }
+        
+        console.log("📤 FormData contents:");
+        console.log("   - outfitSelectedFile:", outfitSelectedFile);
+        console.log("   - clothingSelectedFile:", clothingSelectedFile);
+        for (let [key, value] of formData.entries()) {
+          if (value instanceof File) {
+            console.log(`   - ${key}: File(${value.name}, ${value.size} bytes)`);
+          } else {
+            console.log(`   - ${key}: ${value}`);
+          }
+        }
 
         try {
           outfitGenerateBtn.disabled = true;
