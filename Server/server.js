@@ -24,6 +24,19 @@ app.use(cors({
   credentials: true,
 }));
 
+app.use((req, res, next) => {
+  const origin = req.headers.origin || req.headers.host;
+  if (
+    origin?.includes("localhost") ||
+    origin?.includes("127.0.0.1") ||
+    origin?.includes("ngrok")
+  ) {
+    res.setHeader("Access-Control-Allow-Origin", "https://enternapic.io.vn");
+  }
+  next();
+});
+
+app.set("trust proxy", 1);
 app.use(express.json());
 
 connectDB();
