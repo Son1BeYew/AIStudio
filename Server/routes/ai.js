@@ -54,7 +54,10 @@ router.post(
   checkAuth,
   (req, res, next) => {
     console.log("📬 POST /generate-outfit request received");
-    upload.single("image")(req, res, (err) => {
+    upload.fields([
+      { name: "image", maxCount: 1 },
+      { name: "clothing", maxCount: 1 }
+    ])(req, res, (err) => {
       handleMulterError(err, req, res, () => {
         attachCloudinaryFile(req, res, next);
       });
