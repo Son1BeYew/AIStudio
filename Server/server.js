@@ -19,7 +19,11 @@ const outfitStyleRoutes = require("./routes/outfitStyles");
 const serviceConfigRoutes = require("./routes/serviceConfig");
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ["https://enternapic.io.vn", "https://www.enternapic.io.vn"],
+  credentials: true,
+}));
+
 app.use(express.json());
 
 connectDB();
