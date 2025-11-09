@@ -27,16 +27,27 @@ exports.update = async (req, res) => {
     const { service } = req.params;
     const { fee } = req.body;
 
+    console.log(`📝 Updating service fee: service=${service}, fee=${fee}`);
+
+    if (!service || fee === undefined) {
+      console.error("❌ Missing service or fee");
+      return res.status(400).json({ error: "service và fee là bắt buộc" });
+    }
+
     let config = await ServiceConfig.findOne({ service });
     if (!config) {
+      console.log("✅ Creating new config for", service);
       config = await ServiceConfig.create({ service, fee });
     } else {
+      console.log("✅ Updating existing config for", service);
       config.fee = fee;
       await config.save();
     }
 
+    console.log("✅ Config updated:", config);
     res.json(config);
   } catch (error) {
+    console.error("❌ Error updating service config:", error);
     res.status(500).json({ error: error.message });
   }
 };

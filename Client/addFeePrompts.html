@@ -686,12 +686,17 @@
           body: JSON.stringify({ fee }),
         });
 
-        if (!response.ok) throw new Error("Lỗi cập nhật");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Lỗi cập nhật");
+        }
 
         serviceFees.outfit = fee;
         document.getElementById("outfit-current").textContent = fee + " VND";
         showAlert(`✅ Cập nhật phí đổi trang phục thành ${fee} VND!`);
       } catch (error) {
+        console.error("❌ Outfit fee error:", error);
         showAlert("Lỗi: " + error.message, "error");
       }
     }
@@ -709,12 +714,17 @@
           body: JSON.stringify({ fee }),
         });
 
-        if (!response.ok) throw new Error("Lỗi cập nhật");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Lỗi cập nhật");
+        }
 
         serviceFees.background = fee;
         document.getElementById("bg-current").textContent = fee + " VND";
         showAlert(`✅ Cập nhật phí đổi bối cảnh thành ${fee} VND!`);
       } catch (error) {
+        console.error("❌ Background fee error:", error);
         showAlert("Lỗi: " + error.message, "error");
       }
     }
