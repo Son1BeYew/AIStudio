@@ -565,76 +565,14 @@
           }
         }
 
-        const token = localStorage.getItem("token");
-        const outfitDescription =
-          document.getElementById("outfit-description").value;
+        const outfitDescription = document.getElementById("outfit-description").value;
 
-        const formData = new FormData();
-        formData.append("type", outfitTypeSelect.value);
-        formData.append("hairstyle", outfitHairstyleSelect.value);
-        formData.append("description", outfitDescription);
-        formData.append("image", outfitSelectedFile);
-        if (clothingSelectedFile) {
-          formData.append("clothing", clothingSelectedFile);
-        }
-        
-        console.log("📤 FormData contents:");
-        console.log("   - outfitSelectedFile:", outfitSelectedFile);
-        console.log("   - clothingSelectedFile:", clothingSelectedFile);
-        for (let [key, value] of formData.entries()) {
-          if (value instanceof File) {
-            console.log(`   - ${key}: File(${value.name}, ${value.size} bytes)`);
-          } else {
-            console.log(`   - ${key}: ${value}`);
-          }
-        }
-
-        try {
-          outfitGenerateBtn.disabled = true;
-          outfitGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
-          
-          const outfitOutputArea = document.getElementById("outfit-output-area");
-          outfitOutputArea.innerHTML = `
-            <div class="loading-container">
-              <div class="loading-spinner"></div>
-              <div class="loading-text">Đang thay đổi trang phục...</div>
-            </div>
-          `;
-
-          const response = await fetch("/api/ai/generate-outfit", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          });
-
-          const result = await response.json();
-
-          if (result.success) {
-            displayOutfitOutput(result);
-          } else {
-            const outfitOutputArea = document.getElementById("outfit-output-area");
-            outfitOutputArea.innerHTML = `
-              <div class="output-placeholder" style="color: #d32f2f;">
-                <p>❌ ${result.error || result.message}</p>
-              </div>
-            `;
-            alert("Lỗi: " + (result.error || result.message));
-          }
-        } catch (error) {
-          console.error("Lỗi:", error);
-          const outfitOutputArea = document.getElementById("outfit-output-area");
-          outfitOutputArea.innerHTML = `
-            <div class="output-placeholder" style="color: #d32f2f;">
-              <p>❌ Lỗi khi thay đổi trang phục: ${error.message}</p>
-            </div>
-          `;
-          alert("Lỗi khi thay đổi trang phục: " + error.message);
-        } finally {
-          outfitGenerateBtn.disabled = false;
-          outfitGenerateBtn.innerHTML = "<span></span>Thay Đổi";
-        }
+        showConfirmDialog(null, outfitSelectedFile, "outfit", {
+          outfitType: outfitTypeSelect.value,
+          outfitHairstyle: outfitHairstyleSelect.value,
+          outfitDescription: outfitDescription,
+          clothingFile: clothingSelectedFile
+        });
       });
 
       function displayOutfitOutput(result) {
