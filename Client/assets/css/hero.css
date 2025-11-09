@@ -1,23 +1,23 @@
 .hero {
-  display: flex;                 /* 👈 đặt các phần tử nằm ngang */
-  align-items: center;           /* căn giữa theo chiều dọc */
-  justify-content: space-between;/* phân bố hai bên và giữa */
-  gap: 30px;                     /* khoảng cách giữa các phần */
-  padding: 80px 60px;            /* khoảng cách xung quanh */
+  display: flex;                 
+  align-items: center;           
+  justify-content: space-between;
+  gap: 30px;                     
+  padding: 80px 60px;            
   text-align: center;
 }
 
+/* Ảnh trong hero */
 .hero-image {
   width: 320px;
   height: auto;
   border-radius: 25px;
   object-fit: cover;
-  /* Glow tím/cam hiện tại */
   transition: transform 0.8s ease, filter 0.8s ease, box-shadow 0.8s ease;
-  /* ✅ Viền mờ xám bên ngoài */
   box-shadow: 0 0 0 10px rgba(0, 0, 0, 1);
 }
 
+/* Hiệu ứng nổi nhẹ */
 .hero-image.left {
   animation: floatLeft 6s ease-in-out infinite;
 }
@@ -26,8 +26,81 @@
   animation: floatRight 6s ease-in-out infinite;
 }
 
+/* Hover glow */
 .hero-image:hover {
   transform: scale(1.08);
   filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.5));
-  box-shadow: 0 0 0 4px rgba(200, 200, 200, 0.3); /* hover đậm hơn */
+  box-shadow: 0 0 0 4px rgba(200, 200, 200, 0.3);
 }
+
+/* Floating animation */
+@keyframes floatLeft {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+@keyframes floatRight {
+  0%, 100% { transform: translateY(0) rotate(1deg); }
+  50% { transform: translateY(-10px) rotate(-1deg); }
+}
+
+/* Scroll Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* 🌟 NEW: Bay từ trên xuống chếch 45 độ (diagonal) */
+@keyframes fadeInDiagonal {
+  from { 
+    opacity: 0; 
+    transform: translate(-40px, -40px) rotate(-2deg);
+  }
+  to { 
+    opacity: 1; 
+    transform: translate(0, 0) rotate(0);
+  }
+}
+
+/* Base scroll setup */
+.scroll-fade-in-up,
+.scroll-fade-in-left,
+.scroll-fade-in-right,
+.scroll-scale-in,
+.scroll-fade-in-diagonal {
+  opacity: 1;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* Hidden state */
+.scroll-fade-in-up:not(.visible),
+.scroll-fade-in-left:not(.visible),
+.scroll-fade-in-right:not(.visible),
+.scroll-scale-in:not(.visible),
+.scroll-fade-in-diagonal:not(.visible) {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: none;
+}
+
+/* Visible states */
+.scroll-fade-in-up.visible { animation: fadeInUp 0.8s ease forwards; }
+.scroll-fade-in-left.visible { animation: fadeInLeft 0.8s ease forwards; }
+.scroll-fade-in-right.visible { animation: fadeInRight 0.8s ease forwards; }
+.scroll-scale-in.visible { animation: scaleIn 0.8s ease forwards; }
+.scroll-fade-in-diagonal.visible { animation: fadeInDiagonal 0.8s ease forwards; }

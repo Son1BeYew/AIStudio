@@ -1,3 +1,34 @@
+function initScrollAnimations() {
+  const scrollElements = document.querySelectorAll(
+    ".scroll-fade-in-up, .scroll-fade-in-left, .scroll-fade-in-right, .scroll-scale-in"
+  );
+
+  const elementInView = (el, dividend = 1) => {
+    const elementTop = el.getBoundingClientRect().top;
+    return (
+      elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+    );
+  };
+
+  const elementOutofView = (el) => {
+    const elementTop = el.getBoundingClientRect().top;
+    return elementTop > (window.innerHeight || document.documentElement.clientHeight);
+  };
+
+  const displayScrollElement = () => {
+    scrollElements.forEach((element) => {
+      if (elementInView(element, 1.25)) {
+        element.classList.add("visible");
+      } else if (elementOutofView(element)) {
+        element.classList.remove("visible");
+      }
+    });
+  };
+
+  window.addEventListener("scroll", displayScrollElement);
+  displayScrollElement();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const componentCSS = {
     header: "/assets/css/header.css",
@@ -23,6 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (componentCSS[id]) loadCSS(componentCSS[id]);
 
         if (id === "header") checkAuth();
+        
+        initScrollAnimations();
       })
       .catch((err) => console.error("Không thể nạp " + file, err));
   }
@@ -77,77 +110,99 @@ function checkAuth() {
   .user-menu {
     position: relative;
     display: inline-block;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
   }
+
   .user-trigger {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 8px;
-    transition: background 0.25s;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
   }
-  .user-trigger:hover {
-    background: #f3f4f6;
-  }
+
   .avatar {
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid #e5e7eb;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
   }
+
   .username {
-    font-weight: 500;
+    font-weight: 600;
     color: #1f2937;
-    font-size: 14px;
+    font-size: 16px;
   }
+
   .arrow-icon {
-    transition: transform 0.25s ease;
+    transition: transform 0.3s ease;
   }
+
   .dropdown {
     position: absolute;
     right: 0;
     top: 115%;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    min-width: 160px;
+    background: rgba(211, 211, 211, 0.76);
+    border-radius: 14px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    min-width: 180px;
     display: none;
     flex-direction: column;
-    animation: fadeIn 0.2s ease;
-    z-index: 10;
+    animation: fadeScaleIn 0.3s ease;
+    z-index: 20;
     overflow: hidden;
+    backdrop-filter: blur(10px);
   }
-  .dropdown a, .dropdown button {
-    padding: 10px 14px;
-    text-align: left;
-    background: #ffffff !important;
-    border: none !important;
-    outline: none;
-    cursor: pointer;
-    font-size: 14px;
-    color: #374151 !important;
-    font-weight: 500;
-    transition: background 0.25s, color 0.25s;
-    text-decoration: none !important;
+
+  .dropdown a,
+.dropdown button {
+  padding: 12px 12px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2a2a2aff;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  text-decoration: none !important;
+}
+
+
+  .dropdown a:hover,
+  .dropdown button:hover {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.1), rgba(255,255,255,1));
+    color: #000000ff;
   }
-  .dropdown a:hover, .dropdown button:hover {
-    background: #f3f4f6 !important;
-    color: #4f46e5 !important;
-  }
+
+
   .dropdown hr {
     border: none;
-    border-top: 1px solid #e5e7eb;
-    margin: 4px 0;
+    border-top: 1px solid rgba(229,231,235,0.8);
+    margin: 6px 0;
   }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+
+  @keyframes fadeScaleIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 `;
+
+
 
       document.head.appendChild(style);
 
@@ -183,12 +238,15 @@ function logout() {
 
 function redirectToGenImage() {
   const token = localStorage.getItem("token");
+
   if (!token) {
-    showLoginModalHome();
+    window.location.href = "/login.html";
     return;
   }
+
   window.location.href = "/genImage.html";
 }
+
 
 function showLoginModalHome() {
   // Tạo modal nếu chưa có
