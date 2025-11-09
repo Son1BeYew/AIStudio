@@ -26,6 +26,7 @@ const trendingPrompts = [
       "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=300&h=300&fit=crop",
     order: 0,
     isActive: true,
+    fee: 5000,
   },
   {
     name: "fantasy_art",
@@ -37,6 +38,7 @@ const trendingPrompts = [
       "https://images.unsplash.com/photo-1578301978162-7aae4d755744?w=300&h=300&fit=crop",
     order: 1,
     isActive: true,
+    fee: 3000,
   },
   {
     name: "oil_painting",
@@ -48,6 +50,7 @@ const trendingPrompts = [
       "https://images.unsplash.com/photo-1561214115-6d2f1b0609fa?w=300&h=300&fit=crop",
     order: 2,
     isActive: true,
+    fee: 4000,
   },
   {
     name: "studio_portrait",
@@ -59,6 +62,7 @@ const trendingPrompts = [
       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop",
     order: 3,
     isActive: true,
+    fee: 2000,
   },
   {
     name: "anime_style",
@@ -70,6 +74,7 @@ const trendingPrompts = [
       "https://images.unsplash.com/photo-1588088113235-8d51a827b60f?w=300&h=300&fit=crop",
     order: 4,
     isActive: true,
+    fee: 3500,
   },
   {
     name: "watercolor",
@@ -81,6 +86,7 @@ const trendingPrompts = [
       "https://images.unsplash.com/photo-1561214115-6d2f1b0609fa?w=300&h=300&fit=crop",
     order: 5,
     isActive: true,
+    fee: 2500,
   },
   {
     name: "3d_render",
@@ -92,6 +98,7 @@ const trendingPrompts = [
       "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=300&h=300&fit=crop",
     order: 6,
     isActive: true,
+    fee: 6000,
   },
   {
     name: "film_noir",
@@ -103,6 +110,7 @@ const trendingPrompts = [
       "https://images.unsplash.com/photo-1578926078328-123fc1ff11c3?w=300&h=300&fit=crop",
     order: 7,
     isActive: true,
+    fee: 3000,
   },
 ];
 

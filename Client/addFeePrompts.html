@@ -281,6 +281,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="regular">📷 Regular Prompts</button>
       <button class="tab-btn" data-tab="trending">🔥 Trending Prompts</button>
+      <button class="tab-btn" data-tab="services">👗 Dịch vụ khác</button>
     </div>
 
     <div class="content">
@@ -359,13 +360,108 @@
           </button>
         </div>
       </div>
+
+      <!-- Services Tab -->
+      <div class="tab-content" id="services-tab">
+        <div class="info-box">
+          <strong>💡 Hướng dẫn:</strong> Quản lý phí cho các dịch vụ khác như Đổi trang phục, Đổi bối cảnh, v.v.
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Dịch vụ</th>
+                <th>Mô tả</th>
+                <th>Phí Hiện Tại (VND)</th>
+                <th>Phí Mới (VND)</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>👗 Đổi Trang Phục/Tóc</strong></td>
+                <td>Thay đổi trang phục, kiểu tóc của nhân vật</td>
+                <td id="outfit-current">0 VND</td>
+                <td>
+                  <input 
+                    type="number" 
+                    id="outfit-fee" 
+                    placeholder="Nhập phí mới" 
+                    min="0"
+                    value="0"
+                  />
+                </td>
+                <td>
+                  <button class="btn btn-save" onclick="saveOutfitFee()">
+                    Lưu
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>🎨 Đổi Bối Cảnh</strong></td>
+                <td>Thay đổi nền/bối cảnh của ảnh</td>
+                <td id="bg-current">0 VND</td>
+                <td>
+                  <input 
+                    type="number" 
+                    id="bg-fee" 
+                    placeholder="Nhập phí mới" 
+                    min="0"
+                    value="0"
+                  />
+                </td>
+                <td>
+                  <button class="btn btn-save" onclick="saveBackgroundFee()">
+                    Lưu
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" onclick="saveAllServices()">
+            ✅ Lưu Tất Cả Dịch Vụ
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     let regularPrompts = [];
     let trendingPrompts = [];
+    let serviceFees = {
+      outfit: 0,
+      background: 0
+    };
     let token = localStorage.getItem("token");
+
+    // Load service fees from API
+    async function loadServiceFees() {
+      try {
+        const outfitRes = await fetch("/api/service-config/outfit", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const outfitData = await outfitRes.json();
+        serviceFees.outfit = outfitData?.fee || 0;
+        
+        const bgRes = await fetch("/api/service-config/background", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const bgData = await bgRes.json();
+        serviceFees.background = bgData?.fee || 0;
+        
+        document.getElementById("outfit-fee").value = serviceFees.outfit;
+        document.getElementById("outfit-current").textContent = serviceFees.outfit + " VND";
+        document.getElementById("bg-fee").value = serviceFees.background;
+        document.getElementById("bg-current").textContent = serviceFees.background + " VND";
+      } catch (error) {
+        console.error("Lỗi load service fees:", error);
+      }
+    }
 
     // Tab switching
     document.querySelectorAll(".tab-btn").forEach((btn) => {
@@ -577,12 +673,64 @@
       showAlert("✅ Tất cả trending prompts đã được lưu!");
     }
 
+    async function saveOutfitFee() {
+      const fee = parseInt(document.getElementById("outfit-fee").value) || 0;
+      
+      try {
+        const response = await fetch("/api/service-config/outfit", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ fee }),
+        });
+
+        if (!response.ok) throw new Error("Lỗi cập nhật");
+
+        serviceFees.outfit = fee;
+        document.getElementById("outfit-current").textContent = fee + " VND";
+        showAlert(`✅ Cập nhật phí đổi trang phục thành ${fee} VND!`);
+      } catch (error) {
+        showAlert("Lỗi: " + error.message, "error");
+      }
+    }
+
+    async function saveBackgroundFee() {
+      const fee = parseInt(document.getElementById("bg-fee").value) || 0;
+      
+      try {
+        const response = await fetch("/api/service-config/background", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ fee }),
+        });
+
+        if (!response.ok) throw new Error("Lỗi cập nhật");
+
+        serviceFees.background = fee;
+        document.getElementById("bg-current").textContent = fee + " VND";
+        showAlert(`✅ Cập nhật phí đổi bối cảnh thành ${fee} VND!`);
+      } catch (error) {
+        showAlert("Lỗi: " + error.message, "error");
+      }
+    }
+
+    async function saveAllServices() {
+      saveOutfitFee();
+      saveBackgroundFee();
+    }
+
     // Auto load on page load
     window.addEventListener("load", () => {
       if (!token) {
         alert("Vui lòng đăng nhập trước!");
         window.location.href = "/Client/login.html";
       }
+      loadServiceFees();
       loadRegularPrompts();
     });
   </script>

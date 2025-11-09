@@ -794,6 +794,7 @@
         
         const token = localStorage.getItem("token");
         let promptData = null;
+        let fee = 0;
         
         const response = await fetch("/api/prompts", {
           headers: { Authorization: `Bearer ${token}` }
@@ -810,7 +811,22 @@
           promptData = trendingPrompts.find(p => p.name === promptName);
         }
         
-        const fee = promptData?.fee || 0;
+        if (type === "faceImage") {
+          fee = promptData?.fee || 0;
+        } else if (type === "outfit") {
+          const configResponse = await fetch("/api/service-config/outfit", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const configData = await configResponse.json();
+          fee = configData?.fee || 0;
+        } else if (type === "background") {
+          const configResponse = await fetch("/api/service-config/background", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const configData = await configResponse.json();
+          fee = configData?.fee || 0;
+        }
+        
         const profileResponse = await fetch("/api/profile/me", {
           headers: { Authorization: `Bearer ${token}` }
         });

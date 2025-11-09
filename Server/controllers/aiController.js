@@ -5,6 +5,7 @@ const Prompt = require("../models/Prompt");
 const PromptTrending = require("../models/PromptTrending");
 const History = require("../models/History");
 const Profile = require("../models/Profile");
+const ServiceConfig = require("../models/ServiceConfig");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
@@ -197,13 +198,20 @@ exports.generateOutfit = async (req, res) => {
 
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
 
-    // Kiểm tra và trừ phí outfit (nếu có)
+    // Kiểm tra và trừ phí outfit
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
     
     const profile = await Profile.findOne({ userId: userObjectId });
-    const outfitFee = 0; // Set outfit fee mặc định là 0, có thể tính khác nếu cần
+    let outfitFee = 0;
+    
+    try {
+      const configOutfit = await ServiceConfig.findOne({ service: "outfit" });
+      outfitFee = configOutfit?.fee || 0;
+    } catch (err) {
+      console.error("⚠️ Lỗi lấy outfit fee:", err.message);
+    }
     
     if (outfitFee > 0) {
       if (!profile || profile.balance < outfitFee) {
@@ -339,13 +347,20 @@ exports.generateBackground = async (req, res) => {
     if (!type) return res.status(400).json({ error: "Loại bối cảnh là bắt buộc" });
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
 
-    // Kiểm tra và trừ phí background (nếu có)
+    // Kiểm tra và trừ phí background
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
     
     const profile = await Profile.findOne({ userId: userObjectId });
-    const backgroundFee = 0; // Set background fee mặc định là 0, có thể tính khác nếu cần
+    let backgroundFee = 0;
+    
+    try {
+      const configBg = await ServiceConfig.findOne({ service: "background" });
+      backgroundFee = configBg?.fee || 0;
+    } catch (err) {
+      console.error("⚠️ Lỗi lấy background fee:", err.message);
+    }
     
     if (backgroundFee > 0) {
       if (!profile || profile.balance < backgroundFee) {
