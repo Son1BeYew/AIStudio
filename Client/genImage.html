@@ -385,6 +385,34 @@
       </div>
     </div>
 
+    <!-- Confirmation Dialog -->
+    <div id="confirmDialog" class="confirm-modal hidden">
+      <div class="confirm-overlay" onclick="closeConfirmDialog()"></div>
+      <div class="confirm-content">
+        <div class="confirm-header">
+          <h3 id="confirmTitle">Xác nhận tạo ảnh</h3>
+          <button class="confirm-close" onclick="closeConfirmDialog()">✕</button>
+        </div>
+        <div class="confirm-body">
+          <p id="confirmMessage">Bạn chắc chắn muốn tạo ảnh?</p>
+          <div class="price-section">
+            <div class="price-row">
+              <span>Giá tiền:</span>
+              <strong id="confirmPrice">0 VND</strong>
+            </div>
+            <div class="price-row">
+              <span>Số dư hiện tại:</span>
+              <strong id="confirmBalance">0 VND</strong>
+            </div>
+          </div>
+        </div>
+        <div class="confirm-actions">
+          <button class="btn-cancel" onclick="closeConfirmDialog()">Hủy</button>
+          <button class="btn-confirm" onclick="proceedGenerate()">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+
     <div id="footer"></div>
     <script src="/assets/js/auth-utils.js"></script>
     <script src="/assets/js/main.js"></script>

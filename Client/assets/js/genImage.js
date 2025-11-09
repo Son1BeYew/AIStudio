@@ -331,59 +331,7 @@
           return;
         }
 
-        const token = localStorage.getItem("token");
-
-        const formData = new FormData();
-        formData.append("promptName", promptSelect.value);
-        formData.append("image", selectedFile);
-
-        try {
-          generateBtn.disabled = true;
-          generateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
-          
-          const outputArea = document.getElementById("output-area");
-          outputArea.innerHTML = `
-            <div class="loading-container">
-              <div class="loading-spinner"></div>
-              <div class="loading-text">Đang tạo ảnh...</div>
-            </div>
-          `;
-
-          const response = await fetch("/api/ai/generate", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          });
-
-          const result = await response.json();
-
-          if (result.success) {
-            currentImageUrl = result.localPath;
-            displayOutput(result);
-          } else {
-            const outputArea = document.getElementById("output-area");
-            outputArea.innerHTML = `
-              <div class="output-placeholder" style="color: #d32f2f;">
-                <p>❌ ${result.error || result.message}</p>
-              </div>
-            `;
-            alert("Lỗi: " + (result.error || result.message));
-          }
-        } catch (error) {
-          console.error("Lỗi:", error);
-          const outputArea = document.getElementById("output-area");
-          outputArea.innerHTML = `
-            <div class="output-placeholder" style="color: #d32f2f;">
-              <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
-            </div>
-          `;
-          alert("Lỗi khi tạo ảnh: " + error.message);
-        } finally {
-          generateBtn.disabled = false;
-          generateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
-        }
+        showConfirmDialog(promptSelect.value, selectedFile, "faceImage");
       });
 
       // Hiển thị kết quả output
@@ -832,3 +780,128 @@
         overlay.addEventListener("click", closeLoginModal);
       }
     });
+
+    // Confirmation Dialog Functions
+    let pendingGenerateData = {
+      promptName: null,
+      selectedFile: null,
+      type: "faceImage"
+    };
+
+    async function showConfirmDialog(promptName, file, type = "faceImage") {
+      try {
+        pendingGenerateData = { promptName, selectedFile: file, type };
+        
+        const token = localStorage.getItem("token");
+        let promptData = null;
+        
+        const response = await fetch("/api/prompts", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const prompts = await response.json();
+        promptData = prompts.find(p => p.name === promptName);
+        
+        if (!promptData) {
+          const trendingResponse = await fetch("/api/prompts-trending", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const trendingPrompts = await trendingResponse.json();
+          promptData = trendingPrompts.find(p => p.name === promptName);
+        }
+        
+        const fee = promptData?.fee || 0;
+        const profileResponse = await fetch("/api/profile/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const profileData = await profileResponse.json();
+        const balance = profileData.balance || 0;
+        
+        document.getElementById("confirmPrice").textContent = fee.toLocaleString() + " VND";
+        document.getElementById("confirmBalance").textContent = balance.toLocaleString() + " VND";
+        
+        if (balance < fee) {
+          document.getElementById("confirmBalance").style.color = "#d32f2f";
+          document.querySelector(".btn-confirm").disabled = true;
+        } else {
+          document.getElementById("confirmBalance").style.color = "#10b981";
+          document.querySelector(".btn-confirm").disabled = false;
+        }
+        
+        const dialog = document.getElementById("confirmDialog");
+        dialog.classList.remove("hidden");
+      } catch (error) {
+        console.error("Lỗi load thông tin giá:", error);
+        alert("Lỗi khi tải thông tin giá");
+      }
+    }
+
+    function closeConfirmDialog() {
+      const dialog = document.getElementById("confirmDialog");
+      dialog.classList.add("hidden");
+      pendingGenerateData = { promptName: null, selectedFile: null, type: "faceImage" };
+    }
+
+    async function proceedGenerate() {
+      if (!pendingGenerateData.selectedFile || !pendingGenerateData.promptName) {
+        alert("Dữ liệu không hợp lệ");
+        return;
+      }
+
+      closeConfirmDialog();
+      
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("promptName", pendingGenerateData.promptName);
+      formData.append("image", pendingGenerateData.selectedFile);
+
+      try {
+        const generateBtn = document.getElementById("generate-btn");
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+        
+        const outputArea = document.getElementById("output-area");
+        outputArea.innerHTML = `
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Đang tạo ảnh...</div>
+          </div>
+        `;
+
+        const response = await fetch("/api/ai/generate", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          currentImageUrl = result.localPath;
+          displayOutput(result);
+        } else {
+          const outputArea = document.getElementById("output-area");
+          outputArea.innerHTML = `
+            <div class="output-placeholder" style="color: #d32f2f;">
+              <p>❌ ${result.error || result.message}</p>
+            </div>
+          `;
+          alert("Lỗi: " + (result.error || result.message));
+        }
+      } catch (error) {
+        console.error("Lỗi:", error);
+        const outputArea = document.getElementById("output-area");
+        outputArea.innerHTML = `
+          <div class="output-placeholder" style="color: #d32f2f;">
+            <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
+          </div>
+        `;
+        alert("Lỗi khi tạo ảnh: " + error.message);
+      } finally {
+        const generateBtn = document.getElementById("generate-btn");
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
+      }
+    }
