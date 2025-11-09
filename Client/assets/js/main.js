@@ -1,3 +1,34 @@
+function initScrollAnimations() {
+  const scrollElements = document.querySelectorAll(
+    ".scroll-fade-in-up, .scroll-fade-in-left, .scroll-fade-in-right, .scroll-scale-in"
+  );
+
+  const elementInView = (el, dividend = 1) => {
+    const elementTop = el.getBoundingClientRect().top;
+    return (
+      elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+    );
+  };
+
+  const elementOutofView = (el) => {
+    const elementTop = el.getBoundingClientRect().top;
+    return elementTop > (window.innerHeight || document.documentElement.clientHeight);
+  };
+
+  const displayScrollElement = () => {
+    scrollElements.forEach((element) => {
+      if (elementInView(element, 1.25)) {
+        element.classList.add("visible");
+      } else if (elementOutofView(element)) {
+        element.classList.remove("visible");
+      }
+    });
+  };
+
+  window.addEventListener("scroll", displayScrollElement);
+  displayScrollElement();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const componentCSS = {
     header: "/assets/css/header.css",
@@ -23,6 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (componentCSS[id]) loadCSS(componentCSS[id]);
 
         if (id === "header") checkAuth();
+        
+        initScrollAnimations();
       })
       .catch((err) => console.error("Không thể nạp " + file, err));
   }
@@ -205,12 +238,15 @@ function logout() {
 
 function redirectToGenImage() {
   const token = localStorage.getItem("token");
+
   if (!token) {
-    showLoginModalHome();
+    window.location.href = "/login.html";
     return;
   }
+
   window.location.href = "/genImage.html";
 }
+
 
 function showLoginModalHome() {
   // Tạo modal nếu chưa có
