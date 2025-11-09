@@ -148,62 +148,11 @@
               return;
             }
 
-            const token = localStorage.getItem("token");
             const additionalDesc = document.getElementById("trend-additional-desc").value;
-            const trend = window.currentTrend;
 
-            const formData = new FormData();
-            formData.append("promptName", trend.name);
-            formData.append("image", window.trendSelectedFile);
-            formData.append("isTrend", true);
-
-            try {
-              generateBtn.disabled = true;
-              generateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
-              
-              // Show loading in output area
-              const outputArea = document.getElementById("trend-output-area");
-              outputArea.innerHTML = `
-                <div class="loading-container">
-                  <div class="loading-spinner"></div>
-                  <div class="loading-text">Đang tạo ảnh...</div>
-                </div>
-              `;
-
-              const response = await fetch("/api/ai/generate", {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-                body: formData,
-              });
-
-              const result = await response.json();
-
-              if (result.success) {
-                displayTrendOutput(result);
-              } else {
-                const outputArea = document.getElementById("trend-output-area");
-                outputArea.innerHTML = `
-                  <div class="output-placeholder" style="color: #d32f2f;">
-                    <p>❌ ${result.error || result.message}</p>
-                  </div>
-                `;
-                alert("Lỗi: " + (result.error || result.message));
-              }
-            } catch (error) {
-              console.error("Lỗi:", error);
-              const outputArea = document.getElementById("trend-output-area");
-              outputArea.innerHTML = `
-                <div class="output-placeholder" style="color: #d32f2f;">
-                  <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
-                </div>
-              `;
-              alert("Lỗi khi tạo ảnh: " + error.message);
-            } finally {
-              generateBtn.disabled = false;
-              generateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
-            }
+            showConfirmDialog(null, window.trendSelectedFile, "trending", {
+              trendDescription: additionalDesc
+            });
           });
         }
       });
@@ -331,7 +280,9 @@
           return;
         }
 
-        showConfirmDialog(promptSelect.value, selectedFile, "faceImage");
+        showConfirmDialog(promptSelect.value, selectedFile, "faceImage", {
+          promptSelect: promptSelect.value
+        });
       });
 
       // Hiển thị kết quả output
@@ -428,60 +379,10 @@
           return;
         }
 
-        const token = localStorage.getItem("token");
-        const bgDescription = document.getElementById("bg-description").value;
-
-        const formData = new FormData();
-        formData.append("type", bgTypeSelect.value);
-        formData.append("description", bgDescription);
-        formData.append("image", bgSelectedFile);
-
-        try {
-          bgGenerateBtn.disabled = true;
-          bgGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
-          
-          const bgOutputArea = document.getElementById("bg-output-area");
-          bgOutputArea.innerHTML = `
-            <div class="loading-container">
-              <div class="loading-spinner"></div>
-              <div class="loading-text">Đang tạo bối cảnh...</div>
-            </div>
-          `;
-
-          const response = await fetch("/api/ai/generate-background", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          });
-
-          const result = await response.json();
-
-          if (result.success) {
-            displayBgOutput(result);
-          } else {
-            const bgOutputArea = document.getElementById("bg-output-area");
-            bgOutputArea.innerHTML = `
-              <div class="output-placeholder" style="color: #d32f2f;">
-                <p>❌ ${result.error || result.message}</p>
-              </div>
-            `;
-            alert("Lỗi: " + (result.error || result.message));
-          }
-        } catch (error) {
-          console.error("Lỗi:", error);
-          const bgOutputArea = document.getElementById("bg-output-area");
-          bgOutputArea.innerHTML = `
-            <div class="output-placeholder" style="color: #d32f2f;">
-              <p>❌ Lỗi khi tạo bối cảnh: ${error.message}</p>
-            </div>
-          `;
-          alert("Lỗi khi tạo bối cảnh: " + error.message);
-        } finally {
-          bgGenerateBtn.disabled = false;
-          bgGenerateBtn.innerHTML = "<span></span>Tạo Bối Cảnh";
-        }
+        showConfirmDialog(null, bgSelectedFile, "background", {
+          bgType: bgTypeSelect.value,
+          bgDescription: document.getElementById("bg-description").value
+        });
       });
 
       function displayBgOutput(result) {
@@ -788,9 +689,9 @@
       type: "faceImage"
     };
 
-    async function showConfirmDialog(promptName, file, type = "faceImage") {
+    async function showConfirmDialog(promptName, file, type = "faceImage", extra = {}) {
       try {
-        pendingGenerateData = { promptName, selectedFile: file, type };
+        pendingGenerateData = { promptName, selectedFile: file, type, extra };
         
         const token = localStorage.getItem("token");
         let promptData = null;
@@ -859,6 +760,20 @@
     }
 
     async function proceedGenerate() {
+      const type = pendingGenerateData.type;
+      
+      if (type === "faceImage") {
+        await proceedGenerateFaceImage();
+      } else if (type === "background") {
+        await proceedGenerateBackground();
+      } else if (type === "outfit") {
+        await proceedGenerateOutfit();
+      } else if (type === "trending") {
+        await proceedGenerateTrending();
+      }
+    }
+
+    async function proceedGenerateFaceImage() {
       if (!pendingGenerateData.selectedFile || !pendingGenerateData.promptName) {
         alert("Dữ liệu không hợp lệ");
         return;
@@ -919,5 +834,203 @@
         const generateBtn = document.getElementById("generate-btn");
         generateBtn.disabled = false;
         generateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
+      }
+    }
+
+    async function proceedGenerateBackground() {
+      if (!pendingGenerateData.selectedFile) {
+        alert("Dữ liệu không hợp lệ");
+        return;
+      }
+
+      closeConfirmDialog();
+      
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("type", pendingGenerateData.extra.bgType);
+      formData.append("description", pendingGenerateData.extra.bgDescription);
+      formData.append("image", pendingGenerateData.selectedFile);
+
+      try {
+        const bgGenerateBtn = document.getElementById("bg-generate-btn");
+        bgGenerateBtn.disabled = true;
+        bgGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+        
+        const bgOutputArea = document.getElementById("bg-output-area");
+        bgOutputArea.innerHTML = `
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Đang tạo bối cảnh...</div>
+          </div>
+        `;
+
+        const response = await fetch("/api/ai/generate-background", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          displayBgOutput(result);
+        } else {
+          const bgOutputArea = document.getElementById("bg-output-area");
+          bgOutputArea.innerHTML = `
+            <div class="output-placeholder" style="color: #d32f2f;">
+              <p>❌ ${result.error || result.message}</p>
+            </div>
+          `;
+          alert("Lỗi: " + (result.error || result.message));
+        }
+      } catch (error) {
+        console.error("Lỗi:", error);
+        const bgOutputArea = document.getElementById("bg-output-area");
+        bgOutputArea.innerHTML = `
+          <div class="output-placeholder" style="color: #d32f2f;">
+            <p>❌ Lỗi khi tạo bối cảnh: ${error.message}</p>
+          </div>
+        `;
+        alert("Lỗi khi tạo bối cảnh: " + error.message);
+      } finally {
+        const bgGenerateBtn = document.getElementById("bg-generate-btn");
+        bgGenerateBtn.disabled = false;
+        bgGenerateBtn.innerHTML = "<span></span>Tạo Bối Cảnh";
+      }
+    }
+
+    async function proceedGenerateOutfit() {
+      if (!pendingGenerateData.selectedFile) {
+        alert("Dữ liệu không hợp lệ");
+        return;
+      }
+
+      closeConfirmDialog();
+      
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("type", pendingGenerateData.extra.outfitType);
+      formData.append("hairstyle", pendingGenerateData.extra.outfitHairstyle);
+      formData.append("description", pendingGenerateData.extra.outfitDescription);
+      formData.append("image", pendingGenerateData.selectedFile);
+      if (pendingGenerateData.extra.clothingFile) {
+        formData.append("clothing", pendingGenerateData.extra.clothingFile);
+      }
+
+      try {
+        const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
+        outfitGenerateBtn.disabled = true;
+        outfitGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+
+        const outfitOutputArea = document.getElementById("outfit-output-area");
+        outfitOutputArea.innerHTML = `
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Đang thay đổi trang phục...</div>
+          </div>
+        `;
+
+        const response = await fetch("/api/ai/generate-outfit", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          displayOutfitOutput(result);
+        } else {
+          const outfitOutputArea = document.getElementById("outfit-output-area");
+          outfitOutputArea.innerHTML = `
+            <div class="output-placeholder" style="color: #d32f2f;">
+              <p>❌ ${result.error || result.message}</p>
+            </div>
+          `;
+          alert("Lỗi: " + (result.error || result.message));
+        }
+      } catch (error) {
+        console.error("Lỗi:", error);
+        const outfitOutputArea = document.getElementById("outfit-output-area");
+        outfitOutputArea.innerHTML = `
+          <div class="output-placeholder" style="color: #d32f2f;">
+            <p>❌ Lỗi khi thay đổi trang phục: ${error.message}</p>
+          </div>
+        `;
+        alert("Lỗi khi thay đổi trang phục: " + error.message);
+      } finally {
+        const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
+        outfitGenerateBtn.disabled = false;
+        outfitGenerateBtn.innerHTML = "<span></span>Thay Đổi";
+      }
+    }
+
+    async function proceedGenerateTrending() {
+      if (!pendingGenerateData.selectedFile || !window.currentTrend) {
+        alert("Dữ liệu không hợp lệ");
+        return;
+      }
+
+      closeConfirmDialog();
+      
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("promptName", window.currentTrend.name);
+      formData.append("image", pendingGenerateData.selectedFile);
+      if (pendingGenerateData.extra.trendDescription) {
+        formData.append("description", pendingGenerateData.extra.trendDescription);
+      }
+
+      try {
+        const trendGenerateBtn = document.getElementById("trend-generate-btn");
+        trendGenerateBtn.disabled = true;
+        trendGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+
+        const trendOutputArea = document.getElementById("trend-output-area");
+        trendOutputArea.innerHTML = `
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Đang tạo ảnh...</div>
+          </div>
+        `;
+
+        const response = await fetch("/api/ai/generate", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          displayTrendOutput(result);
+        } else {
+          const trendOutputArea = document.getElementById("trend-output-area");
+          trendOutputArea.innerHTML = `
+            <div class="output-placeholder" style="color: #d32f2f;">
+              <p>❌ ${result.error || result.message}</p>
+            </div>
+          `;
+          alert("Lỗi: " + (result.error || result.message));
+        }
+      } catch (error) {
+        console.error("Lỗi:", error);
+        const trendOutputArea = document.getElementById("trend-output-area");
+        trendOutputArea.innerHTML = `
+          <div class="output-placeholder" style="color: #d32f2f;">
+            <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
+          </div>
+        `;
+        alert("Lỗi khi tạo ảnh: " + error.message);
+      } finally {
+        const trendGenerateBtn = document.getElementById("trend-generate-btn");
+        trendGenerateBtn.disabled = false;
+        trendGenerateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
       }
     }
