@@ -19,24 +19,7 @@ const outfitStyleRoutes = require("./routes/outfitStyles");
 const serviceConfigRoutes = require("./routes/serviceConfig");
 const app = express();
 
-app.use(cors({
-  origin: ["https://enternapic.io.vn", "https://www.enternapic.io.vn"],
-  credentials: true,
-}));
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin || req.headers.host;
-  if (
-    origin?.includes("localhost") ||
-    origin?.includes("127.0.0.1") ||
-    origin?.includes("ngrok")
-  ) {
-    res.setHeader("Access-Control-Allow-Origin", "https://enternapic.io.vn");
-  }
-  next();
-});
-
-app.set("trust proxy", 1);
+app.use(cors());
 app.use(express.json());
 
 connectDB();
@@ -86,6 +69,6 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(` Server running on port ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
