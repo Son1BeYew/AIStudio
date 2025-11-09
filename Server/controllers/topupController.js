@@ -1,5 +1,6 @@
 const TopUp = require("../models/TopUp");
 const User = require("../models/User");
+const Profile = require("../models/Profile");
 const axios = require("axios");
 const mongoose = require("mongoose");
 require("dotenv").config();
@@ -189,6 +190,18 @@ exports.momoCallback = async (req, res) => {
       await topUp.save();
       console.log("✅ TopUp marked as success. Updated at:", new Date().toISOString());
 
+      // Cộng tiền vào balance của Profile
+      try {
+        const profile = await Profile.findOne({ userId: topUp.userId });
+        if (profile) {
+          profile.balance = (profile.balance || 0) + topUp.amount;
+          await profile.save();
+          console.log("✅ Profile balance updated:", profile.balance);
+        }
+      } catch (profileError) {
+        console.error("⚠️ Lỗi cập nhật Profile balance:", profileError.message);
+      }
+
       res.json({ success: true, message: "Thanh toán thành công" });
     } else {
       // Payment failed
@@ -260,6 +273,18 @@ exports.mockMomoCallback = async (req, res) => {
       return res.status(404).json({ error: "Không tìm thấy giao dịch" });
     }
 
+    // Cộng tiền vào balance của Profile
+    try {
+      const profile = await Profile.findOne({ userId: topUp.userId });
+      if (profile) {
+        profile.balance = (profile.balance || 0) + topUp.amount;
+        await profile.save();
+        console.log("✅ Profile balance updated:", profile.balance);
+      }
+    } catch (profileError) {
+      console.error("⚠️ Lỗi cập nhật Profile balance:", profileError.message);
+    }
+
     console.log("✅ Mock callback completed for:", id);
     res.json({ success: true, topUp });
   } catch (error) {
@@ -324,6 +349,18 @@ exports.markTopupSuccess = async (req, res) => {
 
     if (!topUp) {
       return res.status(404).json({ error: "Không tìm thấy giao dịch" });
+    }
+
+    // Cộng tiền vào balance của Profile
+    try {
+      const profile = await Profile.findOne({ userId: topUp.userId });
+      if (profile) {
+        profile.balance = (profile.balance || 0) + topUp.amount;
+        await profile.save();
+        console.log("✅ Profile balance updated:", profile.balance);
+      }
+    } catch (profileError) {
+      console.error("⚠️ Lỗi cập nhật Profile balance:", profileError.message);
     }
 
     res.json({ success: true, topUp });

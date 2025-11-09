@@ -24,6 +24,7 @@ const profileSchema = new mongoose.Schema(
     },
 
     anhDaiDien: { type: String, default: "" },
+    balance: { type: Number, default: 0 },
   },
   { timestamps: true } // tự động tạo createdAt & updatedAt
 );
