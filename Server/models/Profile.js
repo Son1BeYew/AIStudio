@@ -16,6 +16,7 @@ const profileSchema = new mongoose.Schema(
       enum: ["male", "female", "other"],
       default: "other",
     },
+    phone: { type: String, default: "" }, // thêm số điện thoại
 
     mangXaHoi: {
       facebook: { type: String, default: "" },
@@ -29,5 +30,4 @@ const profileSchema = new mongoose.Schema(
   { timestamps: true } // tự động tạo createdAt & updatedAt
 );
 
-// ✅ Xuất model với tên "Profile"
 module.exports = mongoose.model("Profile", profileSchema);
