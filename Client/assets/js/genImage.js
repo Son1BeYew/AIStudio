@@ -717,12 +717,15 @@
         return;
       }
 
+      const promptName = pendingGenerateData.promptName;
+      const selectedFile = pendingGenerateData.selectedFile;
+      
       closeConfirmDialog();
       
       const token = localStorage.getItem("token");
       const formData = new FormData();
-      formData.append("promptName", pendingGenerateData.promptName);
-      formData.append("image", pendingGenerateData.selectedFile);
+      formData.append("promptName", promptName);
+      formData.append("image", selectedFile);
 
       try {
         const generateBtn = document.getElementById("generate-btn");
@@ -781,13 +784,17 @@
         return;
       }
 
+      const selectedFile = pendingGenerateData.selectedFile;
+      const bgType = pendingGenerateData.extra.bgType;
+      const bgDescription = pendingGenerateData.extra.bgDescription;
+      
       closeConfirmDialog();
       
       const token = localStorage.getItem("token");
       const formData = new FormData();
-      formData.append("type", pendingGenerateData.extra.bgType);
-      formData.append("description", pendingGenerateData.extra.bgDescription);
-      formData.append("image", pendingGenerateData.selectedFile);
+      formData.append("type", bgType);
+      formData.append("description", bgDescription);
+      formData.append("image", selectedFile);
 
       try {
         const bgGenerateBtn = document.getElementById("bg-generate-btn");
@@ -845,16 +852,22 @@
         return;
       }
 
+      const selectedFile = pendingGenerateData.selectedFile;
+      const outfitType = pendingGenerateData.extra.outfitType;
+      const outfitHairstyle = pendingGenerateData.extra.outfitHairstyle;
+      const outfitDescription = pendingGenerateData.extra.outfitDescription;
+      const clothingFile = pendingGenerateData.extra.clothingFile;
+      
       closeConfirmDialog();
       
       const token = localStorage.getItem("token");
       const formData = new FormData();
-      formData.append("type", pendingGenerateData.extra.outfitType);
-      formData.append("hairstyle", pendingGenerateData.extra.outfitHairstyle);
-      formData.append("description", pendingGenerateData.extra.outfitDescription);
-      formData.append("image", pendingGenerateData.selectedFile);
-      if (pendingGenerateData.extra.clothingFile) {
-        formData.append("clothing", pendingGenerateData.extra.clothingFile);
+      formData.append("type", outfitType);
+      formData.append("hairstyle", outfitHairstyle);
+      formData.append("description", outfitDescription);
+      formData.append("image", selectedFile);
+      if (clothingFile) {
+        formData.append("clothing", clothingFile);
       }
 
       try {
@@ -913,14 +926,18 @@
         return;
       }
 
+      const selectedFile = pendingGenerateData.selectedFile;
+      const currentTrend = window.currentTrend;
+      const trendDescription = pendingGenerateData.extra.trendDescription;
+      
       closeConfirmDialog();
       
       const token = localStorage.getItem("token");
       const formData = new FormData();
-      formData.append("promptName", window.currentTrend.name);
-      formData.append("image", pendingGenerateData.selectedFile);
-      if (pendingGenerateData.extra.trendDescription) {
-        formData.append("description", pendingGenerateData.extra.trendDescription);
+      formData.append("promptName", currentTrend.name);
+      formData.append("image", selectedFile);
+      if (trendDescription) {
+        formData.append("description", trendDescription);
       }
 
       try {
