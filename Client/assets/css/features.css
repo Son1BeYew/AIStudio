@@ -299,3 +299,135 @@
 .side-image.scroll-fade-in-diagonal.visible {
   animation: fadeInDiagonal 1s ease forwards, floatLeft 6s ease-in-out 0.8s infinite;
 }
+
+/* ====================== */
+/* 🌐 Responsive Design */
+/* ====================== */
+
+/* Tablet (<= 1024px) */
+@media (max-width: 1024px) {
+  .features {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 60px 30px;
+    gap: 2rem;
+  }
+
+  .side-image {
+    width: 70%;
+    margin: 20px 0;
+  }
+
+  .ai-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .ai-content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .ai-actions {
+    align-items: center;
+  }
+
+  .ai-title {
+    font-size: 2.2rem;
+  }
+
+  .trend-card canvas {
+    height: 280px !important;
+  }
+}
+
+/* Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .features {
+    padding: 40px 20px;
+  }
+
+  .side-image {
+    width: 85%;
+    border-radius: 18px;
+  }
+
+  .side-image.left,
+  .side-image.right {
+    margin: 15px 0;
+  }
+
+  .ai {
+    padding: 2rem 1rem;
+  }
+
+  .ai-title {
+    font-size: 1.8rem;
+    line-height: 1.4;
+  }
+
+  .ai-content {
+    gap: 1.5rem;
+  }
+
+  .btn {
+    font-size: 0.95rem;
+    padding: 0.7rem 1.6rem;
+  }
+
+  .trend-title {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .trend-card canvas {
+    height: 240px !important;
+  }
+}
+
+/* Small mobile (<= 480px) */
+@media (max-width: 480px) {
+  .features {
+    padding: 30px 10px;
+  }
+
+  .side-image {
+    width: 95%;
+    max-width: 240px;
+    border-radius: 15px;
+  }
+
+  .ai-title {
+    font-size: 1.5rem;
+  }
+
+  .ai-actions {
+    gap: 0.75rem;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.4rem;
+  }
+
+  .trend-card canvas {
+    height: 200px !important;
+  }
+}
+
+/* Extra small (<= 360px) */
+@media (max-width: 360px) {
+  .ai-title {
+    font-size: 1.3rem;
+  }
+
+  .side-image {
+    width: 100%;
+  }
+
+  .btn {
+    font-size: 0.85rem;
+    padding: 0.5rem 1.2rem;
+  }
+}

@@ -104,3 +104,62 @@
 .scroll-fade-in-right.visible { animation: fadeInRight 0.8s ease forwards; }
 .scroll-scale-in.visible { animation: scaleIn 0.8s ease forwards; }
 .scroll-fade-in-diagonal.visible { animation: fadeInDiagonal 0.8s ease forwards; }
+
+/* 🌐 Responsive Design */
+
+/* Màn hình vừa (Tablet) */
+@media (max-width: 992px) {
+  .hero {
+    flex-direction: column;          /* xếp dọc thay vì ngang */
+    text-align: center;
+    padding: 60px 40px;
+  }
+
+  .hero-image {
+    width: 260px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Màn hình nhỏ (Mobile) */
+@media (max-width: 600px) {
+  .hero {
+    padding: 40px 20px;
+    gap: 20px;
+  }
+
+  .hero-image {
+    width: 90%;
+    max-width: 240px;
+    border-radius: 20px;
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.8);
+  }
+
+  .hero-image:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.4));
+  }
+
+  /* Giảm biên độ chuyển động khi bay */
+  @keyframes floatLeft {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-6px) rotate(1deg); }
+  }
+
+  @keyframes floatRight {
+    0%, 100% { transform: translateY(0) rotate(1deg); }
+    50% { transform: translateY(-6px) rotate(-1deg); }
+  }
+}
+
+/* Màn hình siêu nhỏ (dưới 400px) */
+@media (max-width: 400px) {
+  .hero {
+    padding: 30px 10px;
+  }
+
+  .hero-image {
+    width: 100%;
+    max-width: 200px;
+  }
+}
