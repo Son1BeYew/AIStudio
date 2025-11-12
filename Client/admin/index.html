@@ -3,1007 +3,863 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard | AIStudio</title>
+    <title>Admin Dashboard</title>
+
+    <!-- Font Awesome -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
       rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="../assets/css/admin/admin.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Link file CSS tách riêng -->
+    <link rel="stylesheet" href="../admin/css/style.css" />
     <style>
-      /* Tab Navigation */
-      .tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 25px;
-        border-bottom: 2px solid #e0e0e0;
-        padding-bottom: 15px;
-      }
-
-      .tab-btn {
-        padding: 10px 20px;
-        background: none;
+      .page-iframe {
+        width: 100%;
+        height: calc(100vh - 73px);
         border: none;
-        cursor: pointer;
-        font-weight: 500;
-        color: #666;
-        border-bottom: 3px solid transparent;
-        transition: all 0.3s;
-      }
-
-      .tab-btn.active {
-        color: #007bff;
-        border-bottom-color: #007bff;
-      }
-
-      .tab-btn:hover {
-        color: #333;
-      }
-
-      /* Tab Content */
-      .tab-content {
-        display: none;
-      }
-
-      .tab-content.active {
+        background: #f8fafc;
         display: block;
       }
 
-      /* Tables */
-      .table-container {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      thead {
-        background: #f5f7fa;
-        border-bottom: 2px solid #e0e0e0;
-      }
-
-      th {
-        padding: 15px;
-        text-align: left;
+      .sub-item.active {
+        background: #f0f4ff;
+        color: #6366f1;
         font-weight: 600;
-        color: #333;
-      }
-
-      td {
-        padding: 12px 15px;
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      tr:hover {
-        background: #f9fafb;
-      }
-
-      .badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-      }
-
-      .badge.active {
-        background: #d4edda;
-        color: #155724;
-      }
-
-      .badge.inactive {
-        background: #f8d7da;
-        color: #721c24;
-      }
-
-      .badge.admin {
-        background: #d1ecf1;
-        color: #0c5460;
-      }
-
-      .badge.user {
-        background: #e2e3e5;
-        color: #383d41;
-      }
-
-      .action-btn {
-        padding: 6px 12px;
-        margin: 0 2px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 600;
-        transition: all 0.3s;
-      }
-
-      .btn-edit {
-        background: #cfe2ff;
-        color: #084298;
-      }
-
-      .btn-edit:hover {
-        background: #b6d4fe;
-      }
-
-      .btn-delete {
-        background: #f8d7da;
-        color: #721c24;
-      }
-
-      .btn-delete:hover {
-        background: #f5c2c7;
-      }
-
-      .btn-primary {
-        background: #007bff;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s;
-      }
-
-      .btn-primary:hover {
-        background: #0056b3;
-      }
-
-      .form-group {
-        margin-bottom: 15px;
-      }
-
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 600;
-        color: #333;
-      }
-
-      .form-group input,
-      .form-group textarea,
-      .form-group select {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-family: inherit;
-      }
-
-      .form-group textarea {
-        resize: vertical;
-        min-height: 100px;
-      }
-
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .modal.active {
-        display: flex;
-      }
-
-      .modal-content {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        max-width: 500px;
-        width: 90%;
-        max-height: 90vh;
-        overflow-y: auto;
-      }
-
-      .modal-header {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .close-btn {
-        background: none;
-        border: none;
-        font-size: 24px;
-        cursor: pointer;
-        color: #666;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 40px;
-        color: #999;
-      }
-
-      .loading {
-        text-align: center;
-        padding: 40px;
-        color: #666;
-      }
-
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 25px;
-      }
-
-      .search-filter {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-      }
-
-      .search-filter input {
-        flex: 1;
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
       }
     </style>
   </head>
 
   <body>
-    <div class="admin-container">
-      <aside class="sidebar">
-        <div class="logo">
-          <p>🎨 Admin Panel</p>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-user-shield"></i>
         </div>
-        <nav class="menu">
-          <a class="menu-link active" data-section="dashboard">
-            <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
-          </a>
-          <a class="menu-link" data-section="account-list">
-            <i data-lucide="users"></i><span>Danh Sách Account</span>
-          </a>
-          <a class="menu-link" data-section="users">
-            <i data-lucide="user"></i><span>Người Dùng</span>
-          </a>
-          <a class="menu-link" data-section="analysis">
-            <i data-lucide="activity"></i><span>Phân Tích</span>
-          </a>
-          <a class="menu-link" data-section="prompts">
-            <i data-lucide="palette"></i><span>Quản Lý Prompts</span>
-          </a>
-          <a class="menu-link" data-section="announcements">
-            <i data-lucide="bell"></i><span>Quản Lý Thông Báo</span>
-          </a>
-          <a class="menu-link" data-section="user-info">
-            <i data-lucide="info"></i><span>Thông Tin Người Dùng</span>
-          </a>
-          <a class="menu-link" data-section="schedule">
-            <i data-lucide="calendar"></i><span>Thời Gian Biểu</span>
-          </a>
-          <a class="menu-link" data-section="statistics">
-            <i data-lucide="bar-chart-3"></i><span>Thống Kê</span>
-          </a>
-          <a class="menu-link" data-section="chat">
-            <i data-lucide="message-square"></i><span>Chat</span>
-          </a>
-          <a class="menu-link" data-section="wallet">
-            <i data-lucide="wallet"></i><span>Wallet</span>
-          </a>
-          <a onclick="logout()" style="cursor: pointer">
-            <i data-lucide="log-out"></i><span>Đăng Xuất</span>
-          </a>
-        </nav>
-      </aside>
+        <span>ADMIN</span>
+      </div>
 
-      <main class="main">
-        <header class="topbar">
-          <div class="search-box">
-            <i data-lucide="search"></i>
-            <input type="text" placeholder="Tìm kiếm..." class="search-input" />
-          </div>
-          <div class="topbar-right">
-            <div class="profile">
-              <span>Admin Account</span>
+      <nav class="nav-menu">
+        <div class="nav-section">
+          <div class="nav-section-title">Dashboards</div>
+          <a
+            href="#"
+            class="nav-item active"
+            onclick="showDashboard(); event.preventDefault();"
+          >
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-chart-line"></i>
+              <span>Tổng quan</span>
             </div>
-          </div>
-        </header>
+          </a>
+          <a href="#" class="nav-item">
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-shopping-cart"></i>
+              <span>eCommerce</span>
+            </div>
+          </a>
+          <a href="#" class="nav-item">
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-folder"></i>
+              <span>Projects</span>
+            </div>
+          </a>
+        </div>
 
-        <section class="content">
-          <!-- DASHBOARD TAB -->
-          <div class="tab-content active" id="dashboard-tab">
-            <div class="header-row">
-              <div>
-                <h2>Dashboard</h2>
-                <p>Chào mừng quay lại, Admin</p>
-              </div>
-            </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Prompt</div>
 
-            <div class="stats-grid" id="dashboard-stats">
-              <div class="card">
-                <div class="icon-box user"><i data-lucide="users"></i></div>
-                <div>
-                  <h3>-</h3>
-                  <p>Tổng Users</p>
-                </div>
-              </div>
-              <div class="card">
-                <div class="icon-box prompt"><i data-lucide="palette"></i></div>
-                <div>
-                  <h3>-</h3>
-                  <p>Tổng Prompts</p>
-                </div>
-              </div>
-              <div class="card">
-                <div class="icon-box image"><i data-lucide="image"></i></div>
-                <div>
-                  <h3>-</h3>
-                  <p>Tổng Ảnh Tạo</p>
-                </div>
-              </div>
-              <div class="card">
-                <div class="icon-box money">
-                  <i data-lucide="dollar-sign"></i>
-                </div>
-                <div>
-                  <h3>-</h3>
-                  <p>Tổng Tiền</p>
-                </div>
-              </div>
+          <div class="nav-item" onclick="toggleSubmenu(this)">
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-edit"></i>
+              <span>Prompt</span>
             </div>
-
-            <div class="charts-grid">
-              <div class="chart-card">
-                <canvas id="userChart"></canvas>
-              </div>
-              <div class="chart-card">
-                <canvas id="imageChart"></canvas>
-              </div>
-            </div>
+            <i class="nav-arrow fas fa-chevron-right"></i>
           </div>
 
-          <!-- USERS TAB -->
-          <div class="tab-content" id="users-tab">
-            <div class="header-row">
-              <div>
-                <h2>Quản Lý Users</h2>
-                <p>Danh sách tất cả người dùng trong hệ thống</p>
-              </div>
-              <button class="btn-primary" onclick="openModal('add-user-modal')">
-                <i data-lucide="plus"></i> Thêm User
-              </button>
-            </div>
-
-            <div class="search-filter">
-              <input
-                type="text"
-                id="user-search"
-                placeholder="Tìm theo email hoặc tên..."
-              />
-              <select id="user-role-filter">
-                <option value="">Tất cả Role</option>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-
-            <div class="table-container">
-              <table id="users-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Ngày Tạo</th>
-                    <th>Hành Động</th>
-                  </tr>
-                </thead>
-                <tbody id="users-tbody">
-                  <tr>
-                    <td colspan="6" class="loading">Đang tải...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="sub-menu">
+            <a
+              href="#"
+              class="sub-item"
+              onclick="loadPage(event, 'page/tong-quan.html')"
+              ><i class="fas fa-chart-bar"></i> Tổng quan</a
+            >
+            <a
+              href="#"
+              class="sub-item"
+              onclick="loadPage(event, 'page/prompt-co-ban.html')"
+            >
+              <i class="fas fa-image"></i> Prompt Cơ bản
+            </a>
+            <a
+              href="#"
+              class="sub-item"
+              onclick="loadPage(event, 'page/quan-ao-toc.html')"
+            >
+              <i class="fas fa-shirt"></i> Áo quần và tóc
+            </a>
+            <a
+              href="#"
+              class="sub-item"
+              onclick="loadPage(event, 'page/prompt-trendding.html')"
+            >
+              <i class="fas fa-fire"></i> Prompt Xu hướng
+            </a>
+            <a
+              href="#"
+              class="sub-item"
+              onclick="loadPage(event, 'page/canh-quan.html')"
+            >
+              <i class="fas fa-mountain"></i> Cảnh quan
+            </a>
           </div>
 
-          <!-- PROMPTS TAB -->
-          <div class="tab-content" id="prompts-tab">
-            <div class="header-row">
-              <div>
-                <h2>Quản Lý Prompts</h2>
-                <p>Quản lý các template tạo ảnh</p>
-              </div>
-              <button
-                class="btn-primary"
-                onclick="openModal('add-prompt-modal')"
-              >
-                <i data-lucide="plus"></i> Thêm Prompt
-              </button>
+          <a
+            href="#"
+            class="nav-item"
+            onclick="loadPage(event, 'page/tai-khoan.html')"
+          >
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-users"></i>
+              <span>Tài khoản</span>
             </div>
+          </a>
 
-            <div class="search-filter">
-              <input
-                type="text"
-                id="prompt-search"
-                placeholder="Tìm theo tên..."
-              />
+          <a href="#" class="nav-item">
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-address-book"></i>
+              <span>Liên hệ</span>
             </div>
+          </a>
 
-            <div class="table-container">
-              <table id="prompts-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Tiêu Đề</th>
-                    <th>Trạng Thái</th>
-                    <th>Hành Động</th>
-                  </tr>
-                </thead>
-                <tbody id="prompts-tbody">
-                  <tr>
-                    <td colspan="5" class="loading">Đang tải...</td>
-                  </tr>
-                </tbody>
-              </table>
+          <a href="#" class="nav-item" onclick="confirmLogout(); event.preventDefault();">
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-sign-out-alt"></i>
+              <span>Đăng xuất</span>
+            </div>
+          </a>
+
+          <a href="#" class="nav-item">
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-question-circle"></i>
+              <span>Hỗ trợ</span>
+            </div>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-content">
+          <img src="../assets/images/logo - Copy.png" alt="SnowUI" />
+          <span class="footer-text">ETERNALPIC</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <button class="icon-btn"><i class="fas fa-bars"></i></button>
+          <button class="icon-btn"><i class="fas fa-star"></i></button>
+          <span class="breadcrumb">Dashboards / <strong>Default</strong></span>
+        </div>
+
+        <div class="header-right">
+          <button class="icon-btn"><i class="fas fa-search"></i></button>
+          <button class="icon-btn"><i class="fas fa-sun"></i></button>
+          <button class="icon-btn"><i class="fas fa-history"></i></button>
+          <button class="icon-btn"><i class="fas fa-bell"></i></button>
+          <button class="icon-btn"><i class="fas fa-th"></i></button>
+        </div>
+      </header>
+
+      <!-- Dashboard Content -->
+      <div class="dashboard-content">
+        <div class="dashboard-header">
+          <h1>Tổng quan</h1>
+          <select class="time-select" id="timeRangeSelect" onchange="onTimeRangeChange(this.value)">
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="7days">Last 7 days</option>
+            <option value="30days">Last 30 days</option>
+          </select>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div
+            class="stat-card"
+            onclick="showStatsDetail('users')"
+            style="cursor: pointer"
+          >
+            <div class="stat-label">Total User</div>
+            <div class="stat-value" id="statUsers">0</div>
+            <div class="stat-change positive">
+              <i class="fas fa-users"></i> Người dùng đã đăng ký
             </div>
           </div>
-
-          <!-- ANNOUNCEMENTS TAB -->
-          <div class="tab-content" id="announcements-tab">
-            <div class="header-row">
-              <div>
-                <h2>Quản Lý Thông Báo</h2>
-                <p>Tạo và quản lý thông báo cho người dùng</p>
-              </div>
-              <button
-                class="btn-primary"
-                onclick="openModal('add-announcement-modal')"
-              >
-                <i data-lucide="plus"></i> Tạo Thông Báo
-              </button>
-            </div>
-
-            <div class="table-container">
-              <table id="announcements-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Tiêu Đề</th>
-                    <th>Nội Dung</th>
-                    <th>Ngày Tạo</th>
-                    <th>Hành Động</th>
-                  </tr>
-                </thead>
-                <tbody id="announcements-tbody">
-                  <tr>
-                    <td colspan="5" class="loading">Đang tải...</td>
-                  </tr>
-                </tbody>
-              </table>
+          <div
+            class="stat-card"
+            onclick="showStatsDetail('prompts')"
+            style="cursor: pointer"
+          >
+            <div class="stat-label">Total Prompt</div>
+            <div class="stat-value" id="statPrompts">0</div>
+            <div class="stat-change positive">
+              <i class="fas fa-list"></i> Prompts trong hệ thống
             </div>
           </div>
-
-          <!-- ACCOUNT LIST TAB -->
-          <div class="tab-content" id="account-list-tab">
-            <div class="header-row">
-              <h2>Danh Sách Account</h2>
-            </div>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Email</th>
-                    <th>Tên</th>
-                    <th>Role</th>
-                    <th>Trạng Thái</th>
-                    <th>Hành Động</th>
-                  </tr>
-                </thead>
-                <tbody id="account-list-tbody">
-                  <tr>
-                    <td colspan="6" class="loading">Đang tải...</td>
-                  </tr>
-                </tbody>
-              </table>
+          <div
+            class="stat-card"
+            onclick="showStatsDetail('images')"
+            style="cursor: pointer"
+          >
+            <div class="stat-label">Images Created</div>
+            <div class="stat-value" id="statImages">0</div>
+            <div class="stat-change positive">
+              <i class="fas fa-image"></i> Ảnh đã tạo
             </div>
           </div>
-
-          <!-- ANALYSIS TAB -->
-          <div class="tab-content" id="analysis-tab">
-            <div class="header-row">
-              <h2>Phân Tích</h2>
-            </div>
-            <div class="stats-row">
-              <div class="card">
-                <div class="icon-box user">
-                  <i data-lucide="trending-up"></i>
-                </div>
-                <div>
-                  <h3 id="analysis-growth">-</h3>
-                  <p>Tăng Trưởng</p>
-                </div>
-              </div>
-              <div class="card">
-                <div class="icon-box image"><i data-lucide="zap"></i></div>
-                <div>
-                  <h3 id="analysis-performance">-</h3>
-                  <p>Performance</p>
-                </div>
-              </div>
-              <div class="card">
-                <div class="icon-box prompt"><i data-lucide="award"></i></div>
-                <div>
-                  <h3 id="analysis-engagement">-</h3>
-                  <p>Engagement</p>
-                </div>
-              </div>
-            </div>
-            <div class="charts-grid">
-              <div class="chart-card">
-                <canvas id="analysisChart"></canvas>
-              </div>
+          <div
+            class="stat-card"
+            onclick="showStatsDetail('active')"
+            style="cursor: pointer"
+          >
+            <div class="stat-label">Active Users</div>
+            <div class="stat-value" id="statActive">0</div>
+            <div class="stat-change positive">
+              <i class="fas fa-user-check"></i> 24 giờ qua
             </div>
           </div>
+        </div>
 
-          <!-- USER INFO TAB -->
-          <div class="tab-content" id="user-info-tab">
-            <div class="header-row">
-              <h2>Thông Tin Người Dùng</h2>
-            </div>
-            <div class="search-filter">
-              <input
-                type="text"
-                id="user-info-search"
-                placeholder="Tìm theo email..."
-              />
-            </div>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Tên</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Ngày Tạo</th>
-                    <th>Hành Động</th>
-                  </tr>
-                </thead>
-                <tbody id="user-info-tbody">
-                  <tr>
-                    <td colspan="5" class="loading">Đang tải...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- SCHEDULE TAB -->
-          <div class="tab-content" id="schedule-tab">
-            <div class="header-row">
-              <h2>Thời Gian Biểu</h2>
-            </div>
-            <div style="background: #fff; padding: 20px; border-radius: 12px">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Thời Gian</th>
-                    <th>Sự Kiện</th>
-                    <th>Mô Tả</th>
-                    <th>Hành Động</th>
-                  </tr>
-                </thead>
-                <tbody id="schedule-tbody">
-                  <tr>
-                    <td colspan="4" class="empty-state">
-                      Không có sự kiện nào được lên lịch
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- CHAT TAB -->
-          <div class="tab-content" id="chat-tab">
-            <div class="header-row">
-              <h2>Chat</h2>
-            </div>
-            <div
+        <!-- Stats Detail Modal -->
+        <div
+          id="statsDetailModal"
+          style="
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+            "
+          >
+            <h3
+              id="statsDetailTitle"
+              style="font-size: 20px; font-weight: 700; color: #1e293b"
+            ></h3>
+            <button
+              onclick="closeStatsDetail()"
               style="
-                display: grid;
-                grid-template-columns: 250px 1fr;
-                gap: 15px;
-                height: 500px;
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                color: #64748b;
               "
             >
-              <div
-                style="
-                  background: #fff;
-                  border-radius: 12px;
-                  overflow: hidden;
-                  display: flex;
-                  flex-direction: column;
-                "
-              >
-                <div
-                  style="
-                    padding: 15px;
-                    border-bottom: 1px solid #e0e0e0;
-                    font-weight: 600;
-                  "
-                >
-                  Cuộc trò chuyện
-                </div>
-                <div
-                  id="chat-list"
-                  style="flex: 1; overflow-y: auto; padding: 10px"
-                ></div>
+              ✕
+            </button>
+          </div>
+          <div id="statsDetailContent"></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-tabs">
+                <button class="tab active">Tổng User</button>
+                <button class="tab">Total Prompt</button>
+                <button class="tab">Trạng thái sử dụng</button>
               </div>
-              <div
-                style="
-                  background: #fff;
-                  border-radius: 12px;
-                  display: flex;
-                  flex-direction: column;
-                "
-              >
-                <div
-                  style="
-                    padding: 15px;
-                    border-bottom: 1px solid #e0e0e0;
-                    font-weight: 600;
-                  "
-                  id="chat-title"
+
+              <div class="chart-legend">
+                <span class="legend-item"
+                  ><span class="dot"></span> This year</span
                 >
-                  Chọn cuộc trò chuyện
+                <span class="legend-item"
+                  ><span class="dot gray"></span> Last year</span
+                >
+              </div>
+            </div>
+
+            <div class="chart-area">
+              <svg viewBox="0 0 600 200" class="line-chart">
+                <defs>
+                  <linearGradient
+                    id="lineGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="0%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #6366f1; stop-opacity: 0.3"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #6366f1; stop-opacity: 0"
+                    />
+                  </linearGradient>
+                </defs>
+
+                <polyline
+                  points="0,150 50,140 100,120 150,100 200,90 250,70 300,75 350,65 400,80 450,70 500,60 550,65 600,55"
+                  fill="none"
+                  stroke="#6366f1"
+                  stroke-width="3"
+                />
+                <polyline
+                  points="0,150 50,140 100,120 150,100 200,90 250,70 300,75 350,65 400,80 450,70 500,60 550,65 600,55 600,200 0,200"
+                  fill="url(#lineGradient)"
+                />
+                <polyline
+                  points="0,180 50,170 100,165 150,160 200,155 250,150 300,148 350,145 400,150 450,148 500,145 550,143 600,140"
+                  fill="none"
+                  stroke="#cbd5e1"
+                  stroke-width="2"
+                  stroke-dasharray="5,5"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Traffic by Website</h3>
+            <div class="traffic-list">
+              <div class="traffic-item">
+                <span>Google</span>
+                <div class="bar-container">
+                  <div class="bar" style="width: 85%"></div>
                 </div>
-                <div
-                  id="chat-messages"
-                  style="flex: 1; overflow-y: auto; padding: 15px"
-                ></div>
-                <div
-                  style="
-                    padding: 15px;
-                    border-top: 1px solid #e0e0e0;
-                    display: flex;
-                    gap: 10px;
-                  "
-                >
-                  <input
-                    type="text"
-                    id="chat-input"
-                    placeholder="Nhập tin nhắn..."
-                    style="
-                      flex: 1;
-                      padding: 10px;
-                      border: 1px solid #ddd;
-                      border-radius: 8px;
-                    "
+              </div>
+              <div class="traffic-item">
+                <span>YouTube</span>
+                <div class="bar-container">
+                  <div class="bar" style="width: 70%"></div>
+                </div>
+              </div>
+              <div class="traffic-item">
+                <span>Instagram</span>
+                <div class="bar-container">
+                  <div class="bar" style="width: 60%"></div>
+                </div>
+              </div>
+              <div class="traffic-item">
+                <span>Pinterest</span>
+                <div class="bar-container">
+                  <div class="bar" style="width: 50%"></div>
+                </div>
+              </div>
+              <div class="traffic-item">
+                <span>Facebook</span>
+                <div class="bar-container">
+                  <div class="bar" style="width: 40%"></div>
+                </div>
+              </div>
+              <div class="traffic-item">
+                <span>Twitter</span>
+                <div class="bar-container">
+                  <div class="bar" style="width: 30%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Charts -->
+        <div class="bottom-charts">
+          <div class="chart-card">
+            <h3>Traffic by Device</h3>
+            <div class="bar-chart">
+              <div class="bar-group">
+                <div class="bar-item" style="height: 60%"></div>
+                <span>Linux</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar-item" style="height: 90%"></div>
+                <span>Mac</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar-item" style="height: 75%"></div>
+                <span>iOS</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar-item" style="height: 100%"></div>
+                <span>Windows</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar-item" style="height: 50%"></div>
+                <span>Android</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar-item" style="height: 80%"></div>
+                <span>Other</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Traffic by Location</h3>
+            <div class="donut-section">
+              <div class="donut-chart">
+                <svg viewBox="0 0 200 200" class="donut">
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="70"
+                    fill="none"
+                    stroke="#1e293b"
+                    stroke-width="35"
+                    stroke-dasharray="230 520"
                   />
-                  <button class="btn-primary" style="padding: 10px 20px">
-                    Gửi
-                  </button>
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="70"
+                    fill="none"
+                    stroke="#3b82f6"
+                    stroke-width="35"
+                    stroke-dasharray="100 520"
+                    stroke-dashoffset="-230"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="70"
+                    fill="none"
+                    stroke="#8b5cf6"
+                    stroke-width="35"
+                    stroke-dasharray="61 520"
+                    stroke-dashoffset="-330"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="70"
+                    fill="none"
+                    stroke="#cbd5e1"
+                    stroke-width="35"
+                    stroke-dasharray="49 520"
+                    stroke-dashoffset="-391"
+                  />
+                </svg>
+              </div>
+
+              <div class="location-list">
+                <div class="location-item">
+                  <span class="dot dark"></span><span>United States</span
+                  ><strong>52.1%</strong>
+                </div>
+                <div class="location-item">
+                  <span class="dot blue"></span><span>Canada</span
+                  ><strong>22.8%</strong>
+                </div>
+                <div class="location-item">
+                  <span class="dot purple"></span><span>Mexico</span
+                  ><strong>13.9%</strong>
+                </div>
+                <div class="location-item">
+                  <span class="dot gray"></span><span>Other</span
+                  ><strong>11.2%</strong>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- WALLET TAB -->
-          <div class="tab-content" id="wallet-tab">
-            <div class="header-row">
-              <h2>Wallet</h2>
-            </div>
-            <div class="stats-row">
-              <div class="card">
-                <div class="icon-box money">
-                  <i data-lucide="dollar-sign"></i>
-                </div>
-                <div>
-                  <h3 id="wallet-balance">-</h3>
-                  <p>Số Dư</p>
-                </div>
-              </div>
-              <div class="card">
-                <div class="icon-box money">
-                  <i data-lucide="arrow-down"></i>
-                </div>
-                <div>
-                  <h3 id="wallet-received">-</h3>
-                  <p>Đã Nhận</p>
-                </div>
-              </div>
-              <div class="card">
-                <div class="icon-box money"><i data-lucide="arrow-up"></i></div>
-                <div>
-                  <h3 id="wallet-spent">-</h3>
-                  <p>Đã Chi</p>
-                </div>
-              </div>
-            </div>
-            <div class="search-filter">
-              <input type="text" placeholder="Tìm giao dịch..." />
-              <select>
-                <option>Tất cả</option>
-                <option>Nhận</option>
-                <option>Chi</option>
-              </select>
-            </div>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Ngày</th>
-                    <th>Loại</th>
-                    <th>Số Tiền</th>
-                    <th>Mô Tả</th>
-                    <th>Trạng Thái</th>
-                  </tr>
-                </thead>
-                <tbody id="wallet-tbody">
-                  <tr>
-                    <td colspan="5" class="empty-state">
-                      Không có giao dịch nào
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- STATISTICS TAB -->
-          <div class="tab-content" id="statistics-tab">
-            <div class="header-row">
-              <div>
-                <h2>📊 Thống Kê Hôm Nay</h2>
-                <p id="today-date"></p>
-              </div>
-            </div>
-
-            <div class="stats-row" id="stats-details">
-              <div
-                class="card"
-                style="
-                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                  color: white;
-                  border: none;
-                "
-              >
-                <div
-                  class="icon-box user"
-                  style="background: rgba(255, 255, 255, 0.2); color: white"
-                >
-                  <i data-lucide="image"></i>
-                </div>
-                <div>
-                  <h3
-                    id="stat-images-today"
-                    style="color: white; margin: 0; font-size: 28px"
-                  >
-                    -
-                  </h3>
-                  <p style="color: rgba(255, 255, 255, 0.9); margin: 0">
-                    Ảnh Tạo Hôm Nay
-                  </p>
-                </div>
-              </div>
-              <div
-                class="card"
-                style="
-                  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                  color: white;
-                  border: none;
-                "
-              >
-                <div
-                  class="icon-box image"
-                  style="background: rgba(255, 255, 255, 0.2); color: white"
-                >
-                  <i data-lucide="palette"></i>
-                </div>
-                <div>
-                  <h3
-                    id="stat-prompts-today"
-                    style="color: white; margin: 0; font-size: 28px"
-                  >
-                    -
-                  </h3>
-                  <p style="color: rgba(255, 255, 255, 0.9); margin: 0">
-                    Prompt Tạo Hôm Nay
-                  </p>
-                </div>
-              </div>
-              <div
-                class="card"
-                style="
-                  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                  color: white;
-                  border: none;
-                "
-              >
-                <div
-                  class="icon-box prompt"
-                  style="background: rgba(255, 255, 255, 0.2); color: white"
-                >
-                  <i data-lucide="dollar-sign"></i>
-                </div>
-                <div>
-                  <h3
-                    id="stat-revenue-today"
-                    style="color: white; margin: 0; font-size: 28px"
-                  >
-                    -
-                  </h3>
-                  <p style="color: rgba(255, 255, 255, 0.9); margin: 0">
-                    Doanh Thu Hôm Nay
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div style="margin-top: 30px">
-              <h3 style="margin-bottom: 20px">📈 Biểu Đồ Chi Tiết</h3>
-              <div class="charts-grid">
-                <div class="chart-card">
-                  <h3>Ảnh Tạo Theo Giờ</h3>
-                  <canvas id="imagesPerHourChart"></canvas>
-                </div>
-                <div class="chart-card">
-                  <h3>Prompts Được Sử Dụng</h3>
-                  <canvas id="promptsUsageChart"></canvas>
-                </div>
-                <div class="chart-card">
-                  <h3>Doanh Thu Theo Giờ</h3>
-                  <canvas id="revenuePerHourChart"></canvas>
-                </div>
-                <div class="chart-card">
-                  <h3>Top Prompts</h3>
-                  <canvas id="topPromptsChart"></canvas>
-                </div>
-              </div>
-            </div>
-
-            <div style="margin-top: 30px">
-              <h3 style="margin-bottom: 20px">📋 Chi Tiết Giao Dịch Hôm Nay</h3>
-              <div class="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Thời Gian</th>
-                      <th>Loại</th>
-                      <th>Số Lượng</th>
-                      <th>Số Tiền</th>
-                      <th>Người Dùng</th>
-                    </tr>
-                  </thead>
-                  <tbody id="stats-transactions-tbody">
-                    <tr>
-                      <td colspan="5" class="loading">Đang tải...</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
-
-    <!-- MODALS -->
-    <!-- Add User Modal -->
-    <div class="modal" id="add-user-modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span>Thêm User Mới</span>
-          <button class="close-btn" onclick="closeModal('add-user-modal')">
-            &times;
-          </button>
         </div>
-        <form id="add-user-form">
-          <div class="form-group">
-            <label>Tên</label>
-            <input type="text" id="user-fullname" required />
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="user-email" required />
-          </div>
-          <div class="form-group">
-            <label>Mật Khẩu</label>
-            <input type="password" id="user-password" required />
-          </div>
-          <div class="form-group">
-            <label>Role</label>
-            <select id="user-role">
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <button type="submit" class="btn-primary" style="width: 100%">
-            Thêm
-          </button>
-        </form>
       </div>
-    </div>
+    </main>
 
-    <!-- Add Prompt Modal -->
-    <div class="modal" id="add-prompt-modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span>Thêm Prompt Mới</span>
-          <button class="close-btn" onclick="closeModal('add-prompt-modal')">
-            &times;
-          </button>
-        </div>
-        <form id="add-prompt-form">
-          <div class="form-group">
-            <label>Tên (name)</label>
-            <input type="text" id="prompt-name" required />
-          </div>
-          <div class="form-group">
-            <label>Tiêu Đề (title)</label>
-            <input type="text" id="prompt-title" required />
-          </div>
-          <div class="form-group">
-            <label>Mô Tả</label>
-            <textarea id="prompt-description"></textarea>
-          </div>
-          <div class="form-group">
-            <label>
-              <input type="checkbox" id="prompt-active" checked /> Kích Hoạt
-            </label>
-          </div>
-          <button type="submit" class="btn-primary" style="width: 100%">
-            Thêm
-          </button>
-        </form>
-      </div>
-    </div>
+    <!-- Right Sidebar -->
+    <aside class="right-sidebar">
+      <h2>Thông Báo</h2>
 
-    <!-- Add Announcement Modal -->
-    <div class="modal" id="add-announcement-modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span>Tạo Thông Báo</span>
-          <button
-            class="close-btn"
-            onclick="closeModal('add-announcement-modal')"
-          >
-            &times;
-          </button>
-        </div>
-        <form id="add-announcement-form">
-          <div class="form-group">
-            <label>Tiêu Đề</label>
-            <input type="text" id="announcement-title" required />
-          </div>
-          <div class="form-group">
-            <label>Nội Dung</label>
-            <textarea id="announcement-content" required></textarea>
-          </div>
-          <button type="submit" class="btn-primary" style="width: 100%">
-            Gửi
-          </button>
-        </form>
-      </div>
-    </div>
+      <h3>Hoạt động gần đây</h3>
+      <div class="activity-list"></div>
 
-    <script src="../assets/js/admin/admin-app.js"></script>
+      <h3>Liên hệ</h3>
+      <div class="contacts-list"></div>
+    </aside>
+
     <script>
-      lucide.createIcons();
+      let currentPage = null;
+      let statsData = {};
+      let topPrompts = [];
+      const token = localStorage.getItem("token");
+
+      // Load dashboard feed on page load
+      document.addEventListener("DOMContentLoaded", () => {
+        loadDashboardFeed();
+        loadOverviewStats();
+      });
+
+      async function loadDashboardFeed() {
+        try {
+          const response = await fetch("/api/admin/dashboard-feed", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) throw new Error("Failed to fetch dashboard feed");
+
+          const data = await response.json();
+          updateNotifications(data.notifications);
+          updateActivities(data.activities);
+          updateContacts(data.contacts);
+        } catch (error) {
+          console.error("Error loading dashboard feed:", error);
+        }
+      }
+
+      function updateNotifications(notifications) {
+        const rightSidebar = document.querySelector(".right-sidebar");
+        const h2 = rightSidebar.querySelector("h2");
+        const h3 = rightSidebar.querySelector("h3");
+
+        // Remove existing notifications
+        let node = h2.nextElementSibling;
+        while (node && node !== h3) {
+          node.remove();
+          node = h2.nextElementSibling;
+        }
+
+        // Add new notifications after h2
+        let insertAfter = h2;
+        notifications.forEach((notif) => {
+          const notifEl = document.createElement("div");
+          notifEl.className = "notification";
+          const timeAgo = getTimeAgo(notif.timestamp);
+          const avatarImg = notif.avatar
+            ? `<img src="${notif.avatar}" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px; vertical-align: middle;" alt="avatar">`
+            : `<div style="width: 32px; height: 32px; border-radius: 50%; background: #e0e0e0; margin-right: 10px; display: inline-block; vertical-align: middle;"></div>`;
+          notifEl.innerHTML = `
+            <div class="notif-text">
+              ${avatarImg}
+              <span style="display: inline-block; vertical-align: middle;">
+                <strong>${notif.message}</strong><small style="display: block; margin-top: 2px;">${timeAgo}</small>
+              </span>
+            </div>
+          `;
+          insertAfter.after(notifEl);
+          insertAfter = notifEl;
+        });
+      }
+
+      function updateActivities(activities) {
+        const rightSidebar = document.querySelector(".right-sidebar");
+        const h3 = Array.from(rightSidebar.querySelectorAll("h3")).find((el) =>
+          el.textContent.includes("Hoạt động")
+        );
+        const activityList = h3.nextElementSibling;
+
+        activityList.innerHTML = "";
+
+        activities.slice(0, 5).forEach((activity) => {
+          const timeAgo = getTimeAgo(activity.createdAt);
+          const avatarImg = activity.userAvatar
+            ? `<img src="${activity.userAvatar}" alt="avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" />`
+            : `<div style="width: 40px; height: 40px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0;"></div>`;
+          const userName =
+            activity.userName || activity.userEmail.split("@")[0];
+
+          const activityEl = document.createElement("div");
+          activityEl.className = "activity-item";
+          activityEl.innerHTML = `
+            ${avatarImg}
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-weight: 600; color: #1f2937; font-size: 14px; margin-bottom: 4px;">${userName} đã tạo ảnh</div>
+              <div style="font-size: 13px; color: #9ca3af;">${activity.promptName} • ${timeAgo}</div>
+            </div>
+          `;
+          activityList.appendChild(activityEl);
+        });
+      }
+
+      function updateContacts(contacts) {
+        const rightSidebar = document.querySelector(".right-sidebar");
+        const h3 = Array.from(rightSidebar.querySelectorAll("h3")).find((el) =>
+          el.textContent.includes("Liên hệ")
+        );
+        const contactsList = h3.nextElementSibling;
+
+        contactsList.innerHTML = "";
+
+        contacts.slice(0, 6).forEach((contact, idx) => {
+          const avatarImg = contact.avatar
+            ? `<img src="${contact.avatar}" alt="avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" />`
+            : `<div style="width: 36px; height: 36px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0;"></div>`;
+          const name = contact.fullname || contact.email.split("@")[0];
+
+          const contactEl = document.createElement("div");
+          contactEl.className = "contact-item";
+          contactEl.innerHTML = `
+            ${avatarImg}
+            <span style="font-weight: 500; color: #1f2937; font-size: 14px;">${name}</span>
+          `;
+          contactsList.appendChild(contactEl);
+        });
+      }
+
+      function getTimeAgo(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return "just now";
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 7) return `${days}d ago`;
+
+        return date.toLocaleDateString();
+      }
+
+      function toggleSubmenu(element) {
+        const submenu = element.nextElementSibling;
+        const arrow = element.querySelector(".nav-arrow");
+
+        submenu.classList.toggle("open");
+        arrow.classList.toggle("open");
+      }
+
+      function loadPage(event, page) {
+        event.preventDefault();
+
+        if (page === "#") {
+          showDashboard();
+          return;
+        }
+
+        if (currentPage === page) return;
+        currentPage = page;
+
+        const mainContent = document.querySelector(".main-content");
+        const dashboardContent = document.querySelector(".dashboard-content");
+        const existingIframe = mainContent.querySelector(".page-iframe");
+
+        if (dashboardContent) {
+          dashboardContent.style.display = "none";
+        }
+
+        if (existingIframe) {
+          existingIframe.remove();
+        }
+
+        const iframe = document.createElement("iframe");
+        iframe.className = "page-iframe";
+        iframe.src = page;
+        mainContent.appendChild(iframe);
+
+        // Update breadcrumb
+        const breadcrumb = document.querySelector(".breadcrumb");
+        const pageNames = {
+          "page/prompt-trendding.html": "Prompt Xu hướng",
+          "page/tai-khoan.html": "Tài Khoản",
+          "page/tong-quan.html": "Tổng Quan",
+          "page/prompt-co-ban.html": "Prompt Cơ Bản",
+          "page/quan-ao-toc.html": "Quần Áo & Tóc",
+          "page/canh-quan.html": "Cảnh Quan",
+        };
+        const displayName = pageNames[page] || page.split("/").pop();
+        breadcrumb.innerHTML = `Quản Lý / <strong>${displayName}</strong>`;
+
+        // Remove active from all nav items and sub items
+        document.querySelectorAll(".nav-item.active").forEach((item) => {
+          item.classList.remove("active");
+        });
+        document.querySelectorAll(".sub-item.active").forEach((item) => {
+          item.classList.remove("active");
+        });
+
+        // Add active to current sub item
+        event.target.closest(".sub-item").classList.add("active");
+      }
+
+      function showDashboard() {
+        currentPage = null;
+        const mainContent = document.querySelector(".main-content");
+        const dashboardContent = document.querySelector(".dashboard-content");
+        const iframes = mainContent.querySelectorAll(".page-iframe");
+
+        iframes.forEach((iframe) => iframe.remove());
+
+        if (dashboardContent) {
+          dashboardContent.style.display = "block";
+        }
+
+        // Update breadcrumb
+        const breadcrumb = document.querySelector(".breadcrumb");
+        breadcrumb.innerHTML = `Dashboards / <strong>Default</strong>`;
+
+        // Remove active from all items
+        document.querySelectorAll(".nav-item.active").forEach((item) => {
+          item.classList.remove("active");
+        });
+        document.querySelectorAll(".sub-item.active").forEach((item) => {
+          item.classList.remove("active");
+        });
+
+        // Add active to Tổng quan nav item
+        const tongQuanLink = document.querySelector(
+          ".nav-section:first-child .nav-item"
+        );
+        if (tongQuanLink) {
+          tongQuanLink.classList.add("active");
+        }
+      }
+
+      async function loadOverviewStats(timeRange = "today") {
+        try {
+          const url = `/api/admin/overview-stats?timeRange=${timeRange}`;
+          const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!response.ok) throw new Error("Failed to load stats");
+
+          statsData = await response.json();
+          document.getElementById("statUsers").textContent =
+            statsData.totalUsers;
+          document.getElementById("statPrompts").textContent =
+            statsData.totalPrompts;
+          document.getElementById("statImages").textContent =
+            statsData.totalImages;
+          document.getElementById("statActive").textContent =
+            statsData.activeUsers;
+
+          const topPromptsResponse = await fetch(
+            `/api/admin/top-prompts?limit=10&timeRange=${timeRange}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (topPromptsResponse.ok) {
+            topPrompts = await topPromptsResponse.json();
+          }
+        } catch (error) {
+          console.error("Error loading overview stats:", error);
+        }
+      }
+
+      function onTimeRangeChange(timeRange) {
+        loadOverviewStats(timeRange);
+      }
+
+      function showStatsDetail(type) {
+        const modal = document.getElementById("statsDetailModal");
+        const title = document.getElementById("statsDetailTitle");
+        const content = document.getElementById("statsDetailContent");
+
+        if (type === "users") {
+          title.textContent = "Chi tiết Users";
+          content.innerHTML = `
+            <p><strong>Tổng Users:</strong> ${statsData.totalUsers}</p>
+            <p style="margin-top: 10px;"><strong>Active Users (24h):</strong> ${statsData.activeUsers}</p>
+            <p style="margin-top: 15px; color: #64748b; font-size: 14px;">📌 Xem danh sách chi tiết tại <strong style="color: #1e293b;">Quản Lý Tài Khoản</strong></p>
+          `;
+        } else if (type === "prompts") {
+          title.textContent = "Chi tiết Total Prompt";
+          content.innerHTML = `
+            <p><strong>Tổng Prompts:</strong> ${statsData.totalPrompts}</p>
+            <p style="margin-top: 20px;"><strong>Top 10 Prompts Được Sử Dụng:</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
+              <tr style="border-bottom: 2px solid #e0e0e0; background: #f1f5f9;">
+                <th style="padding: 10px; text-align: left; font-weight: 600;">Tên</th>
+                <th style="padding: 10px; text-align: left; font-weight: 600;">Sử Dụng</th>
+                <th style="padding: 10px; text-align: left; font-weight: 600;">Giá</th>
+              </tr>
+              ${topPrompts
+                .map(
+                  (p) => `
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                  <td style="padding: 10px;">${p.name}</td>
+                  <td style="padding: 10px;">${p.usage}</td>
+                  <td style="padding: 10px;">${new Intl.NumberFormat(
+                    "vi-VN"
+                  ).format(p.price)}đ</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </table>
+          `;
+        } else if (type === "images") {
+          title.textContent = "Chi tiết Images Created";
+          content.innerHTML = `
+            <p><strong>Tổng Ảnh Đã Tạo:</strong> ${statsData.totalImages}</p>
+            <p style="margin-top: 15px; color: #64748b; font-size: 14px;">📌 Xem chi tiết hoạt động tại phần <strong style="color: #1e293b;">Hoạt động gần đây</strong></p>
+          `;
+        } else if (type === "active") {
+          title.textContent = "Chi tiết Active Users";
+          content.innerHTML = `
+            <p><strong>Active Users (24h):</strong> ${statsData.activeUsers}</p>
+            <p style="margin-top: 10px;"><strong>Tổng Users:</strong> ${statsData.totalUsers}</p>
+            <p style="margin-top: 15px; color: #64748b; font-size: 14px;">📌 Xem danh sách chi tiết tại <strong style="color: #1e293b;">Quản Lý Tài Khoản</strong></p>
+          `;
+        }
+
+        modal.style.display = "block";
+      }
+
+      function closeStatsDetail() {
+        document.getElementById("statsDetailModal").style.display = "none";
+      }
+
+      function confirmLogout() {
+        const modal = document.getElementById('logoutConfirmModal');
+        modal.style.display = 'flex';
+      }
+
+      function cancelLogout() {
+        const modal = document.getElementById('logoutConfirmModal');
+        modal.style.display = 'none';
+      }
+
+      function logout() {
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+        window.location.href = '/index.html';
+      }
+
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
+        const modal = document.getElementById('logoutConfirmModal');
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
     </script>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutConfirmModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; justify-content: center; align-items: center;">
+      <div style="background: white; border-radius: 16px; padding: 50px 40px; max-width: 500px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+        <h3 style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 15px;">Đăng xuất</h3>
+        <p style="color: #64748b; margin-bottom: 35px; font-size: 16px; line-height: 1.6;">Bạn muốn đăng xuất?</p>
+        <div style="display: flex; gap: 15px; justify-content: flex-end;">
+          <button onclick="cancelLogout()" style="padding: 12px 30px; background: #e2e8f0; color: #1e293b; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s;">
+            Hủy
+          </button>
+          <button onclick="logout()" style="padding: 12px 30px; background: #1a1a1a; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s;">
+            Đăng xuất
+          </button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

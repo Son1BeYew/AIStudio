@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tổng Quan Prompt</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f8fafc;
+      }
+
+      .page-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .page-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(26, 26, 26, 0.3);
+      }
+
+      .btn-secondary {
+        background: #e2e8f0;
+        color: #1e293b;
+      }
+
+      .btn-secondary:hover {
+        background: #cbd5e1;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+      }
+
+      .stat-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .stat-icon {
+        font-size: 24px;
+        color: #1a1a1a;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #64748b;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 10px 0;
+      }
+
+      .stat-change {
+        font-size: 12px;
+        color: #10b981;
+      }
+
+      /* Table Section */
+      .table-section {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .table-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1e293b;
+      }
+
+      .table-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .filter-input {
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        width: 200px;
+      }
+
+      .prompt-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .prompt-table thead {
+        background: #f1f5f9;
+      }
+
+      .prompt-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #64748b;
+        font-size: 12px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      .prompt-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #1e293b;
+      }
+
+      .prompt-table tbody tr:hover {
+        background: #f8fafc;
+      }
+
+      .prompt-name {
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+
+      .usage-badge {
+        display: inline-block;
+        background: #f0f0f0;
+        color: #1a1a1a;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .price-cell {
+        color: #10b981;
+        font-weight: 600;
+      }
+
+      .revenue-cell {
+        color: #f59e0b;
+        font-weight: 600;
+      }
+
+      .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 12px;
+        color: white;
+      }
+
+      .rank-1 {
+        background: #fbbf24;
+      }
+
+      .rank-2 {
+        background: #d1d5db;
+      }
+
+      .rank-3 {
+        background: #d97706;
+      }
+
+      .rank-other {
+        background: #1a1a1a;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #64748b;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e2e8f0;
+        border-top: 4px solid #1a1a1a;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+        vertical-align: middle;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #64748b;
+      }
+
+      @media (max-width: 768px) {
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .prompt-table {
+          font-size: 12px;
+        }
+
+        .prompt-table th,
+        .prompt-table td {
+          padding: 10px;
+        }
+
+        .header-actions {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-container">
+      <div class="page-header">
+        <h1>
+          <i class="fas fa-chart-bar"></i>
+          Tổng Quan Prompt
+        </h1>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="refreshData()">
+            <i class="fas fa-sync-alt"></i>
+            Làm mới
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i class="fas fa-fire stat-icon"></i>
+            <span class="stat-label">Prompt được sử dụng nhiều nhất</span>
+          </div>
+          <div class="stat-value" id="topPromptName">-</div>
+          <div class="stat-change" id="topPromptUsage">-</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i class="fas fa-dollar-sign stat-icon"></i>
+            <span class="stat-label">Doanh Thu Từ Prompts</span>
+          </div>
+          <div class="stat-value" id="totalRevenue">-</div>
+          <div class="stat-change">Từ top 10 prompts</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i class="fas fa-list stat-icon"></i>
+            <span class="stat-label">Tổng Lượt Sử Dụng</span>
+          </div>
+          <div class="stat-value" id="totalUsage">-</div>
+          <div class="stat-change">Từ 10 prompt hàng đầu</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i class="fas fa-tag stat-icon"></i>
+            <span class="stat-label">Giá Trung Bình</span>
+          </div>
+          <div class="stat-value" id="avgPrice">-</div>
+          <div class="stat-change">Trong top 10 prompts</div>
+        </div>
+      </div>
+
+      <!-- Top Prompts Table -->
+      <div class="table-section">
+        <div class="table-header">
+          <h2>🏆 Top 10 Prompt Được Sử Dụng Nhiều Nhất</h2>
+          <div class="table-controls">
+            <input
+              type="text"
+              class="filter-input"
+              id="searchInput"
+              placeholder="Tìm kiếm prompt..."
+              onkeyup="filterTable()"
+            />
+          </div>
+        </div>
+
+        <div id="loadingSpinner" class="loading">
+          <span class="spinner"></span>
+          Đang tải dữ liệu...
+        </div>
+
+        <table class="prompt-table" id="promptTable" style="display: none">
+          <thead>
+            <tr>
+              <th style="width: 60px">Xếp Hạng</th>
+              <th style="width: 35%">Tên Prompt</th>
+              <th style="width: 20%">Lượt Sử Dụng</th>
+              <th style="width: 20%">Giá (VNĐ)</th>
+              <th style="width: 25%">Doanh Thu (VNĐ)</th>
+            </tr>
+          </thead>
+          <tbody id="promptTableBody"></tbody>
+        </table>
+
+        <div id="noDataMessage" class="no-data" style="display: none">
+          <i
+            class="fas fa-inbox"
+            style="font-size: 40px; margin-bottom: 10px"
+          ></i>
+          <p>Không có dữ liệu prompt nào</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let allPrompts = [];
+
+      async function loadTopPrompts() {
+        try {
+          // Try both localStorage and sessionStorage
+          let token =
+            localStorage.getItem("token") || sessionStorage.getItem("token");
+
+          // If in iframe, try to get from parent
+          if (!token && window.parent !== window) {
+            try {
+              token =
+                window.parent.localStorage.getItem("token") ||
+                window.parent.sessionStorage.getItem("token");
+            } catch (e) {
+              console.log("Cannot access parent storage");
+            }
+          }
+
+          console.log("Token exists:", !!token);
+
+          if (!token) {
+            throw new Error("Không tìm thấy token. Vui lòng đăng nhập lại.");
+          }
+
+          const response = await fetch("/api/admin/top-prompts?limit=10", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          console.log("API response status:", response.status);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("API error response:", errorText);
+            throw new Error(`API Error ${response.status}: ${errorText}`);
+          }
+
+          allPrompts = await response.json();
+          console.log("Loaded prompts:", allPrompts);
+          displayData();
+        } catch (error) {
+          console.error("Error loading prompts:", error);
+          document.getElementById("loadingSpinner").style.display = "none";
+          document.getElementById("noDataMessage").style.display = "block";
+          document.getElementById("noDataMessage").innerHTML =
+            '<i class="fas fa-exclamation-circle" style="font-size: 40px; color: #ef4444; margin-bottom: 10px"></i><p>Lỗi: ' +
+            error.message +
+            '</p><p style="font-size: 12px; color: #64748b; margin-top: 10px">Hãy mở DevTools (F12) để xem chi tiết</p>';
+        }
+      }
+
+      function displayData() {
+        const loadingSpinner = document.getElementById("loadingSpinner");
+        const table = document.getElementById("promptTable");
+        const noData = document.getElementById("noDataMessage");
+        const tbody = document.getElementById("promptTableBody");
+
+        if (allPrompts.length === 0) {
+          loadingSpinner.style.display = "none";
+          noData.style.display = "block";
+          table.style.display = "none";
+          return;
+        }
+
+        loadingSpinner.style.display = "none";
+        table.style.display = "table";
+        noData.style.display = "none";
+
+        tbody.innerHTML = "";
+        let totalUsage = 0;
+        let totalRevenue = 0;
+
+        allPrompts.forEach((prompt, index) => {
+          const row = document.createElement("tr");
+          const rankBadgeClass =
+            index === 0
+              ? "rank-1"
+              : index === 1
+              ? "rank-2"
+              : index === 2
+              ? "rank-3"
+              : "rank-other";
+
+          const formattedPrice = new Intl.NumberFormat("vi-VN").format(
+            prompt.price
+          );
+          const formattedRevenue = new Intl.NumberFormat("vi-VN").format(
+            prompt.revenue
+          );
+
+          row.innerHTML = `
+            <td><span class="rank-badge ${rankBadgeClass}">#${
+            index + 1
+          }</span></td>
+            <td><span class="prompt-name">${prompt.name}</span></td>
+            <td><span class="usage-badge">${prompt.usage} lần</span></td>
+            <td><span class="price-cell">${formattedPrice} đ</span></td>
+            <td><span class="revenue-cell">${formattedRevenue} đ</span></td>
+          `;
+          tbody.appendChild(row);
+
+          totalUsage += prompt.usage;
+          totalRevenue += prompt.revenue;
+        });
+
+        // Update stats cards
+        const topPrompt = allPrompts[0];
+        document.getElementById("topPromptName").textContent = topPrompt.name;
+        document.getElementById("topPromptUsage").textContent =
+          "📈 " + topPrompt.usage + " lần sử dụng";
+
+        const formattedTotalRevenue = new Intl.NumberFormat("vi-VN").format(
+          Math.round(totalRevenue)
+        );
+        document.getElementById("totalRevenue").textContent =
+          formattedTotalRevenue + " đ";
+
+        document.getElementById("totalUsage").textContent = totalUsage;
+
+        const avgPrice =
+          allPrompts.reduce((sum, p) => sum + p.price, 0) / allPrompts.length;
+        const formattedAvgPrice = new Intl.NumberFormat("vi-VN").format(
+          Math.round(avgPrice)
+        );
+        document.getElementById("avgPrice").textContent =
+          formattedAvgPrice + " đ";
+      }
+
+      function filterTable() {
+        const searchInput = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const rows = document.querySelectorAll("#promptTableBody tr");
+
+        rows.forEach((row) => {
+          const name = row
+            .querySelector(".prompt-name")
+            .textContent.toLowerCase();
+          if (name.includes(searchInput)) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      }
+
+      function refreshData() {
+        document.getElementById("loadingSpinner").style.display = "block";
+        document.getElementById("promptTable").style.display = "none";
+        loadTopPrompts();
+      }
+
+      // Load data on page load
+      loadTopPrompts();
+    </script>
+  </body>
+</html>

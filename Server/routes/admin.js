@@ -218,6 +218,62 @@ router.get("/statistics/today", verifyAdmin, async (req, res) => {
   }
 });
 
+// Get dashboard statistics (for overview page)
+router.get("/overview-stats", verifyAdmin, async (req, res) => {
+  try {
+    const timeRange = req.query.timeRange || "today";
+    let startDate, endDate;
+    const now = new Date();
+    
+    // Calculate date range
+    if (timeRange === "today") {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    } else if (timeRange === "yesterday") {
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+      endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1);
+    } else if (timeRange === "7days") {
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    } else if (timeRange === "30days") {
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    } else {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    }
+    
+    // Get total users (not filtered by date, always total)
+    const totalUsers = await User.countDocuments({ role: "user" });
+    
+    // Get total prompts (not filtered by date, always total)
+    const totalPrompts = await Prompt.countDocuments();
+    
+    // Get total images created in time range
+    const totalImages = await History.countDocuments({ 
+      status: "success",
+      createdAt: { $gte: startDate, $lt: endDate }
+    });
+    
+    // Get active users in time range
+    const activeUsers = await History.distinct("userId", {
+      createdAt: { $gte: startDate, $lt: endDate }
+    }).then(users => users.length);
+    
+    res.json({
+      totalUsers,
+      totalPrompts,
+      totalImages,
+      activeUsers
+    });
+  } catch (error) {
+    console.error("❌ Overview stats error:", error.message);
+    res.status(500).json({ error: "Lỗi lấy thống kê tổng quan" });
+  }
+});
+
 // Get dashboard statistics
 router.get("/dashboard-stats", verifyAdmin, async (req, res) => {
   try {
@@ -353,6 +409,200 @@ router.get("/topup/pending", verifyAdmin, async (req, res) => {
   } catch (error) {
     console.error("❌ Get pending topups error:", error.message);
     res.status(500).json({ error: "Lỗi lấy danh sách giao dịch chờ xử lý" });
+  }
+});
+
+// Get top prompts with usage count and prices
+router.get("/top-prompts", verifyAdmin, async (req, res) => {
+  try {
+    const limit = req.query.limit || 10;
+    const timeRange = req.query.timeRange || "today";
+    let startDate, endDate;
+    const now = new Date();
+    
+    // Calculate date range
+    if (timeRange === "today") {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    } else if (timeRange === "yesterday") {
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+      endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1);
+    } else if (timeRange === "7days") {
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    } else if (timeRange === "30days") {
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    } else {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    }
+
+    // Get top prompts by usage in time range
+    const topPrompts = await History.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lt: endDate }
+        }
+      },
+      {
+        $group: {
+          _id: "$promptId",
+          promptName: { $first: "$promptName" },
+          usageCount: { $sum: 1 },
+        },
+      },
+      { $sort: { usageCount: -1 } },
+      { $limit: parseInt(limit) },
+    ]);
+
+    console.log("📊 Top prompts from History:", topPrompts);
+
+    // Fetch prompt details including prices
+    const promptDetails = await Promise.all(
+      topPrompts.map(async (p) => {
+        const prompt = await Prompt.findById(p._id);
+        return {
+          id: p._id,
+          name: p.promptName || (prompt ? prompt.name : "Unknown"),
+          usage: p.usageCount,
+          price: prompt ? prompt.fee : 0,
+          revenue: (prompt ? prompt.fee : 0) * p.usageCount,
+        };
+      })
+    );
+
+    console.log("✅ Prompt details with prices:", promptDetails);
+    res.json(promptDetails);
+  } catch (error) {
+    console.error("❌ Get top prompts error:", error.message);
+    res.status(500).json({ error: "Lỗi lấy danh sách prompt phổ biến" });
+  }
+});
+
+// Debug route (no auth required) - remove in production
+router.get("/top-prompts-debug", async (req, res) => {
+  try {
+    const historyCount = await History.countDocuments();
+    const promptCount = await Prompt.countDocuments();
+    
+    const topPrompts = await History.aggregate([
+      {
+        $group: {
+          _id: "$promptId",
+          promptName: { $first: "$promptName" },
+          usageCount: { $sum: 1 },
+        },
+      },
+      { $sort: { usageCount: -1 } },
+      { $limit: 10 },
+    ]);
+
+    res.json({
+      historyCount,
+      promptCount,
+      topPrompts,
+      message: "Debug data - remove this endpoint in production"
+    });
+  } catch (error) {
+    console.error("❌ Debug error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all users
+router.get("/users", verifyAdmin, async (req, res) => {
+  try {
+    const users = await User.find({ role: "user" })
+      .select("fullname email phone avatar role createdAt updatedAt")
+      .sort({ createdAt: -1 });
+
+    // Mark users as online if they have updated within last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const usersWithStatus = users.map(user => ({
+      ...user.toObject(),
+      isOnline: user.updatedAt > fiveMinutesAgo
+    }));
+
+    res.json(usersWithStatus);
+  } catch (error) {
+    console.error("❌ Get users error:", error.message);
+    res.status(500).json({ error: "Lỗi lấy danh sách người dùng" });
+  }
+});
+
+// Get dashboard notifications and activities
+router.get("/dashboard-feed", verifyAdmin, async (req, res) => {
+  try {
+    // Get recent activities (history)
+    const activities = await History.aggregate([
+      { $match: { status: "success" } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          promptName: 1,
+          createdAt: 1,
+          userEmail: { $arrayElemAt: ["$user.email", 0] },
+          userName: { $arrayElemAt: ["$user.fullname", 0] },
+          userAvatar: { $arrayElemAt: ["$user.avatar", 0] }
+        }
+      },
+      { $sort: { createdAt: -1 } },
+      { $limit: 5 }
+    ]);
+
+    // Get new users
+    const newUsers = await User.find({ role: "user" })
+      .select("fullname email avatar createdAt")
+      .sort({ createdAt: -1 })
+      .limit(6);
+
+    // Get recent notifications (mix of user registrations and activities)
+    const notifications = [];
+    
+    // New user registrations
+    newUsers.slice(0, 3).forEach(user => {
+      notifications.push({
+        type: 'user_registered',
+        message: `${user.fullname || user.email} vừa đăng ký`,
+        timestamp: user.createdAt,
+        avatar: user.avatar,
+        icon: 'fas fa-user-check'
+      });
+    });
+
+    // Recent activities
+    activities.slice(0, 2).forEach(activity => {
+      notifications.push({
+        type: 'image_created',
+        message: `${activity.userName || activity.userEmail} đã tạo ảnh với prompt "${activity.promptName}"`,
+        timestamp: activity.createdAt,
+        avatar: activity.userAvatar,
+        icon: 'fas fa-image'
+      });
+    });
+
+    // Sort by timestamp descending
+    notifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    res.json({
+      notifications: notifications.slice(0, 4),
+      activities: activities,
+      contacts: newUsers
+    });
+  } catch (error) {
+    console.error("❌ Dashboard feed error:", error.message);
+    res.status(500).json({ error: "Lỗi lấy dữ liệu dashboard" });
   }
 });
 
