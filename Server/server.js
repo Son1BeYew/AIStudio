@@ -16,28 +16,22 @@ const topupRoutes = require("./routes/topup");
 const historyRoutes = require("./routes/history");
 const adminRoutes = require("./routes/admin");
 const outfitStyleRoutes = require("./routes/outfitStyles");
-const serviceConfigRoutes = require("./routes/serviceConfig");
-
 const app = express();
 
-// 🔥 CORS cho production
-app.use(
-  cors({
-    origin: "https://enternapic.io.vn",
-    credentials: true,
-  })
-);
-
+app.use(cors());
 app.use(express.json());
 
-// Kết nối database
 connectDB();
 
-// Passport JWT
 require("./config/passport")(passport);
 app.use(passport.initialize());
 
-// ✅ Chỉ chạy API routes
+// Serve client static files
+app.use(express.static(path.join(__dirname, "../Client")));
+
+// Serve admin folder explicitly
+app.use("/admin", express.static(path.join(__dirname, "../Client/admin")));
+
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
 app.use("/api/ai", aiRoutes);
@@ -49,21 +43,30 @@ app.use("/api/topup", topupRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/outfit-styles", outfitStyleRoutes);
-app.use("/api/service-config", serviceConfigRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
-// Test route check server live
-app.get("/api", (req, res) => {
-  res.json({ message: "✅ API is running!" });
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../Client/index.html"));
 });
 
-// 404 nếu truy cập API sai đường dẫn
-app.use("/api/*", (req, res) => {
-  res.status(404).json({ error: "API Not found" });
+app.get("*", (req, res) => {
+  if (
+    req.path.startsWith("/auth") ||
+    req.path.startsWith("/protected") ||
+    req.path.startsWith("/api")
+  ) {
+    return res.status(404).json({ error: "Not found" });
+  }
+
+  if (req.path.startsWith("/admin")) {
+    return res.sendFile(path.join(__dirname, "../Client/admin/index.html"));
+  }
+
+  res.sendFile(path.join(__dirname, "../Client/index.html"));
 });
 
-// 🚀 Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
