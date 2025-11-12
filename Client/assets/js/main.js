@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     hero: "/assets/css/hero.css",
     features: "/assets/css/features.css",
     footer: "/assets/css/footer.css",
+    slider: "/assets/css/slider.css",
   };
   function loadCSS(href) {
     const link = document.createElement("link");
@@ -54,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (componentCSS[id]) loadCSS(componentCSS[id]);
 
         if (id === "header") checkAuth();
+        if (id === "slider") initSlider();
         
         initScrollAnimations();
       })
@@ -64,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadComponent("hero", "/assets/components/hero.html");
   loadComponent("features", "/assets/components/features.html");
   loadComponent("footer", "/assets/components/footer.html");
+  loadComponent("slider", "/assets/components/slider.html");
 });
 function checkAuth() {
   const params = new URLSearchParams(window.location.search);
@@ -126,8 +129,8 @@ function checkAuth() {
   }
 
   .avatar {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid transparent;
@@ -135,8 +138,8 @@ function checkAuth() {
   }
 
   .username {
-    font-weight: 600;
-    color: #1f2937;
+    font-weight: 700;
+    color: #212121ff;
     font-size: 16px;
   }
 
@@ -236,16 +239,29 @@ function logout() {
   window.location.href = "/index.html";
 }
 
-function redirectToGenImage() {
+async function redirectToGenImage() {
   const token = localStorage.getItem("token");
-
   if (!token) {
     window.location.href = "/login.html";
     return;
   }
 
-  window.location.href = "/genImage.html";
+  // Kiểm tra token với server
+  try {
+    const res = await fetch("http://localhost:5000/protected", {
+      headers: { Authorization: "Bearer " + token },
+    });
+    if (!res.ok) throw new Error("Token không hợp lệ");
+
+    // Nếu token hợp lệ
+    window.location.href = "/genImage.html";
+  } catch (err) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login.html";
+  }
 }
+
 
 
 function showLoginModalHome() {
