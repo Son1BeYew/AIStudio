@@ -12,8 +12,8 @@
 
 </head>
 
-  <body>
-    <div id="header"></div>
+<body>
+  <div id="header"></div>
 
   <!-- Tab Navigation -->
   <div class="tab-navigation">
@@ -96,8 +96,8 @@
           </div>
         </div>
 
-          <div class="settings-box">
-            <h3>Cài đặt</h3>
+        <div class="settings-box">
+          <h3>Cài đặt</h3>
 
           <label>Loại bối cảnh</label>
           <select id="bg-type-select">
@@ -108,12 +108,8 @@
             <option value="fantasy">Giả tưởng</option>
           </select>
 
-            <label>Mô tả bối cảnh</label>
-            <textarea
-              id="bg-description"
-              placeholder="Mô tả bối cảnh mà bạn muốn tạo..."
-              rows="4"
-            ></textarea>
+          <label>Mô tả bối cảnh</label>
+          <textarea id="bg-description" placeholder="Mô tả bối cảnh mà bạn muốn tạo..." rows="4"></textarea>
 
           <button class="download-btn" id="bg-generate-btn">
             <span></span>Tạo ảnh
@@ -161,8 +157,8 @@
           </div>
         </div>
 
-          <div class="settings-box">
-            <h3>Cài đặt</h3>
+        <div class="settings-box">
+          <h3>Cài đặt</h3>
 
           <label>Giới tính</label>
           <select id="outfit-gender-select">
@@ -181,12 +177,9 @@
             <option disabled selected hidden value="">Chọn kiểu tóc</option>
           </select>
 
-            <label>Mô tả chi tiết</label>
-            <textarea
-              id="outfit-description"
-              placeholder="Mô tả chi tiết về trang phục/tóc mà bạn muốn..."
-              rows="4"
-            ></textarea>
+          <label>Mô tả chi tiết</label>
+          <textarea id="outfit-description" placeholder="Mô tả chi tiết về trang phục/tóc mà bạn muốn..."
+            rows="4"></textarea>
 
           <button class="download-btn" id="outfit-generate-btn">
             <span></span>Thay đổi
@@ -240,22 +233,17 @@
                     border-radius: 6px;
                     margin-bottom: 15px;
                     font-weight: 500;
-                  "
-                >
-                  Chưa chọn
-                </div>
+                  ">
+                Chưa chọn
+              </div>
 
-                <label>Mô tả thêm (tùy chọn)</label>
-                <textarea
-                  id="trend-additional-desc"
-                  placeholder="Thêm mô tả chi tiết để tạo ra kết quả tốt hơn..."
-                  rows="3"
-                  style="margin-bottom: 15px"
-                ></textarea>
+              <label>Mô tả thêm (tùy chọn)</label>
+              <textarea id="trend-additional-desc" placeholder="Thêm mô tả chi tiết để tạo ra kết quả tốt hơn..."
+                rows="3" style="margin-bottom: 15px"></textarea>
 
-                <button class="download-btn" id="trend-generate-btn">
-                  <span>✨</span>Tạo ảnh
-                </button>
+              <button class="download-btn" id="trend-generate-btn">
+                <span>✨</span>Tạo ảnh
+              </button>
 
               <button class="download-btn" onclick="resetTrendCreator()"
                 style="background-color: #999; margin-top: 8px">
@@ -282,201 +270,70 @@
   </div>
   <script src="/assets/js/genImage.js"></script>
 
-    <!-- Quick Guide Section -->
-    <div class="quick-guide">
-      <h3>📖 Hướng dẫn nhanh</h3>
-      <div class="guide-content">
-        <p><strong>Tạo ASCII Art:</strong></p>
-        <ol>
-          <li>Tải ảnh - Chọn ảnh hoặc kéo thả ảnh vào ô 'Tải ảnh'.</li>
-          <li>
-            Chế độ ảnh - Hãy nhập một ý tưởng ngắn gọn (VD: 'một hiệp sĩ trong
-            rừng rậm').
-          </li>
-          <li>
-            Tạo ảnh - Nhấn nút 'Tạo ảnh' để bắt đầu render (quá trình này mất
-            vài phút vì tính toán).
-          </li>
-          <li>
-            Tải về - Khi hoàn thành, nhấn nút 'Tải ảnh' để tải kết quả về máy.
-          </li>
-        </ol>
-        <p style="margin-top: 15px"><strong>Tạo Ảnh Bối Cảnh:</strong></p>
-        <ol>
-          <li>Chuyển sang tab 'Tạo Ảnh Bối Cảnh'.</li>
-          <li>Tải ảnh đầu vào và chọn loại bối cảnh.</li>
-          <li>Mô tả chi tiết bối cảnh muốn tạo.</li>
-          <li>Nhấn 'Tạo Bối Cảnh' và chờ kết quả.</li>
-        </ol>
-      </div>
+  <!-- Quick Guide Section -->
+  <div class="quick-guide">
+    <h3>📖 Hướng dẫn nhanh</h3>
+    <div class="guide-content">
+      <p><strong>Tạo ASCII Art:</strong></p>
+      <ol>
+        <li>Tải ảnh - Chọn ảnh hoặc kéo thả ảnh vào ô 'Tải ảnh'.</li>
+        <li>
+          Chế độ ảnh - Hãy nhập một ý tưởng ngắn gọn (VD: 'một hiệp sĩ trong
+          rừng rậm').
+        </li>
+        <li>
+          Tạo ảnh - Nhấn nút 'Tạo ảnh' để bắt đầu render (quá trình này mất
+          vài phút vì tính toán).
+        </li>
+        <li>
+          Tải về - Khi hoàn thành, nhấn nút 'Tải ảnh' để tải kết quả về máy.
+        </li>
+      </ol>
+      <p style="margin-top: 15px"><strong>Tạo Ảnh Bối Cảnh:</strong></p>
+      <ol>
+        <li>Chuyển sang tab 'Tạo Ảnh Bối Cảnh'.</li>
+        <li>Tải ảnh đầu vào và chọn loại bối cảnh.</li>
+        <li>Mô tả chi tiết bối cảnh muốn tạo.</li>
+        <li>Nhấn 'Tạo Bối Cảnh' và chờ kết quả.</li>
+      </ol>
     </div>
+  </div>
 
-    <!-- Confirmation Dialog -->
-    <div id="confirmDialog" class="confirm-modal hidden">
-      <div class="confirm-overlay" onclick="closeConfirmDialog()"></div>
-      <div class="confirm-content">
-        <div class="confirm-header">
-          <h3 id="confirmTitle">Xác nhận tạo ảnh</h3>
-          <button class="confirm-close" onclick="closeConfirmDialog()">
-            ✕
-          </button>
-        </div>
-        <div class="confirm-body">
-          <p id="confirmMessage">Bạn chắc chắn muốn tạo ảnh?</p>
-          <div class="price-section">
-            <div class="price-row">
-              <span>Giá tiền:</span>
-              <strong id="confirmPrice">0 VND</strong>
-            </div>
-            <div class="price-row">
-              <span>Số dư hiện tại:</span>
-              <strong id="confirmBalance">0 VND</strong>
-            </div>
+  <!-- Confirmation Dialog -->
+  <div id="confirmDialog" class="confirm-modal hidden">
+    <div class="confirm-overlay" onclick="closeConfirmDialog()"></div>
+    <div class="confirm-content">
+      <div class="confirm-header">
+        <h3 id="confirmTitle">Xác nhận tạo ảnh</h3>
+        <button class="confirm-close" onclick="closeConfirmDialog()">
+          ✕
+        </button>
+      </div>
+      <div class="confirm-body">
+        <p id="confirmMessage">Bạn chắc chắn muốn tạo ảnh?</p>
+        <div class="price-section">
+          <div class="price-row">
+            <span>Giá tiền:</span>
+            <strong id="confirmPrice">0 VND</strong>
+          </div>
+          <div class="price-row">
+            <span>Số dư hiện tại:</span>
+            <strong id="confirmBalance">0 VND</strong>
           </div>
         </div>
-        <div class="confirm-actions">
-          <button class="btn-cancel" onclick="closeConfirmDialog()">Hủy</button>
-          <button class="btn-confirm" onclick="proceedGenerate()">
-            Xác nhận
-          </button>
-        </div>
+      </div>
+      <div class="confirm-actions">
+        <button class="btn-cancel" onclick="closeConfirmDialog()">Hủy</button>
+        <button class="btn-confirm" onclick="proceedGenerate()">
+          Xác nhận
+        </button>
       </div>
     </div>
+  </div>
 
   <div id="footer"></div>
   <script src="/assets/js/auth-utils.js"></script>
   <script src="/assets/js/main.js"></script>
-<<<<<<< HEAD
-=======
-
-  <style>
-    /* Trend upload area styling */
-    #trend-upload-area {
-      padding: 20px 10px !important;
-      min-height: 150px !important;
-    }
-
-    #trend-upload-area .upload-icon {
-      width: 35px !important;
-      margin-bottom: 8px !important;
-    }
-
-    #trend-upload-area .upload-content p {
-      font-size: 13px !important;
-      margin: 5px 0 !important;
-    }
-
-    #trend-upload-area .btn {
-      font-size: 12px !important;
-      padding: 6px 12px !important;
-    }
-
-    .login-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .login-modal.hidden {
-      display: none !important;
-    }
-
-    .modal-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-content {
-      position: relative;
-      background: white;
-      border-radius: 12px;
-      padding: 40px;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      animation: slideIn 0.3s ease;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: none;
-      border: none;
-      font-size: 32px;
-      cursor: pointer;
-      color: #999;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .modal-close:hover {
-      background: #f3f4f6;
-      color: #333;
-    }
-
-    .modal-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    .modal-content h2 {
-      font-size: 20px;
-      color: #1f2937;
-      margin: 0 0 12px 0;
-    }
-
-    .modal-content p {
-      color: #6b7280;
-      margin: 0 0 24px 0;
-      font-size: 14px;
-    }
-
-    .modal-btn-login {
-      display: inline-block;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px 32px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .modal-btn-login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
-
->>>>>>> e0e17c9937f1592f9aa10277f269664f03b30766
   <script src="/assets/js/genImage.js"></script>
 
 </body>
