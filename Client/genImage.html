@@ -4,11 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EternaPicSHT Studio</title>
+  <title>Tạo ảnh | EternaPicSHT AI </title>
   <link rel="stylesheet" href="assets/css/genImage.css" />
   <link rel="stylesheet" href="/assets/css/styles.css" />
-  <link rel="stylesheet" href="/assets/css/features.css" />
-  <link rel="stylesheet" href="/assets/css/hero.css" />
   <link rel="stylesheet" href="/assets/css/footer.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -54,17 +52,7 @@
 
           <label>Chế độ ảnh</label>
           <select id="prompt-select">
-            <option value="">Loading prompts...</option>
-          </select>
-
-          <label>Width: 80 characters</label>
-          <input type="range" min="40" max="200" value="80" />
-
-          <label>Dáng đứng</label>
-          <select>
-            <option>Nghiêng về bên trái</option>
-            <option>Nghiêng về bên phải</option>
-            <option>Nhìn về giữa</option>
+            <option value="" disabled selected hidden>Chọn chế độ ảnh</option>
           </select>
 
           <button class="download-btn" id="generate-btn">
@@ -78,7 +66,7 @@
               <p>Ảnh sẽ xuất hiện tại đây</p>
             </div>
           </div>
-          <div class="output-info hidden" id="output-info">
+          <div class="output-info" id="output-info" style="display: none">
             <p>
               <strong>Chế độ:</strong> <span id="output-prompt-name"></span>
             </p>
@@ -86,7 +74,7 @@
               <strong>Mô tả:</strong> <span id="output-prompt-title"></span>
             </p>
           </div>
-          <button class="download-btn download-result hidden" id="download-btn">
+          <button class="download-btn download-result" id="download-btn" style="display: none">
             <span>⬇</span>Tải ảnh
           </button>
         </div>
@@ -113,7 +101,7 @@
 
           <label>Loại bối cảnh</label>
           <select id="bg-type-select">
-            <option value="">Chọn loại bối cảnh</option>
+            <option disabled selected hidden value="">Chọn loại bối cảnh</option>
             <option value="nature">Thiên nhiên</option>
             <option value="urban">Thành phố</option>
             <option value="abstract">Trừu tượng</option>
@@ -135,7 +123,7 @@
               <p>Ảnh sẽ xuất hiện tại đây</p>
             </div>
           </div>
-          <button class="download-btn download-result hidden" id="bg-download-btn">
+          <button class="download-btn download-result" id="bg-download-btn" style="display: none">
             <span>⬇</span>Tải ảnh
           </button>
         </div>
@@ -174,19 +162,19 @@
 
           <label>Giới tính</label>
           <select id="outfit-gender-select">
-            <option value="">Chọn giới tính</option>
+            <option disabled selected hidden value="">Chọn giới tính</option>
             <option value="male">Nam</option>
             <option value="female">Nữ</option>
           </select>
 
           <label>Loại trang phục/tóc</label>
           <select id="outfit-type-select" disabled>
-            <option value="">Chọn loại</option>
+            <option disabled selected hidden value="">Chọn loại</option>
           </select>
 
           <label>Kiểu tóc</label>
           <select id="outfit-hairstyle-select" disabled>
-            <option value="">Chọn kiểu tóc</option>
+            <option disabled selected hidden value="">Chọn kiểu tóc</option>
           </select>
 
           <label>Mô tả chi tiết</label>
@@ -205,7 +193,7 @@
               <p>Ảnh sẽ xuất hiện tại đây</p>
             </div>
           </div>
-          <button class="download-btn download-result hidden" id="outfit-download-btn">
+          <button class="download-btn download-result" id="outfit-download-btn" style="display: none">
             <span></span>Tải ảnh
           </button>
         </div>
@@ -216,11 +204,11 @@
     <div class="tab-content" id="hot-trend-tab">
       <div class="content-wrapper-trends">
         <div class="trends-section">
-          <h3>Những Phong Cách Đang Hot</h3>
+          <h3>NHỮNG PHONG CÁCH HOT TREND HIỆN NAY</h3>
           <div class="trends-grid" id="trendsGrid"></div>
         </div>
 
-        <div class="trend-creator-section hidden" id="trendCreatorSection">
+        <div class="trend-creator-section" id="trendCreatorSection" style="display: none">
           <div class="content-wrapper">
             <!-- Upload Section -->
             <div class="upload-box">
@@ -238,20 +226,27 @@
             <!-- Settings Section -->
             <div class="settings-box">
               <h3>Cài đặt</h3>
-              <label>Phong Cách Được Chọn</label>
-              <div id="trend-selected-style" class="trend-selected-style">
+              <label>Các phong cách</label>
+              <div id="trend-selected-style" style="
+                    padding: 10px;
+                    background: #f0f0f0;
+                    border-radius: 6px;
+                    margin-bottom: 15px;
+                    font-weight: 500;
+                  ">
                 Chưa chọn
               </div>
 
               <label>Mô tả thêm (tùy chọn)</label>
               <textarea id="trend-additional-desc" placeholder="Thêm mô tả chi tiết để tạo ra kết quả tốt hơn..."
-                rows="3" class="trend-textarea"></textarea>
+                rows="3" style="margin-bottom: 15px"></textarea>
 
               <button class="download-btn" id="trend-generate-btn">
                 <span>✨</span>Tạo ảnh
               </button>
 
-              <button class="download-btn btn-reset" onclick="resetTrendCreator()">
+              <button class="download-btn" onclick="resetTrendCreator()"
+                style="background-color: #999; margin-top: 8px">
                 <span>↺</span>Chọn phong cách khác
               </button>
             </div>
@@ -264,7 +259,7 @@
                   <p>Ảnh sẽ xuất hiện tại đây</p>
                 </div>
               </div>
-              <button class="download-btn download-result hidden" id="trend-download-btn">
+              <button class="download-btn download-result" id="trend-download-btn" style="display: none">
                 <span>⬇</span>Tải ảnh
               </button>
             </div>
@@ -294,7 +289,7 @@
           Tải về - Khi hoàn thành, nhấn nút 'Tải ảnh' để tải kết quả về máy.
         </li>
       </ol>
-      <p class="guide-section-title"><strong>Tạo Ảnh Bối Cảnh:</strong></p>
+      <p style="margin-top: 15px"><strong>Tạo Ảnh Bối Cảnh:</strong></p>
       <ol>
         <li>Chuyển sang tab 'Tạo Ảnh Bối Cảnh'.</li>
         <li>Tải ảnh đầu vào và chọn loại bối cảnh.</li>
