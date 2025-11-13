@@ -228,12 +228,16 @@ router.get("/overview-stats", verifyAdmin, async (req, res) => {
     // Calculate date range
     if (timeRange === "today") {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
     } else if (timeRange === "yesterday") {
       const yesterday = new Date(now);
       yesterday.setDate(yesterday.getDate() - 1);
       startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-      endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
     } else if (timeRange === "7days") {
       startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -242,7 +246,9 @@ router.get("/overview-stats", verifyAdmin, async (req, res) => {
       endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     } else {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
     }
     
     // Get total users (not filtered by date, always total)
@@ -423,12 +429,16 @@ router.get("/top-prompts", verifyAdmin, async (req, res) => {
     // Calculate date range
     if (timeRange === "today") {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
     } else if (timeRange === "yesterday") {
       const yesterday = new Date(now);
       yesterday.setDate(yesterday.getDate() - 1);
       startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-      endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
     } else if (timeRange === "7days") {
       startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -437,7 +447,9 @@ router.get("/top-prompts", verifyAdmin, async (req, res) => {
       endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     } else {
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
     }
 
     // Get top prompts by usage in time range

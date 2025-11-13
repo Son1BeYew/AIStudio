@@ -368,6 +368,12 @@
         <div class="table-header">
           <h2>🏆 Top 10 Prompt Được Sử Dụng Nhiều Nhất</h2>
           <div class="table-controls">
+            <select id="timeRangeSelect" onchange="changeTimeRange()" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin-right: 10px;">
+              <option value="today">Hôm nay</option>
+              <option value="yesterday">Hôm qua</option>
+              <option value="7days" selected>7 ngày qua</option>
+              <option value="30days">30 ngày qua</option>
+            </select>
             <input
               type="text"
               class="filter-input"
@@ -408,9 +414,11 @@
 
     <script>
       let allPrompts = [];
+      let currentTimeRange = "7days";
 
-      async function loadTopPrompts() {
+      async function loadTopPrompts(timeRange = "7days") {
         try {
+          currentTimeRange = timeRange;
           // Try both localStorage and sessionStorage
           let token =
             localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -427,12 +435,13 @@
           }
 
           console.log("Token exists:", !!token);
+          console.log("Loading prompts for timeRange:", timeRange);
 
           if (!token) {
             throw new Error("Không tìm thấy token. Vui lòng đăng nhập lại.");
           }
 
-          const response = await fetch("/api/admin/top-prompts?limit=10", {
+          const response = await fetch(`/api/admin/top-prompts?limit=10&timeRange=${timeRange}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -555,14 +564,22 @@
         });
       }
 
+      function changeTimeRange() {
+        const timeRange = document.getElementById("timeRangeSelect").value;
+        document.getElementById("loadingSpinner").style.display = "block";
+        document.getElementById("promptTable").style.display = "none";
+        document.getElementById("noDataMessage").style.display = "none";
+        loadTopPrompts(timeRange);
+      }
+
       function refreshData() {
         document.getElementById("loadingSpinner").style.display = "block";
         document.getElementById("promptTable").style.display = "none";
-        loadTopPrompts();
+        loadTopPrompts(currentTimeRange);
       }
 
-      // Load data on page load
-      loadTopPrompts();
+      // Load data on page load with 7days by default
+      loadTopPrompts("7days");
     </script>
   </body>
 </html>
