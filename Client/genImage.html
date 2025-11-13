@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="/assets/css/features.css" />
   <link rel="stylesheet" href="/assets/css/hero.css" />
   <link rel="stylesheet" href="/assets/css/footer.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
@@ -21,13 +23,13 @@
       <span class="tab-icon"></span>Tạo ảnh cá nhân
     </button>
     <button class="tab-button" data-tab="background">
-      <span class="tab-icon"></span>Tạo Ảnh Bối Cảnh
+      <span class="tab-icon"></span>Tạo ảnh khung cảnh
     </button>
     <button class="tab-button" data-tab="outfit">
-      <span class="tab-icon"></span>Đổi Trang Phục/Tóc
+      <span class="tab-icon"></span>Đổi trang phục và kiểu tóc
     </button>
     <button class="tab-button" data-tab="hot-trend">
-      <span class="tab-icon"></span>Hot Trend
+      <span class="tab-icon"></span>Hot trend
     </button>
   </div>
 
@@ -37,10 +39,9 @@
       <div class="content-wrapper">
         <!-- Upload Section -->
         <div class="upload-box">
-          <h3>Tải ảnh lên</h3>
+          <h3>Tải ảnh</h3>
           <div class="upload-area" id="upload-area">
             <div class="upload-content">
-              <img src="https://cdn-icons-png.flaticon.com/512/1829/1829588.png" alt="upload" class="upload-icon" />
               <p><strong>Kéo thả hoặc tải ảnh tại đây</strong></p>
               <p class="small">hoặc nhấn để chọn tệp</p>
               <input type="file" id="file-input" hidden accept="image/*" />
@@ -74,10 +75,10 @@
           <h3>Kết quả</h3>
           <div class="output-area" id="output-area">
             <div class="output-placeholder">
-              <p>Ảnh kết quả sẽ xuất hiện tại đây</p>
+              <p>Ảnh sẽ xuất hiện tại đây</p>
             </div>
           </div>
-          <div class="output-info" id="output-info" style="display: none">
+          <div class="output-info hidden" id="output-info">
             <p>
               <strong>Chế độ:</strong> <span id="output-prompt-name"></span>
             </p>
@@ -85,7 +86,7 @@
               <strong>Mô tả:</strong> <span id="output-prompt-title"></span>
             </p>
           </div>
-          <button class="download-btn download-result" id="download-btn" style="display: none">
+          <button class="download-btn download-result hidden" id="download-btn">
             <span>⬇</span>Tải ảnh
           </button>
         </div>
@@ -96,10 +97,9 @@
     <div class="tab-content" id="background-tab">
       <div class="content-wrapper">
         <div class="upload-box">
-          <h3>Tải ảnh lên</h3>
+          <h3>Tải ảnh </h3>
           <div class="upload-area" id="bg-upload-area">
             <div class="upload-content">
-              <img src="https://cdn-icons-png.flaticon.com/512/1829/1829588.png" alt="upload" class="upload-icon" />
               <p><strong>Kéo thả hoặc tải ảnh tại đây</strong></p>
               <p class="small">hoặc nhấn để chọn tệp</p>
               <input type="file" id="bg-file-input" hidden accept="image/*" />
@@ -124,7 +124,7 @@
           <textarea id="bg-description" placeholder="Mô tả bối cảnh mà bạn muốn tạo..." rows="4"></textarea>
 
           <button class="download-btn" id="bg-generate-btn">
-            <span></span>Tạo Bối Cảnh
+            <span></span>Tạo ảnh
           </button>
         </div>
 
@@ -132,11 +132,11 @@
           <h3>Kết quả</h3>
           <div class="output-area" id="bg-output-area">
             <div class="output-placeholder">
-              <p>Ảnh bối cảnh sẽ xuất hiện tại đây</p>
+              <p>Ảnh sẽ xuất hiện tại đây</p>
             </div>
           </div>
-          <button class="download-btn download-result" id="bg-download-btn" style="display: none">
-            <span>⬇</span>Tải Ảnh
+          <button class="download-btn download-result hidden" id="bg-download-btn">
+            <span>⬇</span>Tải ảnh
           </button>
         </div>
       </div>
@@ -146,10 +146,9 @@
     <div class="tab-content" id="outfit-tab">
       <div class="content-wrapper">
         <div class="upload-box">
-          <h3>Tải ảnh người lên</h3>
+          <h3>Tải ảnh người</h3>
           <div class="upload-area" id="outfit-upload-area">
             <div class="upload-content">
-              <img src="https://cdn-icons-png.flaticon.com/512/1829/1829588.png" alt="upload" class="upload-icon" />
               <p><strong>Kéo thả hoặc tải ảnh tại đây</strong></p>
               <p class="small">hoặc nhấn để chọn tệp</p>
               <input type="file" id="outfit-file-input" hidden accept="image/*" />
@@ -159,10 +158,9 @@
         </div>
 
         <div class="upload-box">
-          <h3>Tải ảnh quần áo lên (Tùy chọn)</h3>
+          <h3>Tải ảnh quần áo</h3>
           <div class="upload-area" id="clothing-upload-area">
             <div class="upload-content">
-              <img src="https://cdn-icons-png.flaticon.com/512/1829/1829588.png" alt="upload" class="upload-icon" />
               <p><strong>Kéo thả hoặc tải ảnh quần áo tại đây</strong></p>
               <p class="small">hoặc nhấn để chọn tệp</p>
               <input type="file" id="clothing-file-input" hidden accept="image/*" />
@@ -196,7 +194,7 @@
             rows="4"></textarea>
 
           <button class="download-btn" id="outfit-generate-btn">
-            <span></span>Thay Đổi
+            <span></span>Thay đổi
           </button>
         </div>
 
@@ -204,11 +202,11 @@
           <h3>Kết quả</h3>
           <div class="output-area" id="outfit-output-area">
             <div class="output-placeholder">
-              <p>Ảnh kết quả sẽ xuất hiện tại đây</p>
+              <p>Ảnh sẽ xuất hiện tại đây</p>
             </div>
           </div>
-          <button class="download-btn download-result" id="outfit-download-btn" style="display: none">
-            <span></span>Tải Ảnh
+          <button class="download-btn download-result hidden" id="outfit-download-btn">
+            <span></span>Tải ảnh
           </button>
         </div>
       </div>
@@ -222,14 +220,13 @@
           <div class="trends-grid" id="trendsGrid"></div>
         </div>
 
-        <div class="trend-creator-section" id="trendCreatorSection" style="display: none">
+        <div class="trend-creator-section hidden" id="trendCreatorSection">
           <div class="content-wrapper">
             <!-- Upload Section -->
             <div class="upload-box">
-              <h3>Tải ảnh lên</h3>
+              <h3>Tải ảnh</h3>
               <div class="upload-area" id="trend-upload-area">
                 <div class="upload-content">
-                  <img src="https://cdn-icons-png.flaticon.com/512/1829/1829588.png" alt="upload" class="upload-icon" />
                   <p><strong>Kéo thả hoặc tải ảnh tại đây</strong></p>
                   <p class="small">hoặc nhấn để chọn tệp</p>
                   <input type="file" id="trend-file-input" hidden accept="image/*" />
@@ -242,27 +239,20 @@
             <div class="settings-box">
               <h3>Cài đặt</h3>
               <label>Phong Cách Được Chọn</label>
-              <div id="trend-selected-style" style="
-                    padding: 10px;
-                    background: #f0f0f0;
-                    border-radius: 6px;
-                    margin-bottom: 15px;
-                    font-weight: 500;
-                  ">
+              <div id="trend-selected-style" class="trend-selected-style">
                 Chưa chọn
               </div>
 
               <label>Mô tả thêm (tùy chọn)</label>
               <textarea id="trend-additional-desc" placeholder="Thêm mô tả chi tiết để tạo ra kết quả tốt hơn..."
-                rows="3" style="margin-bottom: 15px"></textarea>
+                rows="3" class="trend-textarea"></textarea>
 
               <button class="download-btn" id="trend-generate-btn">
                 <span>✨</span>Tạo ảnh
               </button>
 
-              <button class="download-btn" onclick="resetTrendCreator()"
-                style="background-color: #999; margin-top: 8px">
-                <span>↺</span>Chọn Phong Cách Khác
+              <button class="download-btn btn-reset" onclick="resetTrendCreator()">
+                <span>↺</span>Chọn phong cách khác
               </button>
             </div>
 
@@ -271,11 +261,11 @@
               <h3>Kết Quả</h3>
               <div class="output-area" id="trend-output-area">
                 <div class="output-placeholder">
-                  <p>Ảnh kết quả sẽ xuất hiện tại đây</p>
+                  <p>Ảnh sẽ xuất hiện tại đây</p>
                 </div>
               </div>
-              <button class="download-btn download-result" id="trend-download-btn" style="display: none">
-                <span>⬇</span>Tải Ảnh
+              <button class="download-btn download-result hidden" id="trend-download-btn">
+                <span>⬇</span>Tải ảnh
               </button>
             </div>
           </div>
@@ -304,7 +294,7 @@
           Tải về - Khi hoàn thành, nhấn nút 'Tải ảnh' để tải kết quả về máy.
         </li>
       </ol>
-      <p style="margin-top: 15px"><strong>Tạo Ảnh Bối Cảnh:</strong></p>
+      <p class="guide-section-title"><strong>Tạo Ảnh Bối Cảnh:</strong></p>
       <ol>
         <li>Chuyển sang tab 'Tạo Ảnh Bối Cảnh'.</li>
         <li>Tải ảnh đầu vào và chọn loại bối cảnh.</li>
@@ -345,138 +335,6 @@
   <div id="footer"></div>
   <script src="/assets/js/auth-utils.js"></script>
   <script src="/assets/js/main.js"></script>
-
-  <style>
-    /* Trend upload area styling */
-    #trend-upload-area {
-      padding: 20px 10px !important;
-      min-height: 150px !important;
-    }
-
-    #trend-upload-area .upload-icon {
-      width: 35px !important;
-      margin-bottom: 8px !important;
-    }
-
-    #trend-upload-area .upload-content p {
-      font-size: 13px !important;
-      margin: 5px 0 !important;
-    }
-
-    #trend-upload-area .upload-content p.small {
-      font-size: 11px !important;
-    }
-
-    #trend-upload-area .btn {
-      font-size: 12px !important;
-      padding: 6px 12px !important;
-    }
-
-    .login-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .login-modal.hidden {
-      display: none !important;
-    }
-
-    .modal-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-content {
-      position: relative;
-      background: white;
-      border-radius: 12px;
-      padding: 40px;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      animation: slideIn 0.3s ease;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: none;
-      border: none;
-      font-size: 32px;
-      cursor: pointer;
-      color: #999;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .modal-close:hover {
-      background: #f3f4f6;
-      color: #333;
-    }
-
-    .modal-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    .modal-content h2 {
-      font-size: 20px;
-      color: #1f2937;
-      margin: 0 0 12px 0;
-    }
-
-    .modal-content p {
-      color: #6b7280;
-      margin: 0 0 24px 0;
-      font-size: 14px;
-    }
-
-    .modal-btn-login {
-      display: inline-block;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px 32px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .modal-btn-login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
-
   <script src="/assets/js/genImage.js"></script>
 
 </body>
