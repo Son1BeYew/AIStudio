@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  server:
+    build: ./Server
+    container_name: aistudio_server
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  client:
+    build: ./Client
+    container_name: aistudio_client
+    ports:
+      - "8080:80"
+    restart: always
