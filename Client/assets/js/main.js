@@ -75,7 +75,7 @@ function checkAuth() {
 
   localStorage.setItem("token", token);
 
-  fetch("http://localhost:5000/protected", {
+  fetch("/protected", {
     headers: { Authorization: "Bearer " + token },
   })
     .then((res) => res.json())
@@ -248,7 +248,7 @@ async function redirectToGenImage() {
 
   // Kiểm tra token với server
   try {
-    const res = await fetch("http://localhost:5000/protected", {
+    const res = await fetch("/protected", {
       headers: { Authorization: "Bearer " + token },
     });
     if (!res.ok) throw new Error("Token không hợp lệ");

@@ -197,15 +197,12 @@
         });
       });
 
-      // Initialize on page load
-      document.addEventListener("DOMContentLoaded", () => {
-        loadTrendingPrompts();
-      });
-
+      
       // ASCII Art Generation
       const uploadArea = document.getElementById("upload-area");
       const fileInput = document.getElementById("file-input");
       const chooseBtn = document.getElementById("choose-btn");
+      const genderSelect = document.getElementById("gender-select");
       const promptSelect = document.getElementById("prompt-select");
       const generateBtn = document.getElementById("generate-btn");
       let selectedFile = null;
@@ -246,9 +243,10 @@
       }
 
       // Load prompts từ API
-      async function loadPrompts() {
+      async function loadPrompts(gender = '') {
         try {
-          const response = await fetch("/api/prompts");
+          const url = gender ? `/api/prompts?gender=${gender}` : "/api/prompts";
+          const response = await fetch(url);
           const prompts = await response.json();
           promptSelect.innerHTML = '<option value="">Chọn chế độ ảnh</option>';
           prompts.forEach((prompt) => {
@@ -321,7 +319,14 @@
 
       // Load prompts khi page load
       document.addEventListener("DOMContentLoaded", () => {
+        loadTrendingPrompts();
         loadPrompts();
+
+        // Add event listener for gender filter
+        genderSelect.addEventListener("change", () => {
+          const selectedGender = genderSelect.value;
+          loadPrompts(selectedGender);
+        });
       });
 
       // Background Image Generation

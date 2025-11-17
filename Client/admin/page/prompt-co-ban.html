@@ -166,19 +166,22 @@
         input[type="text"],
         input[type="number"],
         input[type="file"],
-        textarea {
+        textarea,
+        select {
             padding: 12px;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
             transition: all 0.2s;
+            background-color: white;
         }
 
         input[type="text"]:focus,
         input[type="number"]:focus,
         input[type="file"]:focus,
-        textarea:focus {
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -318,6 +321,31 @@
             border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
+        }
+
+        .gender-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 70px;
+            display: inline-block;
+        }
+
+        .gender-badge.male {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .gender-badge.female {
+            background: #fce7f3;
+            color: #a21caf;
+        }
+
+        .gender-badge.unisex {
+            background: #f3f4f6;
+            color: #374151;
         }
 
         .action-buttons {
@@ -541,6 +569,15 @@
                         <input type="number" id="promptOrder" value="0" min="0">
                     </div>
 
+                    <div class="form-group">
+                        <label for="promptGender">Giới Tính</label>
+                        <select id="promptGender" class="gender-select">
+                            <option value="unisex">Unisex</option>
+                            <option value="male">Nam</option>
+                            <option value="female">Nữ</option>
+                        </select>
+                    </div>
+
                     <div class="form-group form-group-full">
                         <label for="promptDescription">Mô Tả</label>
                         <textarea id="promptDescription" placeholder="Mô tả chi tiết về prompt này..."></textarea>
@@ -599,13 +636,14 @@
                             <th style="width: 60px;">Ảnh</th>
                             <th>Tên</th>
                             <th>Tiêu Đề</th>
+                            <th style="width: 100px;">Giới Tính</th>
                             <th style="width: 100px;">Thứ Tự</th>
                             <th style="width: 150px;">Hành Động</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">
                                 <div style="font-size: 18px; margin-bottom: 10px;">
                                     <i class="fas fa-spinner-third" style="animation: spin 1s linear infinite;"></i>
                                 </div>
@@ -694,12 +732,13 @@
             tableBody.innerHTML = allPrompts.map(prompt => `
                 <tr>
                     <td>
-                        ${prompt.image 
-                            ? `<img src="${prompt.image}" alt="${prompt.title}" class="image-cell">` 
+                        ${prompt.image
+                            ? `<img src="${prompt.image}" alt="${prompt.title}" class="image-cell">`
                             : '<div style="width: 50px; height: 50px; background: #e2e8f0; border-radius: 6px;"></div>'}
                     </td>
                     <td class="name-cell">${prompt.name}</td>
                     <td>${prompt.title}</td>
+                    <td><span class="gender-badge ${prompt.gender || 'unisex'}">${getGenderText(prompt.gender || 'unisex')}</span></td>
                     <td><span class="order-badge">${prompt.order || 0}</span></td>
                     <td>
                         <div class="action-buttons">
@@ -733,6 +772,15 @@
             `).join('');
         }
 
+        function getGenderText(gender) {
+            switch (gender) {
+                case 'male': return 'Nam';
+                case 'female': return 'Nữ';
+                case 'unisex': return 'Unisex';
+                default: return 'Unisex';
+            }
+        }
+
         function switchView(view) {
             currentView = view;
             document.querySelectorAll('.view-toggle button').forEach(btn => btn.classList.remove('active'));
@@ -757,6 +805,7 @@
             document.getElementById('promptDescription').value = prompt.description || '';
             document.getElementById('promptText').value = prompt.prompt;
             document.getElementById('promptOrder').value = prompt.order || 0;
+            document.getElementById('promptGender').value = prompt.gender || 'unisex';
 
             if (prompt.image) {
                 const preview = document.getElementById('imagePreview');
@@ -794,6 +843,7 @@
             const promptDescription = document.getElementById('promptDescription').value.trim();
             const promptText = document.getElementById('promptText').value.trim();
             const promptOrder = parseInt(document.getElementById('promptOrder').value) || 0;
+            const promptGender = document.getElementById('promptGender').value;
             const promptImage = document.getElementById('promptImage').files[0];
 
             if (!promptName) {
@@ -830,7 +880,8 @@
                     title: promptTitle,
                     description: promptDescription,
                     prompt: promptText,
-                    order: promptOrder
+                    order: promptOrder,
+                    gender: promptGender
                 };
 
                 // Xử lý ảnh nếu có
@@ -902,6 +953,7 @@
         function resetForm() {
             document.getElementById('promptForm').reset();
             document.getElementById('promptId').value = '';
+            document.getElementById('promptGender').value = 'unisex';
             document.getElementById('imagePreview').innerHTML = '<i class="fas fa-image"></i>';
             document.getElementById('imagePreview').classList.add('empty');
         }
