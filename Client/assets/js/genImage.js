@@ -277,6 +277,11 @@
           const url = gender ? `/api/prompts?gender=${gender}` : "/api/prompts";
           const response = await fetch(url);
           const prompts = await response.json();
+
+          // Clear all existing options except first one
+          promptSelect.innerHTML = '<option value="">Chọn prompt...</option>';
+
+          // Add new options
           prompts.forEach((prompt) => {
             if (prompt.isActive) {
               const option = document.createElement("option");
@@ -353,6 +358,8 @@
         // Add event listener for gender filter
         genderSelect.addEventListener("change", () => {
           const selectedGender = genderSelect.value;
+          // Reset prompt dropdown trước khi load lại
+          promptSelect.innerHTML = '<option value="">Loading prompts...</option>';
           loadPrompts(selectedGender);
         });
       });
