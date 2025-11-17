@@ -7,7 +7,29 @@ function initSlider() {
     const items = Array.from(nameList.querySelectorAll("span"));
     let isDown = false, startX = 0, scrollStart = 0;
     let currentIndex = 0, autoTimer = null, resumeTimer = null;
+    let velocity = 0, lastX = 0, lastTime = 0, momentumAnimationId = null;
 
+    // ----------- Chuyển ảnh mượt với preload -----------
+    function changeImage(newSrc, newAlt) {
+        // fade-out trước
+        mainImage.classList.remove("fade-in");
+        mainImage.classList.add("fade-out");
+
+        // preload ảnh mới
+        const img = new Image();
+        img.src = newSrc;
+        img.onload = () => {
+            mainImage.src = newSrc;
+            mainImage.alt = newAlt;
+
+            // fade-in
+            mainImage.classList.remove("fade-out");
+            void mainImage.offsetWidth; // trigger reflow
+            mainImage.classList.add("fade-in");
+        };
+    }
+
+    // ----------- Cập nhật active và opacity cho items -----------
     function updateActive() {
         const center = nameList.scrollLeft + nameList.offsetWidth / 2;
         let closest = items[0], minDist = Infinity, closestIdx = 0;
@@ -28,87 +50,139 @@ function initSlider() {
         currentIndex = closestIdx;
         items.forEach(i => i.classList.remove("active"));
         closest.classList.add("active");
-        
+
+        // Chuyển ảnh mượt nếu khác src
         if (!mainImage.src.includes(closest.dataset.img)) {
-            mainImage.classList.add("fade-out");
-            setTimeout(() => {
-                mainImage.src = closest.dataset.img;
-                mainImage.alt = closest.textContent;
-                mainImage.classList.remove("fade-out", "fade-in");
-                void mainImage.offsetWidth;
-                mainImage.classList.add("fade-in");
-            }, 400);
+            changeImage(closest.dataset.img, closest.textContent);
         }
     }
 
+    // ----------- Scroll tới center -----------
     function scrollToCenter(item) {
         const itemCenter = item.offsetLeft + item.offsetWidth / 2;
-        nameList.scrollLeft = itemCenter - nameList.offsetWidth / 2;
+        const targetScroll = itemCenter - nameList.offsetWidth / 2;
+        smoothScrollTo(targetScroll);
     }
 
+    function smoothScrollTo(target) {
+        if (momentumAnimationId) cancelAnimationFrame(momentumAnimationId);
+        
+        const start = nameList.scrollLeft;
+        const distance = target - start;
+        const duration = 800;
+        let startTime = null;
+
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+
+        function animate(currentTime) {
+            if (startTime === null) startTime = currentTime;
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            nameList.scrollLeft = start + distance * easeOutCubic(progress);
+            updateActive();
+
+            if (progress < 1) {
+                momentumAnimationId = requestAnimationFrame(animate);
+            }
+        }
+
+        momentumAnimationId = requestAnimationFrame(animate);
+    }
+
+    // ----------- Momentum khi drag/touch -----------
+    function applyMomentum() {
+        if (Math.abs(velocity) < 0.5 || momentumAnimationId) return;
+
+        const friction = 0.95;
+        const minVelocity = 0.1;
+
+        function momentum() {
+            velocity *= friction;
+            nameList.scrollLeft -= velocity;
+            updateActive();
+
+            if (Math.abs(velocity) > minVelocity) {
+                momentumAnimationId = requestAnimationFrame(momentum);
+            } else {
+                momentumAnimationId = null;
+                velocity = 0;
+            }
+        }
+
+        momentumAnimationId = requestAnimationFrame(momentum);
+    }
+
+    // ----------- Auto rotate -----------
     function autoRotate() {
         currentIndex = (currentIndex + 1) % items.length;
         scrollToCenter(items[currentIndex]);
-        updateActive();
     }
 
     function startAutoRotate() {
         if (autoTimer) clearInterval(autoTimer);
-        autoTimer = setInterval(autoRotate, 3000);
+        autoTimer = setInterval(autoRotate, 4000);
     }
 
     function stopAutoRotate() {
         if (autoTimer) clearInterval(autoTimer);
         if (resumeTimer) clearTimeout(resumeTimer);
-        resumeTimer = setTimeout(startAutoRotate, 3000);
+        resumeTimer = setTimeout(startAutoRotate, 4000);
     }
 
-    // Click
+    // ----------- Click -----------
     items.forEach(item => {
         item.addEventListener("click", () => {
             stopAutoRotate();
             scrollToCenter(item);
-            updateActive();
         });
     });
 
-    // Drag
-    nameList.addEventListener("mousedown", e => {
+    // ----------- Drag & Touch -----------
+    function startDrag(clientX) {
+        if (momentumAnimationId) cancelAnimationFrame(momentumAnimationId);
         stopAutoRotate();
         isDown = true;
-        startX = e.pageX;
+        startX = clientX;
+        lastX = clientX;
+        lastTime = Date.now();
         scrollStart = nameList.scrollLeft;
-    });
+        velocity = 0;
+    }
 
-    document.addEventListener("mousemove", e => {
+    function moveDrag(clientX) {
         if (!isDown) return;
-        nameList.scrollLeft = scrollStart - (e.pageX - startX) * 0.8;
+
+        const currentTime = Date.now();
+        const deltaX = clientX - lastX;
+        const deltaTime = currentTime - lastTime;
+
+        velocity = deltaTime > 0 ? deltaX / deltaTime : 0;
+
+        nameList.scrollLeft = scrollStart - (clientX - startX) * 0.8;
         updateActive();
-    });
 
-    document.addEventListener("mouseup", () => {
-        isDown = false;
-    });
+        lastX = clientX;
+        lastTime = currentTime;
+    }
 
-    // Touch
-    nameList.addEventListener("touchstart", e => {
-        stopAutoRotate();
-        isDown = true;
-        startX = e.touches[0].clientX;
-        scrollStart = nameList.scrollLeft;
-    });
-
-    document.addEventListener("touchmove", e => {
+    function endDrag() {
         if (!isDown) return;
-        nameList.scrollLeft = scrollStart - (e.touches[0].clientX - startX) * 0.8;
-        updateActive();
-    });
-
-    document.addEventListener("touchend", () => {
         isDown = false;
-    });
+        applyMomentum();
+    }
 
-    // Init
+    nameList.addEventListener("mousedown", e => startDrag(e.pageX));
+    document.addEventListener("mousemove", e => moveDrag(e.pageX));
+    document.addEventListener("mouseup", endDrag);
+
+    nameList.addEventListener("touchstart", e => startDrag(e.touches[0].clientX));
+    document.addEventListener("touchmove", e => moveDrag(e.touches[0].clientX));
+    document.addEventListener("touchend", endDrag);
+
+    // ----------- Init -----------
     setTimeout(() => {
         scrollToCenter(items[0]);
         updateActive();

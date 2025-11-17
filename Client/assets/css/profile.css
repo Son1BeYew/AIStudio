@@ -107,8 +107,8 @@
 }
 
 .section-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   margin-bottom: 15px;
   color: #222;
 }
@@ -241,7 +241,7 @@ textarea {
 .btn-edit {
   flex: 1;
   padding: 12px;
-  background: #0066cc;
+  background: #ac00d7;
   color: #fff;
   font-size: 14px;
   font-weight: 500;
@@ -253,7 +253,7 @@ textarea {
 
 .btn-save:hover:not(:disabled),
 .btn-edit:hover {
-  background: #0052a3;
+  background: #d119ff;
 }
 
 .btn-save:disabled {
