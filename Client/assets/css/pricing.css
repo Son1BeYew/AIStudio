@@ -3,13 +3,10 @@
 .pricing-container {
   width: 100%;
   min-height: 100vh;
-  background: #f8f9fa;
 }
 
 /* Hero Section */
 .pricing-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
   text-align: center;
   padding: 80px 20px;
   margin-bottom: 60px;
@@ -230,7 +227,11 @@
 
 .plan-card.professional {
   border-color: #667eea;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05) 0%,
+    rgba(118, 75, 162, 0.05) 100%
+  );
   transform: scale(1.05);
 }
 

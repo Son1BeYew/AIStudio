@@ -6,13 +6,16 @@ function initScrollAnimations() {
   const elementInView = (el, dividend = 1) => {
     const elementTop = el.getBoundingClientRect().top;
     return (
-      elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+      elementTop <=
+      (window.innerHeight || document.documentElement.clientHeight) / dividend
     );
   };
 
   const elementOutofView = (el) => {
     const elementTop = el.getBoundingClientRect().top;
-    return elementTop > (window.innerHeight || document.documentElement.clientHeight);
+    return (
+      elementTop > (window.innerHeight || document.documentElement.clientHeight)
+    );
   };
 
   const displayScrollElement = () => {
@@ -56,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (id === "header") checkAuth();
         if (id === "slider") initSlider();
-        
+
         initScrollAnimations();
       })
       .catch((err) => console.error("Không thể nạp " + file, err));
@@ -205,8 +208,6 @@ function checkAuth() {
   }
 `;
 
-
-
       document.head.appendChild(style);
 
       const trigger = document.getElementById("userTrigger");
@@ -269,11 +270,15 @@ async function logout() {
   const keysToRemove = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && (key.startsWith("chatSessionMessages_") || key.startsWith("chatConversationId_"))) {
+    if (
+      key &&
+      (key.startsWith("chatSessionMessages_") ||
+        key.startsWith("chatConversationId_"))
+    ) {
       keysToRemove.push(key);
     }
   }
-  keysToRemove.forEach(key => {
+  keysToRemove.forEach((key) => {
     localStorage.removeItem(key);
     console.log(`🗑️ Đã xóa ${key}`);
   });
@@ -302,15 +307,13 @@ async function redirectToGenImage() {
     if (!res.ok) throw new Error("Token không hợp lệ");
 
     // Nếu token hợp lệ
-    window.location.href = "/genImage.html";
+    window.location.href = "/tao-anh.html";
   } catch (err) {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     window.location.href = "/login.html";
   }
 }
-
-
 
 function showLoginModalHome() {
   // Tạo modal nếu chưa có

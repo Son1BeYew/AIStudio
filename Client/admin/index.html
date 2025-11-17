@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard | EternaPicSHT AI</title>
 
     <!-- Font Awesome -->
     <link
@@ -133,7 +133,11 @@
             </div>
           </a>
 
-          <a href="#" class="nav-item" onclick="confirmLogout(); event.preventDefault();">
+          <a
+            href="#"
+            class="nav-item"
+            onclick="confirmLogout(); event.preventDefault();"
+          >
             <div class="nav-item-content">
               <i class="nav-icon fas fa-sign-out-alt"></i>
               <span>Đăng xuất</span>
@@ -179,7 +183,11 @@
       <div class="dashboard-content">
         <div class="dashboard-header">
           <h1>Tổng quan</h1>
-          <select class="time-select" id="timeRangeSelect" onchange="onTimeRangeChange(this.value)">
+          <select
+            class="time-select"
+            id="timeRangeSelect"
+            onchange="onTimeRangeChange(this.value)"
+          >
             <option value="today">Today</option>
             <option value="yesterday">Yesterday</option>
             <option value="7days">Last 7 days</option>
@@ -822,40 +830,106 @@
       }
 
       function confirmLogout() {
-        const modal = document.getElementById('logoutConfirmModal');
-        modal.style.display = 'flex';
+        const modal = document.getElementById("logoutConfirmModal");
+        modal.style.display = "flex";
       }
 
       function cancelLogout() {
-        const modal = document.getElementById('logoutConfirmModal');
-        modal.style.display = 'none';
+        const modal = document.getElementById("logoutConfirmModal");
+        modal.style.display = "none";
       }
 
       function logout() {
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
-        window.location.href = '/index.html';
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        window.location.href = "/index.html";
       }
 
       // Close modal when clicking outside
-      window.addEventListener('click', function(event) {
-        const modal = document.getElementById('logoutConfirmModal');
+      window.addEventListener("click", function (event) {
+        const modal = document.getElementById("logoutConfirmModal");
         if (event.target === modal) {
-          modal.style.display = 'none';
+          modal.style.display = "none";
         }
       });
     </script>
 
     <!-- Logout Confirmation Modal -->
-    <div id="logoutConfirmModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; justify-content: center; align-items: center;">
-      <div style="background: white; border-radius: 16px; padding: 50px 40px; max-width: 500px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
-        <h3 style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 15px;">Đăng xuất</h3>
-        <p style="color: #64748b; margin-bottom: 35px; font-size: 16px; line-height: 1.6;">Bạn muốn đăng xuất?</p>
-        <div style="display: flex; gap: 15px; justify-content: flex-end;">
-          <button onclick="cancelLogout()" style="padding: 12px 30px; background: #e2e8f0; color: #1e293b; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s;">
+    <div
+      id="logoutConfirmModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <div
+        style="
+          background: white;
+          border-radius: 16px;
+          padding: 50px 40px;
+          max-width: 500px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        "
+      >
+        <h3
+          style="
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+          "
+        >
+          Đăng xuất
+        </h3>
+        <p
+          style="
+            color: #64748b;
+            margin-bottom: 35px;
+            font-size: 16px;
+            line-height: 1.6;
+          "
+        >
+          Bạn muốn đăng xuất?
+        </p>
+        <div style="display: flex; gap: 15px; justify-content: flex-end">
+          <button
+            onclick="cancelLogout()"
+            style="
+              padding: 12px 30px;
+              background: #e2e8f0;
+              color: #1e293b;
+              border: none;
+              border-radius: 10px;
+              cursor: pointer;
+              font-weight: 600;
+              font-size: 16px;
+              transition: all 0.3s;
+            "
+          >
             Hủy
           </button>
-          <button onclick="logout()" style="padding: 12px 30px; background: #1a1a1a; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s;">
+          <button
+            onclick="logout()"
+            style="
+              padding: 12px 30px;
+              background: #1a1a1a;
+              color: white;
+              border: none;
+              border-radius: 10px;
+              cursor: pointer;
+              font-weight: 600;
+              font-size: 16px;
+              transition: all 0.3s;
+            "
+          >
             Đăng xuất
           </button>
         </div>
