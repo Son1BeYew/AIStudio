@@ -16,19 +16,22 @@ const topupRoutes = require("./routes/topup");
 const historyRoutes = require("./routes/history");
 const adminRoutes = require("./routes/admin");
 const outfitStyleRoutes = require("./routes/outfitStyles");
+const chatRoutes = require("./routes/chat");
 const app = express();
 
 // CORS configuration
-  const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:5000'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : ["http://localhost:8080", "http://localhost:3000", "http://localhost:5000"];
 
-  app.use(cors({
+app.use(
+  cors({
     origin: allowedOrigins,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-  }));
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  })
+);
 app.use(express.json());
 
 connectDB();
@@ -36,10 +39,8 @@ connectDB();
 require("./config/passport")(passport);
 app.use(passport.initialize());
 
-// Serve client static files
 app.use(express.static(path.join(__dirname, "../Client")));
 
-// Serve admin folder explicitly
 app.use("/admin", express.static(path.join(__dirname, "../Client/admin")));
 
 app.use("/auth", authRoutes);
@@ -53,6 +54,7 @@ app.use("/api/topup", topupRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/outfit-styles", outfitStyleRoutes);
+app.use("/api/chat", chatRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {

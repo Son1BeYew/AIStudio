@@ -1,11 +1,14 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const { generateFaceImage, generateOutfit, generateBackground } = require("../controllers/aiController");
+const {
+  generateFaceImage,
+  generateOutfit,
+  generateBackground,
+} = require("../controllers/aiController");
 const { upload, attachCloudinaryFile } = require("../config/multerCloudinary");
 
 const router = express.Router();
 
-// Middleware auth
 const checkAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -13,7 +16,10 @@ const checkAuth = (req, res, next) => {
       return res.status(401).json({ error: "Chưa đăng nhập" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key"
+    );
     req.user = decoded;
     next();
   } catch (error) {
@@ -22,7 +28,6 @@ const checkAuth = (req, res, next) => {
   }
 };
 
-// Error handling for multer
 const handleMulterError = (err, req, res, next) => {
   if (err) {
     console.error("❌ Multer Error:", err);
@@ -56,7 +61,7 @@ router.post(
     console.log("📬 POST /generate-outfit request received");
     upload.fields([
       { name: "image", maxCount: 1 },
-      { name: "clothing", maxCount: 1 }
+      { name: "clothing", maxCount: 1 },
     ])(req, res, (err) => {
       handleMulterError(err, req, res, () => {
         attachCloudinaryFile(req, res, next);

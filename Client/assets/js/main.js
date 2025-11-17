@@ -6,13 +6,16 @@ function initScrollAnimations() {
   const elementInView = (el, dividend = 1) => {
     const elementTop = el.getBoundingClientRect().top;
     return (
-      elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+      elementTop <=
+      (window.innerHeight || document.documentElement.clientHeight) / dividend
     );
   };
 
   const elementOutofView = (el) => {
     const elementTop = el.getBoundingClientRect().top;
-    return elementTop > (window.innerHeight || document.documentElement.clientHeight);
+    return (
+      elementTop > (window.innerHeight || document.documentElement.clientHeight)
+    );
   };
 
   const displayScrollElement = () => {
@@ -56,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (id === "header") checkAuth();
         if (id === "slider") initSlider();
-        
+
         initScrollAnimations();
       })
       .catch((err) => console.error("Không thể nạp " + file, err));
@@ -205,8 +208,6 @@ function checkAuth() {
   }
 `;
 
-
-
       document.head.appendChild(style);
 
       const trigger = document.getElementById("userTrigger");
@@ -233,9 +234,61 @@ function checkAuth() {
     });
 }
 
-function logout() {
+async function logout() {
+  // 1. Lưu transcript từ floating-chat.js (nếu có)
+  if (typeof window.saveTranscriptAndClear === "function") {
+    try {
+      await window.saveTranscriptAndClear();
+      console.log("✅ Đã lưu transcript từ floating-chat.js");
+    } catch (error) {
+      console.error("Lỗi lưu transcript:", error);
+    }
+  }
+
+  // 2. Lưu và xóa session từ floating-chat-loader.js (nếu có)
+  if (typeof window.flushChatSession === "function") {
+    try {
+      await window.flushChatSession();
+      console.log("✅ Đã lưu session từ floating-chat-loader.js");
+    } catch (error) {
+      console.error("Lỗi lưu session:", error);
+    }
+  }
+
+  // 3. Xóa localStorage chat session
+  if (typeof window.clearLocalChatSession === "function") {
+    window.clearLocalChatSession();
+    console.log("✅ Đã xóa localStorage chat session");
+  }
+
+  // 4. Xóa UI chat (nếu có)
+  if (typeof window.clearChatUI === "function") {
+    window.clearChatUI();
+  }
+
+  // 5. Xóa tất cả localStorage liên quan đến chat
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (
+      key &&
+      (key.startsWith("chatSessionMessages_") ||
+        key.startsWith("chatConversationId_"))
+    ) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach((key) => {
+    localStorage.removeItem(key);
+    console.log(`🗑️ Đã xóa ${key}`);
+  });
+
+  // 6. Xóa token, user info và chuyển về trang chủ
   localStorage.removeItem("token");
   localStorage.removeItem("refreshToken");
+  localStorage.removeItem("user");
+
+  console.log("🚪 Đăng xuất hoàn tất - localStorage đã được xóa sạch");
   window.location.href = "/index.html";
 }
 
@@ -254,15 +307,13 @@ async function redirectToGenImage() {
     if (!res.ok) throw new Error("Token không hợp lệ");
 
     // Nếu token hợp lệ
-    window.location.href = "/genImage.html";
+    window.location.href = "/tao-anh.html";
   } catch (err) {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     window.location.href = "/login.html";
   }
 }
-
-
 
 function showLoginModalHome() {
   // Tạo modal nếu chưa có

@@ -55,33 +55,55 @@
         window.trendSelectedFile = null;
         window.currentTrendIndex = index;
 
-        // Setup upload area
+        // Setup upload area - remove old elements and recreate to clear listeners
         const uploadArea = document.getElementById("trend-upload-area");
         const fileInput = document.getElementById("trend-file-input");
         const chooseBtn = document.getElementById("trend-choose-btn");
 
-        uploadArea.addEventListener("click", () => fileInput.click());
-        chooseBtn.addEventListener("click", () => fileInput.click());
+        // Clone and replace to remove all old event listeners
+        const newUploadArea = uploadArea.cloneNode(true);
+        const newFileInput = fileInput.cloneNode(true);
+        const newChooseBtn = chooseBtn.cloneNode(true);
+        
+        uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
+        fileInput.parentNode.replaceChild(newFileInput, fileInput);
+        chooseBtn.parentNode.replaceChild(newChooseBtn, chooseBtn);
 
-        uploadArea.addEventListener("dragover", (e) => {
+        // Get references to new elements
+        const updatedUploadArea = document.getElementById("trend-upload-area");
+        const updatedFileInput = document.getElementById("trend-file-input");
+        const updatedChooseBtn = document.getElementById("trend-choose-btn");
+
+        updatedChooseBtn.addEventListener("click", (e) => {
+          console.log("Button clicked");
+          e.stopPropagation();
+          updatedFileInput.click();
+        });
+
+        updatedUploadArea.addEventListener("dragover", (e) => {
           e.preventDefault();
-          uploadArea.style.borderColor = "#666";
+          updatedUploadArea.style.borderColor = "#666";
         });
 
-        uploadArea.addEventListener("dragleave", () => {
-          uploadArea.style.borderColor = "#ccc";
+        updatedUploadArea.addEventListener("dragleave", () => {
+          updatedUploadArea.style.borderColor = "#ccc";
         });
 
-        uploadArea.addEventListener("drop", (e) => {
+        updatedUploadArea.addEventListener("drop", (e) => {
           e.preventDefault();
           const file = e.dataTransfer.files[0];
           if (file) handleTrendFile(file);
         });
 
-        fileInput.addEventListener("change", (e) => {
+        const fileChangeHandler = (e) => {
           const file = e.target.files[0];
-          if (file) handleTrendFile(file);
-        });
+          if (file) {
+            console.log("File input change triggered");
+            handleTrendFile(file);
+            updatedFileInput.value = "";
+          }
+        };
+        updatedFileInput.addEventListener("change", fileChangeHandler);
 
         // Scroll to top
         window.scrollTo(0, 0);
@@ -109,6 +131,7 @@
 
       // Handle trend file upload
       function handleTrendFile(file) {
+        console.log("handleTrendFile called with:", file.name);
         window.trendSelectedFile = file;
         const uploadArea = document.getElementById("trend-upload-area");
         const reader = new FileReader();
@@ -207,8 +230,14 @@
       const generateBtn = document.getElementById("generate-btn");
       let selectedFile = null;
 
-      uploadArea.addEventListener("click", () => fileInput.click());
-      chooseBtn.addEventListener("click", () => fileInput.click());
+      uploadArea.addEventListener("click", (e) => {
+        if (e.target === chooseBtn || chooseBtn.contains(e.target)) return;
+        fileInput.click();
+      });
+      chooseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
 
       uploadArea.addEventListener("dragover", (e) => {
         e.preventDefault();
@@ -248,7 +277,6 @@
           const url = gender ? `/api/prompts?gender=${gender}` : "/api/prompts";
           const response = await fetch(url);
           const prompts = await response.json();
-          promptSelect.innerHTML = '<option value="">Chọn chế độ ảnh</option>';
           prompts.forEach((prompt) => {
             if (prompt.isActive) {
               const option = document.createElement("option");
@@ -337,8 +365,14 @@
       const bgGenerateBtn = document.getElementById("bg-generate-btn");
       let bgSelectedFile = null;
 
-      bgUploadArea.addEventListener("click", () => bgFileInput.click());
-      bgChooseBtn.addEventListener("click", () => bgFileInput.click());
+      bgUploadArea.addEventListener("click", (e) => {
+        if (e.target === bgChooseBtn || bgChooseBtn.contains(e.target)) return;
+        bgFileInput.click();
+      });
+      bgChooseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        bgFileInput.click();
+      });
 
       bgUploadArea.addEventListener("dragover", (e) => {
         e.preventDefault();
@@ -480,8 +514,14 @@
         }
       });
 
-      outfitUploadArea.addEventListener("click", () => outfitFileInput.click());
-      outfitChooseBtn.addEventListener("click", () => outfitFileInput.click());
+      outfitUploadArea.addEventListener("click", (e) => {
+        if (e.target === outfitChooseBtn || outfitChooseBtn.contains(e.target)) return;
+        outfitFileInput.click();
+      });
+      outfitChooseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        outfitFileInput.click();
+      });
 
       outfitUploadArea.addEventListener("dragover", (e) => {
         e.preventDefault();
@@ -516,8 +556,14 @@
       }
 
       // Clothing upload handlers
-      clothingUploadArea.addEventListener("click", () => clothingFileInput.click());
-      clothingChooseBtn.addEventListener("click", () => clothingFileInput.click());
+      clothingUploadArea.addEventListener("click", (e) => {
+        if (e.target === clothingChooseBtn || clothingChooseBtn.contains(e.target)) return;
+        clothingFileInput.click();
+      });
+      clothingChooseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clothingFileInput.click();
+      });
 
       clothingUploadArea.addEventListener("dragover", (e) => {
         e.preventDefault();

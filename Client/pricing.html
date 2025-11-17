@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bảng Giá | EternaPicSHT Studio</title>
+    <title>Bảng giá | EternaPicSHT AI</title>
     <link rel="stylesheet" href="/assets/css/styles.css" />
     <link rel="stylesheet" href="/assets/css/header.css" />
     <link rel="stylesheet" href="/assets/css/footer.css" />
     <link rel="stylesheet" href="/assets/css/pricing.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
+
   <body>
     <div id="header"></div>
 
@@ -23,7 +24,7 @@
       <!-- Pricing Trends Chart -->
       <section class="pricing-trends">
         <div class="trends-header">
-          <h2>📊 Xu Hướng Giá Tháng Này</h2>
+          <h2>Xu Hướng Giá Tháng Này</h2>
           <p>Biểu đồ thay đổi giá tạo ảnh trong 30 ngày qua</p>
         </div>
         <div class="chart-container">
@@ -143,7 +144,9 @@
               <li>✓ Ưu tiên xử lý</li>
               <li>✓ Batch processing</li>
             </ul>
-            <button class="plan-btn professional-btn" onclick="toTopup(150000)">Nạp Tiền</button>
+            <button class="plan-btn professional-btn" onclick="toTopup(150000)">
+              Nạp Tiền
+            </button>
           </div>
 
           <div class="plan-card enterprise">
@@ -171,27 +174,45 @@
         <div class="faq-grid">
           <div class="faq-item">
             <h3>Giá tạo ảnh được tính như thế nào?</h3>
-            <p>Mỗi lần tạo ảnh tính từ 2,500₫ - 5,000₫ tùy vào loại chế độ. Hot Trend tính cao hơn vì chất lượng cao hơn.</p>
+            <p>
+              Mỗi lần tạo ảnh tính từ 2,500₫ - 5,000₫ tùy vào loại chế độ. Hot
+              Trend tính cao hơn vì chất lượng cao hơn.
+            </p>
           </div>
           <div class="faq-item">
             <h3>Có thể hoàn tiền không?</h3>
-            <p>Chúng tôi hỗ trợ hoàn tiền trong 7 ngày nếu bạn chưa sử dụng credits. Liên hệ hỗ trợ để xử lý.</p>
+            <p>
+              Chúng tôi hỗ trợ hoàn tiền trong 7 ngày nếu bạn chưa sử dụng
+              credits. Liên hệ hỗ trợ để xử lý.
+            </p>
           </div>
           <div class="faq-item">
             <h3>Credits hết hạn khi nào?</h3>
-            <p>Credits không bao giờ hết hạn. Bạn có thể sử dụng bất cứ lúc nào không có thời gian giới hạn.</p>
+            <p>
+              Credits không bao giờ hết hạn. Bạn có thể sử dụng bất cứ lúc nào
+              không có thời gian giới hạn.
+            </p>
           </div>
           <div class="faq-item">
             <h3>Có giảm giá cho khách hàng thường xuyên?</h3>
-            <p>Có! Khách hàng nạp trên 500,000₫/tháng được giảm 10%. Liên hệ để được hỗ trợ đặc biệt.</p>
+            <p>
+              Có! Khách hàng nạp trên 500,000₫/tháng được giảm 10%. Liên hệ để
+              được hỗ trợ đặc biệt.
+            </p>
           </div>
           <div class="faq-item">
             <h3>Tôi có thể tạo ảnh bao nhiêu lần mỗi ngày?</h3>
-            <p>Không có giới hạn số lần/ngày. Chỉ cần có credits, bạn có thể tạo liên tục.</p>
+            <p>
+              Không có giới hạn số lần/ngày. Chỉ cần có credits, bạn có thể tạo
+              liên tục.
+            </p>
           </div>
           <div class="faq-item">
             <h3>Chất lượng ảnh khác nhau như thế nào?</h3>
-            <p>Chế độ Premium (Hot Trend) dùng mô hình AI cao cấp hơn, cho ảnh chi tiết và sắc nét hơn.</p>
+            <p>
+              Chế độ Premium (Hot Trend) dùng mô hình AI cao cấp hơn, cho ảnh
+              chi tiết và sắc nét hơn.
+            </p>
           </div>
         </div>
       </section>
@@ -201,8 +222,18 @@
         <h2>Sẵn Sàng Bắt Đầu?</h2>
         <p>Nạp tiền ngay để tạo ảnh đẹp nhất của bạn</p>
         <div class="cta-buttons">
-          <button class="btn-primary" onclick="window.location.href='/topup.html'">💰 Nạp Tiền Ngay</button>
-          <button class="btn-secondary" onclick="window.location.href='/genImage.html'">🎨 Thử Miễn Phí</button>
+          <button
+            class="btn-primary"
+            onclick="window.location.href='/topup.html'"
+          >
+            💰 Nạp Tiền Ngay
+          </button>
+          <button
+            class="btn-secondary"
+            onclick="window.location.href='/tao-anh.html'"
+          >
+            🎨 Thử Miễn Phí
+          </button>
         </div>
       </section>
     </div>
@@ -211,38 +242,39 @@
 
     <script src="/assets/js/auth-utils.js"></script>
     <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/floating-chat-loader.js"></script>
     <script>
       // Initialize chart
-      const ctx = document.getElementById('pricingChart').getContext('2d');
-      
+      const ctx = document.getElementById("pricingChart").getContext("2d");
+
       // Sample data for the last 30 days
-      const days = Array.from({length: 30}, (_, i) => `Ngày ${i + 1}`);
+      const days = Array.from({ length: 30 }, (_, i) => `Ngày ${i + 1}`);
       const prices = [
-        2500, 2500, 2600, 2500, 2400, 2500, 2500, 2550, 2500, 2480,
-        2500, 2520, 2500, 2500, 2600, 2500, 2450, 2500, 2500, 2500,
-        2550, 2500, 2500, 2470, 2500, 2500, 2600, 2500, 2500, 2500
+        2500, 2500, 2600, 2500, 2400, 2500, 2500, 2550, 2500, 2480, 2500, 2520,
+        2500, 2500, 2600, 2500, 2450, 2500, 2500, 2500, 2550, 2500, 2500, 2470,
+        2500, 2500, 2600, 2500, 2500, 2500,
       ];
 
       new Chart(ctx, {
-        type: 'line',
+        type: "line",
         data: {
           labels: days,
           datasets: [
             {
-              label: 'Giá Tạo Ảnh (VND)',
+              label: "Giá Tạo Ảnh (VND)",
               data: prices,
-              borderColor: '#4CAF50',
-              backgroundColor: 'rgba(76, 175, 80, 0.1)',
+              borderColor: "#4CAF50",
+              backgroundColor: "rgba(76, 175, 80, 0.1)",
               borderWidth: 2,
               fill: true,
               tension: 0.4,
-              pointBackgroundColor: '#4CAF50',
-              pointBorderColor: '#fff',
+              pointBackgroundColor: "#4CAF50",
+              pointBorderColor: "#fff",
               pointBorderWidth: 2,
               pointRadius: 4,
               pointHoverRadius: 6,
-            }
-          ]
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -250,13 +282,13 @@
           plugins: {
             legend: {
               display: true,
-              position: 'top',
+              position: "top",
               labels: {
                 usePointStyle: true,
                 padding: 15,
-                font: { size: 12, weight: 'bold' }
-              }
-            }
+                font: { size: 12, weight: "bold" },
+              },
+            },
           },
           scales: {
             y: {
@@ -264,16 +296,16 @@
               min: 2000,
               max: 3500,
               ticks: {
-                callback: function(value) {
-                  return '₫' + value.toLocaleString('vi-VN');
-                }
-              }
+                callback: function (value) {
+                  return "₫" + value.toLocaleString("vi-VN");
+                },
+              },
             },
             x: {
-              display: true
-            }
-          }
-        }
+              display: true,
+            },
+          },
+        },
       });
 
       // Navigate to topup with amount

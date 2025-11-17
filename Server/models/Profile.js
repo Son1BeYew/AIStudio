@@ -6,17 +6,16 @@ const profileSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true, // mỗi user chỉ có 1 hồ sơ
+      unique: true,
     },
 
-    // 🧑‍💼 Thông tin cá nhân chi tiết
-    bietDanh: { type: String, default: "" }, // nickname
+    bietDanh: { type: String, default: "" },
     gioiTinh: {
       type: String,
       enum: ["male", "female", "other"],
       default: "other",
     },
-    phone: { type: String, default: "" }, // thêm số điện thoại
+    phone: { type: String, default: "" },
 
     mangXaHoi: {
       facebook: { type: String, default: "" },
@@ -27,7 +26,7 @@ const profileSchema = new mongoose.Schema(
     anhDaiDien: { type: String, default: "" },
     balance: { type: Number, default: 0 },
   },
-  { timestamps: true } // tự động tạo createdAt & updatedAt
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Profile", profileSchema);

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Đăng Nhập | ArtifyAI Clone</title>
+  <title>Đăng nhập | EternaPicSHT AI </title>
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
     body {
@@ -313,6 +313,11 @@
           if (data.accessToken) {
             localStorage.setItem("token", data.accessToken);
             if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
+            if (data.user) {
+              const userCopy = { ...data.user };
+              delete userCopy.password;
+              localStorage.setItem("user", JSON.stringify(userCopy));
+            }
 
             const userRole =
               (data.user && data.user.role) ||

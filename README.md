@@ -16,7 +16,7 @@ AIStudio/
 │   │   ├── js/              # JavaScript files
 │   │   └── video/           # Video files
 │   ├── dashboard.html       # Trang dashboard chính
-│   ├── genImage.html        # Trang generate hình ảnh
+│   ├── tao-anh.html        # Trang generate hình ảnh
 │   ├── history.html         # Trang lịch sử
 │   ├── index.html           # Trang chủ
 │   ├── login.html           # Trang đăng nhập
@@ -60,11 +60,12 @@ AIStudio/
 ## Mô Tả Chi Tiết
 
 ### Frontend (Client)
+
 - **Công nghệ**: HTML5, CSS3, JavaScript
 - **Các trang chính**:
   - `index.html`: Landing page
   - `dashboard.html`: Dashboard người dùng
-  - `genImage.html`: Tạo hình ảnh AI
+  - `tao-anh.html`: Tạo hình ảnh AI
   - `login.html` / `register.html`: Xác thực
   - `profile.html`: Quản lý hồ sơ
   - `topup.html`: Nạp tiền/thẻ tín dụng
@@ -73,6 +74,7 @@ AIStudio/
   - `history.html`: Lịch sử tạo hình
 
 ### Backend (Server)
+
 - **Framework**: Node.js + Express.js
 - **Controllers**: Xử lý logic cho từng tính năng
 - **Models**: Cơ sở dữ liệu (MongoDB/SQL)
@@ -82,6 +84,7 @@ AIStudio/
 ## Chạy Dự Án
 
 ### Server
+
 ```bash
 cd Server
 npm install
@@ -89,9 +92,11 @@ npm start
 ```
 
 ### Client
+
 Mở các file HTML trực tiếp trong browser hoặc sử dụng web server (Live Server, etc)
 
 ## Tính Năng Chính
+
 - Tạo hình ảnh bằng AI
 - Quản lý style outfit
 - Lịch sử tạo hình
