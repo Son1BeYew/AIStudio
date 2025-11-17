@@ -27,10 +27,8 @@ connectDB();
 require("./config/passport")(passport);
 app.use(passport.initialize());
 
-// Serve client static files
 app.use(express.static(path.join(__dirname, "../Client")));
 
-// Serve admin folder explicitly
 app.use("/admin", express.static(path.join(__dirname, "../Client/admin")));
 
 app.use("/auth", authRoutes);
@@ -70,5 +68,5 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () =>
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
+  console.log(`Server running on http://localhost:${PORT}`)
 );
