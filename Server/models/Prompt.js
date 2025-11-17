@@ -6,6 +6,11 @@ const promptSchema = new mongoose.Schema(
     title: { type: String, required: true },
     description: { type: String },
     prompt: { type: String, required: true },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'unisex'],
+      default: 'unisex'
+    },
     isActive: { type: Boolean, default: true },
     image: { type: String, default: "" },
     fee: { type: Number, default: 0 },

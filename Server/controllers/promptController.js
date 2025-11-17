@@ -3,7 +3,15 @@ const Prompt = require("../models/Prompt");
 // Lấy tất cả prompts
 exports.getAllPrompts = async (req, res) => {
   try {
-    const prompts = await Prompt.find();
+    const { gender } = req.query;
+    let filter = {};
+
+    // Nếu có gender parameter, lọc theo gender
+    if (gender && ['male', 'female', 'unisex'].includes(gender)) {
+      filter.gender = gender;
+    }
+
+    const prompts = await Prompt.find(filter);
     res.json(prompts);
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi lấy prompts", error });
@@ -13,8 +21,20 @@ exports.getAllPrompts = async (req, res) => {
 // Tạo prompt mới
 exports.createPrompt = async (req, res) => {
   try {
-    const { name, title, description, prompt } = req.body;
-    const newPrompt = await Prompt.create({ name, title, description, prompt });
+    const { name, title, description, prompt, gender } = req.body;
+
+    // Validate gender
+    if (gender && !['male', 'female', 'unisex'].includes(gender)) {
+      return res.status(400).json({ message: "Giới tính không hợp lệ. Chỉ chấp nhận: male, female, unisex" });
+    }
+
+    const newPrompt = await Prompt.create({
+      name,
+      title,
+      description,
+      prompt,
+      gender: gender || 'unisex' // Mặc định là unisex nếu không có gender
+    });
     res.status(201).json(newPrompt);
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi tạo prompt", error });
