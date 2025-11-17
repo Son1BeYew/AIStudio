@@ -18,6 +18,15 @@
         "select-name": "off",
         "label": "off"
       }
+    ],
+    "no-inline-styles": "off",
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "video[playsinline]"
+        ]
+      }
     ]
   }
 }
