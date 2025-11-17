@@ -2,11 +2,10 @@
   const API_BASE_URL = "http://localhost:5000/api/chat";
   const WELCOME_TEMPLATE = `
       <div class="welcome-message">
-        <h2>Xin chàoôo! 🤖</h2>
+        <h2>Xin chàoôo! (◕ᴗ◕✿)</h2>
         <p>Tôi là trợ lý AI hỗ trợ bạn. Tôi sẽ giúp bạn với bất kỳ điều gì!</p>
       </div>
     `;
-
   const getStoredUser = () => {
     const raw = localStorage.getItem("user");
     if (!raw) return null;
@@ -180,34 +179,61 @@
       }
 
       .chat-toggle-btn {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #262525f6 0%, #764ba2 100%);
-        border: none;
-        color: white;
-        font-size: 28px;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+          width: 64px;
+          height: 64px;
+          border-radius: 50%;
+          background: radial-gradient(circle at 30% 30%, #2b2b2b, #1c1c1c 70%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(6px);
+          color: white;
+          font-size: 30px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow:
+            0 4px 10px rgba(0, 0, 0, 0.3),
+            inset 0 0 12px rgba(255, 255, 255, 0.05);
+          transition: all 0.28s ease;
+          z-index: 9999;
+        }
 
+      /* Hover: Glow premium */
       .chat-toggle-btn:hover {
-        transform: scale(1.1);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        transform: scale(1.12);
+        box-shadow:
+          0 8px 22px rgba(0, 255, 180, 0.25),
+          0 0 15px rgba(0, 255, 180, 0.35);
+        border-color: rgba(0, 255, 180, 0.5);
       }
 
+      /* Pressed */
       .chat-toggle-btn:active {
         transform: scale(0.95);
+        box-shadow:
+          0 3px 10px rgba(0, 255, 180, 0.15),
+          inset 0 0 8px rgba(0, 255, 180, 0.2);
       }
 
+      /* Icon */
       .chat-icon {
         display: block;
-        animation: bounce 2s infinite;
+        width: 30px;
+        height: 30px;
+        filter: drop-shadow(0 0 4px rgba(0,255,180,0.4));
+        animation: softBounce 2.5s infinite ease-in-out;
       }
+
+      /* Mịn hơn, không quá nhảy */
+      @keyframes softBounce {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+
 
       @keyframes bounce {
         0%, 100% { transform: translateY(0); }
@@ -243,7 +269,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #666 0%, #666 100%);
         color: white;
         border-radius: 12px 12px 0 0;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -464,29 +490,30 @@
     const widget = document.createElement("div");
     widget.className = "floating-chat-widget";
     widget.innerHTML = `
-  <button class="chat-toggle-btn" id="chatToggleBtn" title="Mở Chat">
-    💬
-  </button>
+      <button class="chat-toggle-btn" id="chatToggleBtn" title="Mở Chat">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M8 10h8M8 14h5"/>
+        </svg>
+      </button>
+      <div class="chat-window" id="chatWindow">
+        <div class="chat-window-header">
+          <h3>Trợ Lý EternalPic</h3>
+          <button class="close-btn" id="closeBtn" title="Đóng">×</button>
+        </div>
 
-  <div class="chat-window" id="chatWindow">
-    <div class="chat-window-header">
-      <h3>Trợ Lý EternalPic</h3>
-      <button class="close-btn" id="closeBtn" title="Đóng">×</button>
-    </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="welcome-message">
+          </div>
+        </div>
 
-    <div class="chat-messages" id="chatMessages">
-      <div class="welcome-message">
-        <h2>👋 Xin chào!</h2>
-        <p>Tôi là trợ lý AI sử dụng Gemini. Hãy hỏi tôi bất kỳ điều gì!</p>
+        <form class="chat-input-form" id="chatForm">
+          <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." autocomplete="off" required />
+          <button type="submit" class="send-btn">Gửi</button>
+        </form>
       </div>
-    </div>
-
-    <form class="chat-input-form" id="chatForm">
-      <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." autocomplete="off" required />
-      <button type="submit" class="send-btn">Gửi</button>
-    </form>
-  </div>
-`;
+    `;
     document.body.appendChild(widget);
 
     document.body.appendChild(widget);
