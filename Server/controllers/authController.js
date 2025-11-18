@@ -43,15 +43,15 @@ exports.register = async (req, res) => {
 
     const accessToken = signAccessToken(user);
     const refreshToken = signRefreshToken(user);
-    
+
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.json({ 
-      message: "User registered successfully", 
-      accessToken, 
+    res.json({
+      message: "User registered successfully",
+      accessToken,
       refreshToken,
-      user 
+      user,
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -59,20 +59,22 @@ exports.register = async (req, res) => {
 };
 
 exports.login = (req, res, next) => {
-  passport.authenticate("local", { session: false }, async (err, user, info) => {
-    if (err || !user)
-      return res.status(400).json({ error: info?.message || "Login failed" });
+  passport.authenticate(
+    "local",
+    { session: false },
+    async (err, user, info) => {
+      if (err || !user)
+        return res.status(400).json({ error: info?.message || "Login failed" });
+      console.log("Login Sucessfully", "Role:", user.role);
+      const accessToken = signAccessToken(user);
+      const refreshToken = signRefreshToken(user);
 
-    console.log("✅ Login:", user.email, "Role:", user.role);
-    
-    const accessToken = signAccessToken(user);
-    const refreshToken = signRefreshToken(user);
-    
-    user.refreshToken = refreshToken;
-    await user.save();
-    
-    res.json({ accessToken, refreshToken, user });
-  })(req, res, next);
+      user.refreshToken = refreshToken;
+      await user.save();
+
+      res.json({ accessToken, refreshToken, user });
+    }
+  )(req, res, next);
 };
 
 exports.googleCallback = async (req, res) => {
@@ -80,10 +82,10 @@ exports.googleCallback = async (req, res) => {
 
   const accessToken = signAccessToken(req.user);
   const refreshToken = signRefreshToken(req.user);
-  
+
   req.user.refreshToken = refreshToken;
   await req.user.save();
-  
+
   const role = (req.user?.role || "user").toLowerCase();
   const baseUrl = process.env.CLIENT_BASE_URL || "http://localhost:5000";
   const targetPath =

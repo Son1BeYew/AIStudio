@@ -17,6 +17,7 @@ const historyRoutes = require("./routes/history");
 const adminRoutes = require("./routes/admin");
 const outfitStyleRoutes = require("./routes/outfitStyles");
 const chatRoutes = require("./routes/chat");
+const trendsRoutes = require("./routes/trends");
 const app = express();
 
 // CORS configuration
@@ -55,6 +56,7 @@ app.use("/api/history", historyRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/outfit-styles", outfitStyleRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/trends", trendsRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {
