@@ -10,6 +10,14 @@ const promptTrendingSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
     fee: { type: Number, default: 0 },
+    category: {
+      type: String,
+      enum: ["portrait", "landscape", "abstract", "fantasy", ""],
+      default: "",
+      index: true
+    },
+    likes: { type: Number, default: 0, min: 0 },
+    creator: { type: String, default: "Anonymous" },
   },
   { timestamps: true }
 );

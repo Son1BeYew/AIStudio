@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bộ Sưu Tập | EternaPicSHT Studio</title>
+
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/features.css" />
+    <link rel="stylesheet" href="/assets/css/hero.css" />
+    <link rel="stylesheet" href="/assets/css/footer.css" />
+    <link rel="stylesheet" href="/assets/css/slider.css" />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      /* Hero Section cho Bộ Sưu Tập */
+      .collection-hero {
+        background: linear-gradient(
+          135deg,
+          #0b0b0b 0%,
+          #1a1a1a 50%,
+          #2a2a2a 100%
+        );
+        color: white;
+        text-align: center;
+        padding: 80px 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .collection-hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>')
+          repeat;
+        opacity: 0.3;
+      }
+
+      .collection-hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .collection-hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .collection-hero p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+        line-height: 1.6;
+      }
+
+      .collection-hero-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .collection-hero-btn {
+        padding: 15px 30px;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .collection-hero-btn.primary {
+        background: linear-gradient(45deg, #4f46e5, #6366f1);
+        color: white;
+      }
+
+      .collection-hero-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+      }
+
+      .collection-hero-btn.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .collection-hero-btn.secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* Filter Section */
+      .filter-section {
+        background: #f8f9fa;
+        padding: 30px 20px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .filter-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .filter-stats {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 15px;
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e9ecef;
+        font-size: 0.9rem;
+        color: var(--subtext);
+      }
+
+      .stat-item strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .filter-controls {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .filter-select {
+        padding: 12px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        background: white;
+        color: var(--text);
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .filter-select:hover,
+      .filter-select:focus {
+        border-color: #4f46e5;
+        outline: none;
+      }
+
+      .filter-search {
+        position: relative;
+        flex: 1;
+        max-width: 300px;
+      }
+
+      .filter-search input {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        border: 2px solid #e9ecef;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .filter-search input:focus {
+        outline: none;
+        border-color: #4f46e5;
+      }
+
+      .filter-search i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--subtext);
+      }
+
+      /* Grid Section */
+      .collection-grid {
+        padding: 40px 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .collection-grid-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+      }
+
+      .collection-item {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .collection-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      .collection-item-image {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .collection-item-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          to bottom,
+          transparent 0%,
+          rgba(0, 0, 0, 0.7) 70%,
+          rgba(0, 0, 0, 0.9) 100%
+        );
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .collection-item:hover .collection-item-overlay {
+        opacity: 1;
+      }
+
+      .collection-item-title {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .collection-item-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .collection-item-date,
+      .collection-item-likes {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      /* Loading State */
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 60px 20px;
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid #4f46e5;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 15px;
+      }
+
+      .loading-text {
+        font-size: 1.1rem;
+        color: var(--text);
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--subtext);
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.3;
+      }
+
+      .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--text);
+      }
+
+      .empty-state p {
+        font-size: 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .collection-hero h1 {
+          font-size: 2rem;
+        }
+
+        .collection-hero p {
+          font-size: 1rem;
+        }
+
+        .filter-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-stats {
+          justify-content: center;
+        }
+
+        .collection-grid-items {
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 20px;
+        }
+
+        .collection-item-image {
+          height: 250px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .collection-hero {
+          padding: 60px 15px;
+        }
+
+        .collection-hero-buttons {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-search {
+          max-width: none;
+        }
+
+        .collection-grid-items {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Hero Section -->
+    <section class="collection-hero">
+      <div class="collection-hero-content">
+        <h1>Bộ Sưu Tập</h1>
+        <p>
+          Khám phá những tác phẩm nghệ thuật AI ấn tượng nhất từ cộng đồng
+          EternaPicSHT
+        </p>
+      </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section" id="filter-section">
+      <div class="filter-container">
+        <div class="filter-header">
+          <h2 class="filter-title">Bộ Sưu Tập</h2>
+          <div class="filter-stats">
+            <div class="stat-item">
+              <strong id="totalCount">0</strong>
+              tác phẩm
+            </div>
+            <div class="stat-item">
+              <strong id="todayCount">0</strong>
+              hôm nay
+            </div>
+          </div>
+        </div>
+        <div class="filter-controls">
+          <select class="filter-select" id="sortSelect">
+            <option value="latest">Mới nhất</option>
+            <option value="popular">Phổ biến nhất</option>
+            <option value="oldest">Cũ nhất</option>
+          </select>
+          <div class="filter-search">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Tìm kiếm tác phẩm..."
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collection Grid -->
+    <section class="collection-grid">
+      <div class="collection-grid-items" id="collectionGrid">
+        <!-- Loading State -->
+        <div class="loading-container" id="loadingState">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Đang tải bộ sưu tập...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <!-- Scripts -->
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/floating-chat-loader.js"></script>
+
+    <script>
+      // State
+      let collections = [];
+      let filteredCollections = [];
+      let currentSort = "latest";
+      let currentSearch = "";
+      let isLoading = false;
+      let paginationInfo = null;
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        // Setup event listeners
+        setupEventListeners();
+
+        // Load initial data
+        loadCollections();
+        loadStats();
+      });
+
+      // API Functions
+      async function loadCollections() {
+        if (isLoading) return;
+
+        try {
+          isLoading = true;
+          showLoadingState();
+
+          const params = new URLSearchParams({
+            sort: currentSort,
+            search: currentSearch,
+            page: 1,
+            limit: 50,
+          });
+
+          const response = await fetch(`/api/collections?${params}`);
+          const result = await response.json();
+
+          if (result.success) {
+            collections = result.data;
+            filteredCollections = [...collections];
+            paginationInfo = result.pagination;
+            renderCollections();
+          } else {
+            showError("Không thể tải bộ sưu tập: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error loading collections:", error);
+          showError("Lỗi kết nối đến máy chủ");
+        } finally {
+          isLoading = false;
+          hideLoadingState();
+        }
+      }
+
+      async function loadStats() {
+        try {
+          const response = await fetch("/api/collections/stats");
+          const result = await response.json();
+
+          if (result.success) {
+            updateStatsFromAPI(result.data);
+          }
+        } catch (error) {
+          console.error("Error loading stats:", error);
+        }
+      }
+
+      function setupEventListeners() {
+        // Sort select
+        document
+          .getElementById("sortSelect")
+          .addEventListener("change", (e) => {
+            currentSort = e.target.value;
+            loadCollections();
+          });
+
+        // Search input - add debouncing
+        let searchTimeout;
+        document
+          .getElementById("searchInput")
+          .addEventListener("input", (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+              currentSearch = e.target.value.trim();
+              loadCollections();
+            }, 500); // 500ms debounce
+          });
+      }
+
+      function renderCollections() {
+        const grid = document.getElementById("collectionGrid");
+
+        if (collections.length === 0 && !isLoading) {
+          grid.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-images"></i>
+              <h3>Không tìm thấy tác phẩm</h3>
+              <p>Hãy thử điều chỉnh bộ lọc hoặc tìm kiếm với từ khóa khác</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = collections
+          .map(
+            (item) => `
+          <div class="collection-item" onclick="viewItem('${item.id}')">
+            <img src="${item.image || "/assets/images/placeholder.jpg"}" alt="${
+              item.title
+            }" class="collection-item-image"
+                 onerror="this.src='/assets/images/placeholder.jpg'" />
+            <div class="collection-item-overlay">
+              <div class="collection-item-title">${item.title}</div>
+              <div class="collection-item-info">
+                <span class="collection-item-date">${formatDate(
+                  item.date
+                )}</span>
+                <span class="collection-item-likes">
+                  <i class="fas fa-heart"></i>
+                  ${formatNumber(item.likes)}
+                </span>
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      function updateStatsFromAPI(statsData) {
+        document.getElementById("totalCount").textContent = formatNumber(
+          statsData.totalCollections
+        );
+        document.getElementById("todayCount").textContent = formatNumber(
+          statsData.todayCollections
+        );
+      }
+
+      function showLoadingState() {
+        const grid = document.getElementById("collectionGrid");
+        if (collections.length === 0) {
+          grid.innerHTML = `
+            <div class="loading-container" id="loadingState">
+              <div class="loading-spinner"></div>
+              <div class="loading-text">Đang tải bộ sưu tập...</div>
+            </div>
+          `;
+        }
+      }
+
+      function hideLoadingState() {
+        const loadingElement = document.getElementById("loadingState");
+        if (loadingElement) {
+          loadingElement.style.display = "none";
+        }
+      }
+
+      function showError(message) {
+        const grid = document.getElementById("collectionGrid");
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+            <h3>Đã xảy ra lỗi</h3>
+            <p>${message}</p>
+            <button onclick="loadCollections()" class="collection-hero-btn primary" style="margin-top: 20px;">
+              <i class="fas fa-redo"></i>
+              Thử lại
+            </button>
+          </div>
+        `;
+      }
+
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      }
+
+      function formatNumber(num) {
+        return new Intl.NumberFormat("vi-VN").format(num);
+      }
+
+      function viewItem(id) {
+        const item = collections.find((item) => item.id === id);
+        if (item) {
+          // Mở ảnh trong tab mới
+          const imageWindow = window.open(item.image, "_blank");
+
+          // Log thông tin
+          console.log(`Viewing collection item: ${item.title}`);
+        }
+      }
+
+      // Optional: Function to like/unlike a collection (for future enhancement)
+      async function toggleLike(itemId) {
+        try {
+          const response = await fetch(`/api/collections/${itemId}/like`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ increment: true }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            // Update the local collection data
+            const item = collections.find((item) => item.id === itemId);
+            if (item) {
+              item.likes = result.data.likes;
+              renderCollections();
+            }
+          }
+        } catch (error) {
+          console.error("Error toggling like:", error);
+        }
+      }
+    </script>
+  </body>
+</html>
