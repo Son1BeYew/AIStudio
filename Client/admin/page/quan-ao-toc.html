@@ -787,6 +787,20 @@
             const hairstylesText = document.getElementById('hairstylesText').value;
             const promptFee = parseInt(document.getElementById('promptFee').value) || 1000;
 
+            // Validation
+            if (!gender) {
+                showAlert('Vui lòng chọn giới tính', 'error');
+                return;
+            }
+            if (!typeName.trim()) {
+                showAlert('Vui lòng nhập tên loại trang phục', 'error');
+                return;
+            }
+            if (!typeValue.trim()) {
+                showAlert('Vui lòng nhập giá trị loại trang phục', 'error');
+                return;
+            }
+
             showLoading(true);
 
             try {
@@ -808,31 +822,38 @@
                     .split('\n')
                     .filter(line => line.trim())
                     .map(line => {
-                        const [name, value] = line.split('|').map(s => s.trim());
-                        return { name, value, isActive: true };
-                    });
+                        const parts = line.split('|').map(s => s.trim());
+                        if (parts.length >= 2) {
+                            return { name: parts[0], value: parts[1], isActive: true };
+                        }
+                        return null;
+                    })
+                    .filter(h => h !== null);
 
                 const body = {
                     gender,
                     fee: promptFee,
                     type: {
-                        name: typeName,
-                        value: typeValue,
-                        description: typeDescription,
+                        name: typeName.trim(),
+                        value: typeValue.trim(),
+                        description: typeDescription.trim(),
                         isActive: true
                     },
                     hairstyles
                 };
 
-                const response = await fetch(url, { 
-                    method, 
+                console.log('Sending data:', body);
+
+                const response = await fetch(url, {
+                    method,
                     body: JSON.stringify(body),
                     headers
                 });
 
+                const responseData = await response.json();
+
                 if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || 'Lỗi khi lưu');
+                    throw new Error(responseData.error || responseData.message || 'Lỗi khi lưu');
                 }
 
                 showAlert(promptId ? 'Cập nhật thành công!' : 'Thêm mới thành công!', 'success');
