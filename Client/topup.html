@@ -173,6 +173,17 @@
         cursor: pointer;
         text-align: center;
         transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .method-logo {
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+        border-radius: 8px;
       }
 
       .method-option:hover {
@@ -363,7 +374,7 @@
       }
 
       .balance-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #666 0%, white 100%);
         color: #fff;
         border-radius: 12px;
         padding: 20px;
@@ -966,6 +977,16 @@
           flex-direction: column;
         }
 
+        .method-option {
+          justify-content: flex-start;
+          gap: 12px;
+        }
+
+        .method-logo {
+          width: 32px;
+          height: 32px;
+        }
+
         .current-plan-section {
           padding: 25px;
         }
@@ -1027,8 +1048,7 @@
               <p>Nạp tiền vào tài khoản để sử dụng các tính năng tạo ảnh</p>
 
               <div class="info-message">
-                Hiện tại chúng tôi hỗ trợ thanh toán qua Momo. Kênh thanh toán
-                sẽ được cập nhật sau.
+                Hiện tại chúng tôi hỗ trợ thanh toán qua Momo. VNPay sẽ sớm được cập nhật.
               </div>
 
               <div class="form-group">
@@ -1054,13 +1074,22 @@
                 <h3>Phương thức thanh toán</h3>
                 <div class="method-options">
                   <label class="method-option active">
-                    <input
-                      type="radio"
-                      name="payment-method"
-                      value="momo"
-                      checked
+                    <input type="radio" name="payment-method" value="momo" checked />
+                    <img
+                      src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square-1024x1024.png"
+                      alt="MoMo logo"
+                      class="method-logo"
                     />
-                    <span> Momo</span>
+                    <span>MoMo</span>
+                  </label>
+                  <label class="method-option">
+                    <input type="radio" name="payment-method" value="vnpay" />
+                    <img
+                      src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg"
+                      alt="VNPay logo"
+                      class="method-logo"
+                    />
+                    <span>VNPay</span>
                   </label>
                 </div>
               </div>
@@ -1689,9 +1718,16 @@
 
         const token = localStorage.getItem("token");
         const amount = selectedAmount || parseInt(amountInput.value);
+        const selectedMethod = document.querySelector('input[name="payment-method"]:checked').value;
 
         if (!amount || amount < 1000) {
           alert("Vui lòng nhập số tiền hợp lệ (tối thiểu 1000đ)");
+          return;
+        }
+
+        // For now, only process MoMo payments
+        if (selectedMethod === "vnpay") {
+          alert("Thanh toán qua VNPay đang được phát triển. Vui lòng chọn MoMo để thanh toán.");
           return;
         }
 
@@ -1702,6 +1738,7 @@
           // Get the current page URL to return to after payment
           const returnTo = window.location.pathname + window.location.search;
           console.log("🔗 Sending returnTo:", returnTo);
+          console.log("💳 Payment method:", selectedMethod);
 
           const response = await fetch("/api/topup/create-momo", {
             method: "POST",
@@ -1877,6 +1914,19 @@
       document.addEventListener("DOMContentLoaded", () => {
         loadBalance();
         loadHistory();
+
+        // Handle payment method selection
+        const methodOptions = document.querySelectorAll('input[name="payment-method"]');
+        methodOptions.forEach((radio) => {
+          radio.addEventListener("change", () => {
+            // Remove active class from all labels
+            document.querySelectorAll(".method-option").forEach((label) => {
+              label.classList.remove("active");
+            });
+            // Add active class to selected label
+            radio.parentElement.classList.add("active");
+          });
+        });
 
         // Start auto-refresh when page gets focus (user comes back from payment)
         window.addEventListener("focus", startAutoRefresh);
