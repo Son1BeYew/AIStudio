@@ -1699,13 +1699,20 @@
           topupBtn.disabled = true;
           topupBtn.textContent = "⏳ Đang xử lý...";
 
+          // Get the current page URL to return to after payment
+          const returnTo = window.location.pathname + window.location.search;
+          console.log("🔗 Sending returnTo:", returnTo);
+
           const response = await fetch("/api/topup/create-momo", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ amount }),
+            body: JSON.stringify({
+              amount,
+              returnTo
+            }),
           });
 
           console.log("📡 Response status:", response.status);

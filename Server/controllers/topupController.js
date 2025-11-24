@@ -39,19 +39,33 @@ exports.createMomoPayment = async (req, res) => {
       partnerCode: process.env.MOMO_PARTNER_CODE || "YOUR_PARTNER_CODE",
       accessKey: process.env.MOMO_ACCESS_KEY || "YOUR_ACCESS_KEY",
       secretKey: process.env.MOMO_SECRET_KEY || "YOUR_SECRET_KEY",
-      endpoint: process.env.MOMO_ENDPOINT || "https://payment.momo.vn/v2/gateway/api/create",
+      endpoint:
+        process.env.MOMO_ENDPOINT ||
+        "https://payment.momo.vn/v2/gateway/api/create",
     };
 
     console.log("⚙️ Momo config:", {
       partnerCode: momoConfig.partnerCode,
       hasAccessKey: !!process.env.MOMO_ACCESS_KEY,
       hasSecretKey: !!process.env.MOMO_SECRET_KEY,
+      FRONTEND_URL: process.env.FRONTEND_URL,
+      BACKEND_URL: process.env.BACKEND_URL,
+      NODE_ENV: process.env.NODE_ENV,
     });
 
     const requestId = `${Date.now()}-${topUp._id}`;
     const orderId = `topup-${topUp._id}`;
-    const redirectUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/topup-result?id=${topUp._id}`;
-    const ipnUrl = `${process.env.BACKEND_URL || "http://localhost:5000"}/api/topup/callback`;
+    // Get return URL from request body, query, or use default
+    const returnTo = req.body.returnTo || req.query.returnTo || '/topup.html';
+    console.log("🔗 Return URL:", returnTo);
+    const redirectUrl = `${
+      process.env.FRONTEND_URL || "http://localhost:3000"
+    }/topup-result?id=${topUp._id}&returnTo=${encodeURIComponent(returnTo)}`;
+
+    console.log("🔗 Full redirect URL:", redirectUrl);
+    const ipnUrl = `${
+      process.env.BACKEND_URL || "http://localhost:5000"
+    }/api/topup/callback`;
 
     const requestBody = {
       partnerCode: momoConfig.partnerCode,
@@ -69,28 +83,28 @@ exports.createMomoPayment = async (req, res) => {
     // Calculate signature (SHA256) - thứ tự alphabetical
     const crypto = require("crypto");
     const signatureString = `accessKey=${momoConfig.accessKey}&amount=${amount}&extraData=${requestBody.extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${requestBody.orderInfo}&partnerCode=${momoConfig.partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestBody.requestType}`;
-    
+
     console.log("🔐 Signature string:", signatureString);
-    
+
     requestBody.signature = crypto
       .createHmac("sha256", momoConfig.secretKey)
       .update(signatureString)
       .digest("hex");
-    
+
     console.log("🔐 Calculated signature:", requestBody.signature);
 
     // Call Momo API
     // For development: Use mock Momo response
     if (process.env.NODE_ENV !== "production") {
       console.log("🧪 Using mock Momo response (development mode)");
-      
+
       topUp.status = "pending";
       topUp.momoTransactionId = `MOCK_${Date.now()}`;
       await topUp.save();
 
       const mockResponse = {
         success: true,
-        payUrl: `https://test-payment.momo.vn/mock?orderId=topup-${topUp._id}&amount=${amount}`,
+        payUrl: `${process.env.FRONTEND_URL || "http://localhost:3000"}/topup-result?id=${topUp._id}&returnTo=${encodeURIComponent(returnTo)}`,
         orderId: topUp._id,
         message: "🧪 Mock Momo link created (development mode)",
       };
@@ -102,8 +116,11 @@ exports.createMomoPayment = async (req, res) => {
     console.log("📤 Calling Momo API with endpoint:", momoConfig.endpoint);
     console.log("📋 Request body:", JSON.stringify(requestBody, null, 2));
     console.log("🔑 Using partnerCode:", momoConfig.partnerCode);
-    console.log("🔑 Using accessKey:", momoConfig.accessKey?.substring(0, 5) + "...");
-    
+    console.log(
+      "🔑 Using accessKey:",
+      momoConfig.accessKey?.substring(0, 5) + "..."
+    );
+
     try {
       const momoResponse = await axios.post(momoConfig.endpoint, requestBody, {
         headers: { "Content-Type": "application/json" },
@@ -157,7 +174,7 @@ exports.momoCallback = async (req, res) => {
     console.log("🔔 Momo Callback received at:", new Date().toISOString());
     console.log("🔔 Headers:", req.headers);
     console.log("🔔 Body:", JSON.stringify(req.body, null, 2));
-    
+
     // Tìm topUp bằng requestId hoặc orderId
     const { orderId, resultCode, transId, requestId } = req.body;
 
@@ -175,9 +192,14 @@ exports.momoCallback = async (req, res) => {
 
     console.log("🔍 Looking for topUp with ID:", topUpId);
     const topUp = await TopUp.findById(topUpId);
-    
+
     if (!topUp) {
-      console.error("❌ TopUp not found for orderId:", orderId, "requestId:", requestId);
+      console.error(
+        "❌ TopUp not found for orderId:",
+        orderId,
+        "requestId:",
+        requestId
+      );
       return res.status(404).json({ error: "Không tìm thấy giao dịch" });
     }
 
@@ -188,7 +210,10 @@ exports.momoCallback = async (req, res) => {
       topUp.status = "success";
       topUp.momoTransactionId = transId || requestId;
       await topUp.save();
-      console.log("✅ TopUp marked as success. Updated at:", new Date().toISOString());
+      console.log(
+        "✅ TopUp marked as success. Updated at:",
+        new Date().toISOString()
+      );
 
       // Cộng tiền vào balance của Profile
       try {
@@ -236,8 +261,11 @@ exports.checkPaymentStatusFromMomo = async (req, res) => {
 
     // If not yet marked success but Momo transaction exists, query Momo to verify
     if (topUp.momoTransactionId && topUp.status === "pending") {
-      console.log("🔄 Querying Momo for status, transId:", topUp.momoTransactionId);
-      
+      console.log(
+        "🔄 Querying Momo for status, transId:",
+        topUp.momoTransactionId
+      );
+
       // Call Momo query API if needed (implement if Momo provides query endpoint)
       // For now, try the mock callback as fallback
       if (process.env.NODE_ENV !== "production") {
@@ -258,13 +286,13 @@ exports.checkPaymentStatusFromMomo = async (req, res) => {
 exports.mockMomoCallback = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     console.log("🧪 Mock Momo callback for topUpId:", id);
     const topUp = await TopUp.findByIdAndUpdate(
       id,
-      { 
-        status: "success", 
-        momoTransactionId: `MOCK_${Date.now()}`
+      {
+        status: "success",
+        momoTransactionId: `MOCK_${Date.now()}`,
       },
       { new: true }
     );
@@ -339,7 +367,7 @@ exports.getTopupStatus = async (req, res) => {
 exports.markTopupSuccess = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     console.log("✅ Manually marking topup as success:", id);
     const topUp = await TopUp.findByIdAndUpdate(
       id,
@@ -376,14 +404,16 @@ exports.getAllUserBalances = async (req, res) => {
     const TopUp = require("../models/TopUp");
     const result = await TopUp.aggregate([
       { $match: { status: "success" } },
-      { $group: { 
-        _id: "$userId", 
-        totalBalance: { $sum: "$amount" },
-        count: { $sum: 1 }
-      }},
-      { $sort: { totalBalance: -1 } }
+      {
+        $group: {
+          _id: "$userId",
+          totalBalance: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { totalBalance: -1 } },
     ]);
-    
+
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -396,7 +426,7 @@ exports.getBalance = async (req, res) => {
     console.log("\n📊 [getBalance] req.user:", req.user);
     console.log("📊 [getBalance] req.user?.id:", req.user?.id);
     console.log("📊 [getBalance] req.user?._id:", req.user?._id);
-    
+
     let userId = req.user?.id || req.user?._id;
 
     if (!userId) {
@@ -410,17 +440,17 @@ exports.getBalance = async (req, res) => {
     }
 
     console.log("💰 Getting balance for userId:", userId.toString());
-    
+
     // Sum all successful topups
     const result = await TopUp.aggregate([
       { $match: { userId: userId, status: "success" } },
-      { $group: { _id: null, totalBalance: { $sum: "$amount" } } }
+      { $group: { _id: null, totalBalance: { $sum: "$amount" } } },
     ]);
 
     console.log("📊 [getBalance] Aggregation result:", result);
-    
+
     const balance = result.length > 0 ? result[0].totalBalance : 0;
-    
+
     console.log("💰 Final balance:", balance);
     res.json({ balance });
   } catch (error) {
