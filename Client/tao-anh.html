@@ -96,41 +96,29 @@
       <!-- Background Image Tab -->
       <div class="tab-content" id="background-tab">
         <div class="content-wrapper">
-          <div class="upload-box">
-            <h3>Tải ảnh</h3>
-            <div class="upload-area" id="bg-upload-area">
-              <div class="upload-content">
-                <p><strong>Kéo thả hoặc tải ảnh tại đây</strong></p>
-                <p class="small">hoặc nhấn để chọn tệp</p>
-                <input type="file" id="bg-file-input" hidden accept="image/*" />
-                <button class="btn" id="bg-choose-btn">Chọn ảnh</button>
-              </div>
-            </div>
-          </div>
-
           <div class="settings-box">
-            <h3>Cài đặt</h3>
+            <h3>Tạo Bối Cảnh Từ Prompt</h3>
 
-            <label>Loại bối cảnh</label>
-            <select id="bg-type-select">
-              <option disabled selected hidden value="">
-                Chọn loại bối cảnh
-              </option>
-              <option value="nature">Thiên nhiên</option>
-              <option value="urban">Thành phố</option>
-              <option value="abstract">Trừu tượng</option>
-              <option value="fantasy">Giả tưởng</option>
-            </select>
-
-            <label>Mô tả bối cảnh</label>
+            <label>Mô tả bối cảnh bạn muốn tạo</label>
             <textarea
-              id="bg-description"
-              placeholder="Mô tả bối cảnh mà bạn muốn tạo..."
-              rows="4"
+              id="bg-prompt-input"
+              placeholder="Ví dụ: một bức tường xám sáng đẹp, phong cách chuyên nghiệp, studio lighting, suitable for portrait background..."
+              rows="6"
             ></textarea>
 
+            <div class="bg-suggestions">
+              <h4>Gợi ý viết:</h4>
+              <ul>
+                <li>Bức tường xám sáng chuyên nghiệp với studio lighting</li>
+                <li>Phong cảnh thiên nhiên đẹp với núi và hồ nước</li>
+                <li>Thành phố hiện đại vào ban đêm với ánh đèn neon</li>
+                <li>Không gian nội thất sang trọng với đồ decor</li>
+                <li>Bầu trời xanh mây trắng với ánh nắng mặt trời</li>
+              </ul>
+            </div>
+
             <button class="download-btn" id="bg-generate-btn">
-              <span></span>Tạo ảnh
+              <span></span>Tạo Bối Cảnh
             </button>
           </div>
 
@@ -146,7 +134,7 @@
               id="bg-download-btn"
               style="display: none"
             >
-              <span>⬇</span>Tải ảnh
+              <span></span>Tải ảnh
             </button>
           </div>
         </div>

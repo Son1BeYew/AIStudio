@@ -420,69 +420,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Background Image Generation
-const bgUploadArea = document.getElementById("bg-upload-area");
-const bgFileInput = document.getElementById("bg-file-input");
-const bgChooseBtn = document.getElementById("bg-choose-btn");
-const bgTypeSelect = document.getElementById("bg-type-select");
+const bgPromptInput = document.getElementById("bg-prompt-input");
 const bgGenerateBtn = document.getElementById("bg-generate-btn");
-let bgSelectedFile = null;
-
-bgUploadArea.addEventListener("click", (e) => {
-  if (e.target === bgChooseBtn || bgChooseBtn.contains(e.target)) return;
-  bgFileInput.click();
-});
-bgChooseBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  bgFileInput.click();
-});
-
-bgUploadArea.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  bgUploadArea.style.borderColor = "#666";
-});
-
-bgUploadArea.addEventListener("dragleave", () => {
-  bgUploadArea.style.borderColor = "#ccc";
-});
-
-bgUploadArea.addEventListener("drop", (e) => {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file) handleBgFile(file);
-});
-
-bgFileInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) handleBgFile(file);
-});
-
-function handleBgFile(file) {
-  bgSelectedFile = file;
-  const reader = new FileReader();
-  reader.onload = () => {
-    bgUploadArea.innerHTML = `
-            <img src="${reader.result}" 
-              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
-          `;
-  };
-  reader.readAsDataURL(file);
-}
 
 bgGenerateBtn.addEventListener("click", async () => {
   if (!checkAuthBeforeAction()) return;
 
-  if (!bgSelectedFile) {
-    alert("Vui lòng chọn ảnh trước");
-    return;
-  }
-  if (!bgTypeSelect.value) {
-    alert("Vui lòng chọn loại bối cảnh");
+  const prompt = bgPromptInput.value.trim();
+  if (!prompt) {
+    alert("Vui lòng nhập mô tả bối cảnh bạn muốn tạo");
     return;
   }
 
-  showConfirmDialog(null, bgSelectedFile, "background", {
-    bgType: bgTypeSelect.value,
-    bgDescription: document.getElementById("bg-description").value,
+  showConfirmDialog(null, null, "background", {
+    bgPrompt: prompt,
   });
 });
 
@@ -498,7 +449,7 @@ function displayBgOutput(result) {
 
   bgDownloadBtn.style.display = "flex";
   bgDownloadBtn.onclick = () =>
-    downloadImage(result.localPath, `background_${bgTypeSelect.value}`);
+    downloadImage(result.localPath, `background_${Date.now()}`);
 }
 
 // Outfit Tab
@@ -904,22 +855,16 @@ async function proceedGenerateFaceImage() {
 }
 
 async function proceedGenerateBackground() {
-  if (!pendingGenerateData.selectedFile) {
+  if (!pendingGenerateData.extra.bgPrompt) {
     alert("Dữ liệu không hợp lệ");
     return;
   }
 
-  const selectedFile = pendingGenerateData.selectedFile;
-  const bgType = pendingGenerateData.extra.bgType;
-  const bgDescription = pendingGenerateData.extra.bgDescription;
+  const bgPrompt = pendingGenerateData.extra.bgPrompt;
 
   closeConfirmDialog();
 
   const token = localStorage.getItem("token");
-  const formData = new FormData();
-  formData.append("type", bgType);
-  formData.append("description", bgDescription);
-  formData.append("image", selectedFile);
 
   try {
     const bgGenerateBtn = document.getElementById("bg-generate-btn");
@@ -939,8 +884,11 @@ async function proceedGenerateBackground() {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      body: formData,
+      body: JSON.stringify({
+        prompt: bgPrompt,
+      }),
     });
 
     const result = await response.json();

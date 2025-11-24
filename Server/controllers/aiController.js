@@ -364,19 +364,15 @@ exports.generateOutfit = async (req, res) => {
 
 exports.generateBackground = async (req, res) => {
   try {
-    const { type, description } = req.body;
+    const { prompt } = req.body;
     const userId = req.user?.id || req.user?._id;
-    const cloudinaryFile = req.cloudinaryFile;
 
-    console.log("Request body:", { type, description, userId });
-    console.log("Cloudinary file:", cloudinaryFile);
+    console.log("Request body:", { prompt, userId });
 
-    if (!cloudinaryFile) {
-      console.error(" No cloudinary file found");
-      return res.status(400).json({ error: "Ảnh là bắt buộc" });
-    }
-    if (!type)
-      return res.status(400).json({ error: "Loại bối cảnh là bắt buộc" });
+    if (!prompt || prompt.trim() === "")
+      return res
+        .status(400)
+        .json({ error: "Prompt mô tả bối cảnh là bắt buộc" });
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
 
     // Kiểm tra và trừ phí background
@@ -411,26 +407,34 @@ exports.generateBackground = async (req, res) => {
       );
     }
 
-    const backgroundPrompt = `Change the background of this image to a ${type} background${
-      description ? `. Style: ${description}` : ""
-    }. Keep the person in the same position, only change the background.`;
+    // Tạo prompt hoàn chỉnh để sinh bối cảnh
+    const backgroundPrompt = `Generate a beautiful background image: ${prompt}
 
-    console.log("🔄 Fetching image from:", cloudinaryFile.url);
-    const response = await fetch(cloudinaryFile.url);
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch from Cloudinary: ${response.statusText}`
-      );
-    }
-    const buffer = await response.arrayBuffer();
-    const imageBase64 = Buffer.from(buffer).toString("base64");
-    console.log("Image fetched and converted to base64");
+Image style requirements:
+- High resolution, photorealistic quality
+- Professional photography style
+- Good lighting and composition
+- Vibrant colors, sharp details
+- No people or characters, only background/scenery
+- Suitable for use as background image
+- Centered composition, balanced layout
 
-    console.log(" Running Replicate model for background generation");
+Photography style: professional landscape, architectural, or nature photography
+Quality: ultra detailed, 8K resolution, sharp focus
+Lighting: natural lighting, studio quality
+Composition: centered subject, balanced framing, professional layout`;
+
+    console.log("🔄 Generating background with prompt:", backgroundPrompt);
+
+    // Sử dụng model text-to-image để tạo bối cảnh từ prompt
     const output = await replicate.run("google/nano-banana", {
       input: {
         prompt: backgroundPrompt,
-        image_input: [`data:image/jpeg;base64,${imageBase64}`],
+        width: 1024,
+        height: 768,
+        num_inference_steps: 30,
+        guidance_scale: 7.5,
+        scheduler: "DPMSolverMultistep",
       },
     });
 
@@ -465,9 +469,9 @@ exports.generateBackground = async (req, res) => {
     try {
       history = await History.create({
         userId: userObjectId,
-        promptName: `background_${type}`,
-        promptTitle: `Thay đổi bối cảnh: ${type}`,
-        originalImagePath: cloudinaryFile.url,
+        promptName: "background_generation",
+        promptTitle: `Tạo bối cảnh: ${prompt.substring(0, 50)}...`,
+        originalImagePath: null, // Không có ảnh gốc
         outputImagePath: cloudinaryOutputUrl,
         outputImageUrl: imageUrl,
         status: "success",
@@ -481,7 +485,7 @@ exports.generateBackground = async (req, res) => {
       success: true,
       historyId: history?._id || null,
       model: "google/nano-banana",
-      backgroundType: type,
+      backgroundType: "generated",
       prompt: backgroundPrompt,
       imageUrl,
       localPath: cloudinaryOutputUrl,
