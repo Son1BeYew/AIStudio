@@ -96,9 +96,9 @@ exports.generateFaceImage = async (req, res) => {
     }
     const buffer = await response.arrayBuffer();
     const imageBase64 = Buffer.from(buffer).toString("base64");
-    console.log("✅ Image fetched and converted to base64");
+    console.log("Image fetched and converted to base64");
 
-    console.log("📸 Running Replicate model với prompt:", promptData.name);
+    console.log("Running Replicate model với prompt:", promptData.name);
     const output = await replicate.run("google/nano-banana", {
       input: {
         prompt: finalPrompt,
@@ -112,7 +112,7 @@ exports.generateFaceImage = async (req, res) => {
       imageUrl = String(imageUrl);
     }
 
-    console.log("✅ Output URL:", imageUrl);
+    console.log("Output URL:", imageUrl);
 
     const outputResponse = await fetch(imageUrl);
     if (!outputResponse.ok) {
@@ -169,7 +169,7 @@ exports.generateFaceImage = async (req, res) => {
       localPath: cloudinaryOutputUrl,
     });
   } catch (error) {
-    console.error("❌ Lỗi Replicate:", error);
+    console.error("Lỗi Replicate:", error);
     console.error("Error stack:", error.stack);
 
     // Only send JSON response if we haven't already sent a response
@@ -222,22 +222,20 @@ exports.generateOutfit = async (req, res) => {
       const configOutfit = await ServiceConfig.findOne({ service: "outfit" });
       outfitFee = configOutfit?.fee || 0;
     } catch (err) {
-      console.error("⚠️ Lỗi lấy outfit fee:", err.message);
+      console.error(" Lỗi lấy outfit fee:", err.message);
     }
 
     if (outfitFee > 0) {
       if (!profile || profile.balance < outfitFee) {
-        return res
-          .status(400)
-          .json({
-            error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền",
-          });
+        return res.status(400).json({
+          error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền",
+        });
       }
 
       profile.balance -= outfitFee;
       await profile.save();
       console.log(
-        "💰 Outfit fee deducted:",
+        "Outfit fee deducted:",
         outfitFee,
         "Remaining balance:",
         profile.balance
@@ -255,7 +253,7 @@ exports.generateOutfit = async (req, res) => {
       }. Keep the person's face and body structure similar, only change the clothing and hair style.`;
     }
 
-    console.log("🔄 Fetching person image from:", personImage.url);
+    console.log("Fetching person image from:", personImage.url);
     const response = await fetch(personImage.url);
     if (!response.ok) {
       throw new Error(
@@ -264,12 +262,12 @@ exports.generateOutfit = async (req, res) => {
     }
     const buffer = await response.arrayBuffer();
     const imageBase64 = Buffer.from(buffer).toString("base64");
-    console.log("✅ Person image fetched and converted to base64");
+    console.log("Person image fetched and converted to base64");
 
     let imageInputs = [`data:image/jpeg;base64,${imageBase64}`];
 
     if (clothingImage) {
-      console.log("🔄 Fetching clothing image from:", clothingImage.url);
+      console.log("Fetching clothing image from:", clothingImage.url);
       const clothingResponse = await fetch(clothingImage.url);
       if (!clothingResponse.ok) {
         throw new Error(
@@ -278,11 +276,11 @@ exports.generateOutfit = async (req, res) => {
       }
       const clothingBuffer = await clothingResponse.arrayBuffer();
       const clothingBase64 = Buffer.from(clothingBuffer).toString("base64");
-      console.log("✅ Clothing image fetched and converted to base64");
+      console.log(" Clothing image fetched and converted to base64");
       imageInputs.push(`data:image/jpeg;base64,${clothingBase64}`);
     }
 
-    console.log("📸 Running Replicate model for outfit generation");
+    console.log(" Running Replicate model for outfit generation");
     const output = await replicate.run("google/nano-banana", {
       input: {
         prompt: outfitPrompt,
@@ -295,7 +293,7 @@ exports.generateOutfit = async (req, res) => {
       imageUrl = String(imageUrl);
     }
 
-    console.log("✅ Output URL:", imageUrl);
+    console.log("Output URL:", imageUrl);
 
     const outputResponse = await fetch(imageUrl);
     if (!outputResponse.ok) {
@@ -315,7 +313,7 @@ exports.generateOutfit = async (req, res) => {
     fs.unlinkSync(outputPath);
 
     const cloudinaryOutputUrl = cloudinaryResult.secure_url;
-    console.log("💾 Outfit ảnh đã lưu:", cloudinaryOutputUrl);
+    console.log("Outfit ảnh đã lưu:", cloudinaryOutputUrl);
 
     let history = null;
     try {
@@ -335,7 +333,7 @@ exports.generateOutfit = async (req, res) => {
         outputImageUrl: imageUrl,
         status: "success",
       });
-      console.log("✅ History lưu thành công:", history._id);
+      console.log("History lưu thành công:", history._id);
     } catch (historyError) {
       console.error("⚠️ Lỗi lưu history:", historyError.message);
     }
@@ -351,7 +349,7 @@ exports.generateOutfit = async (req, res) => {
       localPath: cloudinaryOutputUrl,
     });
   } catch (error) {
-    console.error("❌ Lỗi Outfit generation:", error);
+    console.error("Lỗi Outfit generation:", error);
     console.error("Error stack:", error.stack);
 
     if (!res.headersSent) {
@@ -370,11 +368,11 @@ exports.generateBackground = async (req, res) => {
     const userId = req.user?.id || req.user?._id;
     const cloudinaryFile = req.cloudinaryFile;
 
-    console.log("📝 Request body:", { type, description, userId });
-    console.log("📤 Cloudinary file:", cloudinaryFile);
+    console.log("Request body:", { type, description, userId });
+    console.log("Cloudinary file:", cloudinaryFile);
 
     if (!cloudinaryFile) {
-      console.error("❌ No cloudinary file found");
+      console.error(" No cloudinary file found");
       return res.status(400).json({ error: "Ảnh là bắt buộc" });
     }
     if (!type)
@@ -426,9 +424,9 @@ exports.generateBackground = async (req, res) => {
     }
     const buffer = await response.arrayBuffer();
     const imageBase64 = Buffer.from(buffer).toString("base64");
-    console.log("✅ Image fetched and converted to base64");
+    console.log("Image fetched and converted to base64");
 
-    console.log("📸 Running Replicate model for background generation");
+    console.log(" Running Replicate model for background generation");
     const output = await replicate.run("google/nano-banana", {
       input: {
         prompt: backgroundPrompt,

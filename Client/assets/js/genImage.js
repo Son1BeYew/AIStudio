@@ -1107,13 +1107,13 @@ async function proceedGenerateTrending() {
     const trendOutputArea = document.getElementById("trend-output-area");
     trendOutputArea.innerHTML = `
           <div class="output-placeholder" style="color: #d32f2f;">
-            <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
+            <p> Lỗi khi tạo ảnh: ${error.message}</p>
           </div>
         `;
     alert("Lỗi khi tạo ảnh: " + error.message);
   } finally {
     const trendGenerateBtn = document.getElementById("trend-generate-btn");
     trendGenerateBtn.disabled = false;
-    trendGenerateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
+    trendGenerateBtn.innerHTML = "<span></span>Tạo ảnh";
   }
 }
