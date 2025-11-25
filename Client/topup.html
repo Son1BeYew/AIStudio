@@ -506,6 +506,12 @@
         border: 2px solid #e9ecef;
       }
 
+      .plan-max {
+        background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+        border: 2px solid #fdcb6e;
+        color: #2d3436;
+      }
+
       .plan-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -548,6 +554,11 @@
       .plan-standard .plan-icon {
         background: #e3f2fd;
         color: #2196f3;
+      }
+
+      .plan-max .plan-icon {
+        background: rgba(255, 255, 255, 0.3);
+        color: #f39c12;
       }
 
       .plan-name {
@@ -707,7 +718,7 @@
       }
 
       .upgrade-now-btn {
-        background: linear-gradient(135deg, #4a90e2, #7b68ee);
+        background: linear-gradient(135deg, #4a90e2, #666);
         color: white;
         border: none;
         padding: 12px 30px;
@@ -716,7 +727,7 @@
         font-size: 16px;
         cursor: pointer;
         transition: all 0.3s;
-        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3 );
       }
 
       .upgrade-now-btn:hover {
@@ -1322,28 +1333,31 @@
 
       // Render plans from database data
       function renderPlans(plans) {
+        // Store plans globally for modal usage
+        window.currentPlans = plans;
+
         const plansGrid = document.getElementById("plans-grid");
 
-        const planOrder = ['free', 'monthly', 'yearly'];
+        const planOrder = ['free', 'pro', 'max'];
         const icons = {
           free: '🎯',
-          monthly: '⭐',
-          yearly: '🏆'
+          pro: '⭐',
+          max: '👑'
         };
 
         const badges = {
           free: '',
-          monthly: '<div class="popular-badge">Phổ biến nhất</div>',
-          yearly: ''
+          pro: '<div class="popular-badge">Phổ biến nhất</div>',
+          max: '<div class="popular-badge">Giá tốt nhất</div>'
         };
 
         let html = planOrder.map(planKey => {
           const plan = plans[planKey];
           if (!plan) return '';
 
-          const isPopular = planKey === 'monthly';
           const planClass = planKey === 'free' ? 'plan-free' :
-                           isPopular ? 'plan-popular' : 'plan-standard';
+                           planKey === 'pro' ? 'plan-popular' :
+                           planKey === 'max' ? 'plan-max' : 'plan-standard';
 
           return `
             <div class="plan-card ${planClass}" data-plan="${planKey}">
@@ -1471,20 +1485,232 @@
         });
       }
 
+      // Global variables for upgrade modal
+      let currentUpgradePlan = null;
+      let selectedPaymentMethod = null;
+      let resendTimer = null;
+
       // Select plan function
       function selectPlan(planType) {
         if (!checkLogin()) return;
 
         const token = localStorage.getItem("token");
+        currentUpgradePlan = planType;
 
-        // Get plan names from database
+        // Get plan details from database
         const plans = window.currentPlans || {};
         const plan = plans[planType];
-        const planName = plan ? `${plan.name} - ${plan.price > 0 ? plan.price.toLocaleString('vi-VN') + 'đ' : '0đ'}` : planType;
 
-        if (confirm(`Bạn có chắc chắn muốn nâng cấp lên ${planName}?`)) {
-          // Process payment
-          processUpgrade(planType);
+        if (!plan) {
+          alert("Thông tin gói không khả dụng. Vui lòng thử lại.");
+          return;
+        }
+
+        // Populate modal with plan details
+        document.getElementById('modal-plan-name').textContent = plan.name;
+        document.getElementById('modal-plan-duration').textContent = plan.duration > 0 ? `${plan.duration} ngày` : 'Vĩnh viễn';
+        document.getElementById('modal-plan-price').textContent = plan.price > 0 ? `${plan.price.toLocaleString('vi-VN')}đ` : 'Miễn phí';
+
+        // Show key features
+        const keyFeatures = plan.features && plan.features.length > 0
+          ? plan.features.filter(f => f.enabled).slice(0, 3).map(f => f.name).join(', ')
+          : 'Không giới hạn tính năng';
+        document.getElementById('modal-plan-features').textContent = keyFeatures;
+
+        // Show modal
+        document.getElementById('premium-upgrade-modal').style.display = 'block';
+
+        // Reset to step 1
+        goToStep(1);
+      }
+
+      // Modal functions
+      function closeUpgradeModal() {
+        document.getElementById('premium-upgrade-modal').style.display = 'none';
+        currentUpgradePlan = null;
+        selectedPaymentMethod = null;
+        if (resendTimer) {
+          clearInterval(resendTimer);
+          resendTimer = null;
+        }
+        // Reset form
+        document.querySelectorAll('.code-input').forEach(input => input.value = '');
+        document.querySelectorAll('input[name="payment"]').forEach(input => input.checked = false);
+        document.getElementById('continue-to-verification').disabled = true;
+      }
+
+      function goToStep(stepNumber) {
+        // Hide all steps
+        document.querySelectorAll('.upgrade-step').forEach(step => {
+          step.style.display = 'none';
+        });
+
+        // Show selected step
+        document.getElementById(`upgrade-step-${stepNumber}`).style.display = 'block';
+
+        // Special handling for step 3 - setup verification code inputs
+        if (stepNumber === 3) {
+          // Get user email from localStorage or user data
+          const userEmail = getCurrentUserEmail();
+          document.getElementById('verification-email').textContent = userEmail || 'email của bạn';
+
+          setupCodeInputs();
+          startResendTimer();
+        }
+      }
+
+      function selectPaymentMethod(method) {
+        selectedPaymentMethod = method;
+
+        // Update radio buttons
+        document.querySelectorAll('input[name="payment"]').forEach(input => {
+          input.checked = input.value === method;
+        });
+
+        // Enable continue button
+        document.getElementById('continue-to-verification').disabled = false;
+      }
+
+      function setupCodeInputs() {
+        const codeInputs = document.querySelectorAll('.code-input');
+
+        codeInputs.forEach((input, index) => {
+          input.addEventListener('input', (e) => {
+            // Move to next input
+            if (e.target.value.length === 1 && index < codeInputs.length - 1) {
+              codeInputs[index + 1].focus();
+            }
+          });
+
+          input.addEventListener('keydown', (e) => {
+            // Move to previous input on backspace
+            if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+              codeInputs[index - 1].focus();
+            }
+          });
+
+          // Only allow numbers
+          input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+          });
+        });
+
+        // Focus first input
+        codeInputs[0].focus();
+      }
+
+      function startResendTimer() {
+        let seconds = 60;
+        const resendTimerEl = document.getElementById('resend-timer');
+        const resendBtnEl = document.getElementById('resend-code-btn');
+
+        resendTimerEl.style.display = 'inline';
+        resendBtnEl.style.display = 'none';
+
+        resendTimer = setInterval(() => {
+          seconds--;
+          resendTimerEl.textContent = `Gửi lại mã sau ${seconds}s`;
+
+          if (seconds <= 0) {
+            clearInterval(resendTimer);
+            resendTimerEl.style.display = 'none';
+            resendBtnEl.style.display = 'inline';
+          }
+        }, 1000);
+      }
+
+      function resendVerificationCode() {
+        // Reset timer and hide resend button
+        startResendTimer();
+
+        // Here you would typically call an API to resend the code
+        console.log('Resending verification code...');
+
+        // For demo purposes, just show an alert
+        alert('Mã xác minh mới đã được gửi đến email của bạn!');
+      }
+
+      function getVerificationCode() {
+        const codeInputs = document.querySelectorAll('.code-input');
+        let code = '';
+
+        codeInputs.forEach(input => {
+          code += input.value;
+        });
+
+        return code;
+      }
+
+      async function completeUpgrade() {
+        const verificationCode = getVerificationCode();
+
+        if (verificationCode.length !== 6) {
+          alert('Vui lòng nhập đầy đủ 6 số mã xác minh!');
+          return;
+        }
+
+        if (!selectedPaymentMethod) {
+          alert('Vui lòng chọn phương thức thanh toán!');
+          return;
+        }
+
+        try {
+          // Show loading state
+          const completeBtn = document.querySelector('#upgrade-step-3 .btn-primary');
+          const originalText = completeBtn.textContent;
+          completeBtn.textContent = 'Đang xử lý...';
+          completeBtn.disabled = true;
+
+          // Call original processUpgrade function
+          await processUpgrade(currentUpgradePlan);
+
+          // Close modal on success
+          closeUpgradeModal();
+
+        } catch (error) {
+          console.error('Upgrade failed:', error);
+          alert('Thanh toán thất bại. Vui lòng thử lại!');
+        } finally {
+          // Reset button state
+          const completeBtn = document.querySelector('#upgrade-step-3 .btn-primary');
+          completeBtn.textContent = 'Xác Nhận & Thanh Toán';
+          completeBtn.disabled = false;
+        }
+      }
+
+      // Helper function to get current user email
+      function getCurrentUserEmail() {
+        // Try to get from localStorage (from login response)
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            if (user.email) return user.email;
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+          }
+        }
+
+        // Try to get from token decode (basic extraction)
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.email;
+          } catch (e) {
+            console.error('Error decoding token:', e);
+          }
+        }
+
+        // Fallback
+        return 'email của bạn';
+      }
+
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        const modal = document.getElementById('premium-upgrade-modal');
+        if (event.target === modal) {
+          closeUpgradeModal();
         }
       }
 
@@ -2020,5 +2246,432 @@
           .classList.remove("active");
       }
     </script>
+
+    <!-- Premium Upgrade Modal -->
+    <div id="premium-upgrade-modal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Nâng Cấp Gói Premium</h3>
+          <span class="close-btn" onclick="closeUpgradeModal()">&times;</span>
+        </div>
+
+        <!-- Step 1: Order Details -->
+        <div id="upgrade-step-1" class="upgrade-step">
+          <div class="step-header">
+            <span class="step-number">1</span>
+            <h4>Chi Tiết Đơn Hàng</h4>
+          </div>
+          <div class="order-details">
+            <div class="order-item">
+              <span class="order-label">Gói:</span>
+              <span id="modal-plan-name" class="order-value"></span>
+            </div>
+            <div class="order-item">
+              <span class="order-label">Thời hạn:</span>
+              <span id="modal-plan-duration" class="order-value"></span>
+            </div>
+            <div class="order-item">
+              <span class="order-label">Giá:</span>
+              <span id="modal-plan-price" class="order-value price-highlight"></span>
+            </div>
+            <div class="order-item">
+              <span class="order-label">Ưu đãi:</span>
+              <span id="modal-plan-features" class="order-value"></span>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button class="btn-primary" onclick="goToStep(2)">Tiếp tục</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Payment Method -->
+        <div id="upgrade-step-2" class="upgrade-step" style="display: none;">
+          <div class="step-header">
+            <span class="step-number">2</span>
+            <h4>Phương Thức Thanh Toán</h4>
+          </div>
+          <div class="payment-methods">
+            <div class="payment-option" onclick="selectPaymentMethod('momo')">
+              <div class="payment-radio">
+                <input type="radio" name="payment" value="momo" id="momo-payment">
+                <label for="momo-payment">
+                  <div class="payment-info">
+                    <img
+                      src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square-1024x1024.png"
+                      alt="MoMo logo"
+                      class="method-logo"
+                    />
+                    <span>   Thanh toán qua ví MoMo</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="payment-option" onclick="selectPaymentMethod('vnpay')">
+              <div class="payment-radio">
+                <input type="radio" name="payment" value="vnpay" id="vnpay-payment">
+                <label for="vnpay-payment">
+                  <img
+                      src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg"
+                      alt="VNPay logo"
+                      class="method-logo"
+                    />
+                    <span>   Thanh toán qua ví VNPAY</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Use saved information -->
+          <div class="saved-info-section">
+            <label class="checkbox-label">
+              <input type="checkbox" id="use-saved-info" checked>
+              <span class="checkmark"></span>
+              Sử dụng thông tin đã lưu
+            </label>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn-secondary" onclick="goToStep(1)">Quay lại</button>
+            <button class="btn-primary" onclick="goToStep(3)" id="continue-to-verification" disabled>Tiếp tục</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Verification Code -->
+        <div id="upgrade-step-3" class="upgrade-step" style="display: none;">
+          <div class="step-header">
+            <span class="step-number">3</span>
+            <h4>Xác Minh Thanh Toán</h4>
+          </div>
+          <div class="verification-section">
+            <p>Nhập mã xác minh được gửi đến <strong id="verification-email"></strong></p>
+            <div class="code-inputs">
+              <input type="text" maxlength="1" class="code-input" data-index="0">
+              <input type="text" maxlength="1" class="code-input" data-index="1">
+              <input type="text" maxlength="1" class="code-input" data-index="2">
+              <input type="text" maxlength="1" class="code-input" data-index="3">
+              <input type="text" maxlength="1" class="code-input" data-index="4">
+              <input type="text" maxlength="1" class="code-input" data-index="5">
+            </div>
+            <div class="resend-section">
+              <span id="resend-timer">Gửi lại mã sau 60s</span>
+              <button id="resend-code-btn" class="btn-link" onclick="resendVerificationCode()" style="display: none;">Gửi lại mã</button>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button class="btn-secondary" onclick="goToStep(2)">Quay lại</button>
+            <button class="btn-primary" onclick="completeUpgrade()">Xác Nhận & Thanh Toán</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Styles -->
+    <style>
+      .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-content {
+        background: white;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e9ecef;
+        background: linear-gradient(135deg, #666 0%, #666 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .close-btn {
+        font-size: 24px;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+
+      .close-btn:hover {
+        opacity: 1;
+      }
+
+      .upgrade-step {
+        padding: 24px;
+      }
+
+      .step-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, #666, #fff);
+        color: white;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-right: 12px;
+      }
+
+      .step-header h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .order-details {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .order-item:last-child {
+        border-bottom: none;
+      }
+
+      .order-label {
+        font-weight: 500;
+        color: #666;
+      }
+
+      .order-value {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .price-highlight {
+        color: #e74c3c;
+        font-size: 18px;
+      }
+
+      .payment-methods {
+        margin-bottom: 20px;
+      }
+
+      .payment-option {
+        margin-bottom: 12px;
+      }
+
+      .payment-radio input[type="radio"] {
+        display: none;
+      }
+
+      .payment-radio label {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .payment-radio input[type="radio"]:checked + label {
+        border-color: #667eea;
+        background: #f8f9ff;
+      }
+
+      .payment-info {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+
+      .payment-logo {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: bold;
+        margin-right: 12px;
+        color: white;
+      }
+
+      .momo-logo {
+        background: #ff6b35;
+      }
+
+      .vnpay-logo {
+        background: #005baa;
+      }
+
+      .saved-info-section {
+        margin-bottom: 20px;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        display: none;
+      }
+
+      .checkmark {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        margin-right: 8px;
+        position: relative;
+        transition: all 0.3s;
+      }
+
+      .checkbox-label input[type="checkbox"]:checked + .checkmark {
+        background: #667eea;
+        border-color: #667eea;
+      }
+
+      .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+        content: '✓';
+        position: absolute;
+        color: white;
+        font-size: 12px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .verification-section {
+        text-align: center;
+      }
+
+      .verification-section p {
+        margin-bottom: 20px;
+        color: #666;
+      }
+
+      .code-inputs {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .code-input {
+        width: 45px;
+        height: 45px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        transition: all 0.3s;
+      }
+
+      .code-input:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .resend-section {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .btn-link {
+        background: none;
+        border: none;
+        color: #667eea;
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: 14px;
+      }
+
+      .btn-link:hover {
+        color: #5a67d8;
+      }
+
+      .step-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .btn-primary, .btn-secondary {
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s;
+        flex: 1;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #666, #fff);
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        background: #f8f9fa;
+        color: #666;
+        border: 1px solid #ddd;
+      }
+
+      .btn-secondary:hover {
+        background: #e9ecef;
+      }
+    </style>
+
   </body>
 </html>

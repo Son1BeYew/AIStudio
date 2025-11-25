@@ -4,9 +4,56 @@ const mongoose = require("mongoose");
 const axios = require("axios");
 require("dotenv").config();
 
-// Helper function to get plan config from database
+// Fallback plan configurations for immediate availability
+const FALLBACK_PLAN_CONFIGS = {
+  free: {
+    name: "Gói Miễn Phí",
+    price: 0,
+    duration: 0,
+    dailyLimit: 15,
+    features: [
+      { name: "Tạo 15 ảnh/ngày", enabled: true },
+      { name: "Chất lượng chuẩn", enabled: true },
+      { name: "Tốc độ bình thường", enabled: true },
+      { name: "Có watermark", enabled: true }
+    ]
+  },
+  pro: {
+    name: "Gói Pro",
+    price: 199000, // 199,000 VNĐ/tháng
+    duration: 30,
+    dailyLimit: 100,
+    features: [
+      { name: "Tạo ảnh không giới hạn", enabled: true },
+      { name: "Chất lượng cao (4K)", enabled: true },
+      { name: "Tốc độ ưu tiên", enabled: true },
+      { name: "Batch processing (10 ảnh)", enabled: true },
+      { name: "Hỗ trợ chat 24/7", enabled: true },
+      { name: "Không watermark", enabled: true }
+    ]
+  },
+  max: {
+    name: "Gói Max",
+    price: 1990000, // 1,990,000 VNĐ/năm
+    duration: 365,
+    dailyLimit: 500,
+    features: [
+      { name: "Tạo ảnh không giới hạn", enabled: true },
+      { name: "Chất lượng siêu cao (8K)", enabled: true },
+      { name: "Tốc độ tối đa", enabled: true },
+      { name: "Batch processing không giới hạn", enabled: true },
+      { name: "Hỗ trợ ưu tiên 24/7", enabled: true },
+      { name: "Không watermark", enabled: true },
+      { name: "API Access", enabled: true },
+      { name: "Quản lý team (5 thành viên)", enabled: true }
+    ]
+  }
+};
+
+// Helper function to get plan config from database with fallback
 const getPlanConfigFromDB = async (planType) => {
   try {
+    // First try to get from database
     const plan = await Premium.aggregate([
       { $match: { plan: planType } },
       {
@@ -30,9 +77,20 @@ const getPlanConfigFromDB = async (planType) => {
         features: plan[0].features || []
       };
     }
+
+    // If not found in database, use fallback config
+    if (FALLBACK_PLAN_CONFIGS[planType]) {
+      console.log(`Using fallback config for plan: ${planType}`);
+      return FALLBACK_PLAN_CONFIGS[planType];
+    }
+
     return null;
   } catch (error) {
     console.error("Error getting plan config:", error);
+    // Fallback to hardcoded config on error
+    if (FALLBACK_PLAN_CONFIGS[planType]) {
+      return FALLBACK_PLAN_CONFIGS[planType];
+    }
     return null;
   }
 };
@@ -47,7 +105,7 @@ exports.purchasePremium = async (req, res) => {
       return res.status(401).json({ error: "Bạn chưa đăng nhập" });
     }
 
-    if (!plan || !PLAN_CONFIGS[plan]) {
+    if (!plan || (!FALLBACK_PLAN_CONFIGS[plan] && plan !== "monthly" && plan !== "yearly")) {
       return res.status(400).json({ error: "Gói không hợp lệ" });
     }
 

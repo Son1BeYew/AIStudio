@@ -9,7 +9,7 @@ const premiumSchema = new mongoose.Schema(
     },
     plan: {
       type: String,
-      enum: ["free", "monthly", "yearly"],
+      enum: ["free", "monthly", "yearly", "pro", "max"],
       required: true,
     },
     planName: { type: String, required: true },

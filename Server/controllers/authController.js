@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const User = require("../models/User");
+const Premium = require("../models/Premium");
 
 const signAccessToken = (user) => {
   return jwt.sign(
@@ -17,6 +18,31 @@ const signRefreshToken = (user) => {
     process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
+};
+
+// Helper function to create free premium plan for new user
+const createFreePremiumForUser = async (userId) => {
+  try {
+    await Premium.create({
+      userId: userId,
+      plan: "free",
+      planName: "Gói Miễn Phí",
+      price: 0,
+      duration: 0,
+      dailyLimit: 15,
+      status: "active",
+      paymentMethod: "free",
+      features: [
+        { name: "Tạo 15 ảnh/ngày", enabled: true },
+        { name: "Chất lượng chuẩn", enabled: true },
+        { name: "Tốc độ bình thường", enabled: true },
+        { name: "Có watermark", enabled: true }
+      ]
+    });
+    console.log("Created free premium plan for user:", userId);
+  } catch (error) {
+    console.error("Error creating free premium plan:", error);
+  }
 };
 
 exports.register = async (req, res) => {
@@ -40,6 +66,9 @@ exports.register = async (req, res) => {
       password: hashedPassword,
       role: role || "user",
     });
+
+    // Create free premium plan for new user
+    await createFreePremiumForUser(user._id);
 
     const accessToken = signAccessToken(user);
     const refreshToken = signRefreshToken(user);
@@ -79,6 +108,12 @@ exports.login = (req, res, next) => {
 
 exports.googleCallback = async (req, res) => {
   if (!req.user) return res.redirect("/login.html?error=google_failed");
+
+  // Check if user has premium plan, create free plan if not
+  const existingPremium = await Premium.findOne({ userId: req.user._id });
+  if (!existingPremium) {
+    await createFreePremiumForUser(req.user._id);
+  }
 
   const accessToken = signAccessToken(req.user);
   const refreshToken = signRefreshToken(req.user);
