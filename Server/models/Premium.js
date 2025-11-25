@@ -24,7 +24,7 @@ const premiumSchema = new mongoose.Schema(
     endDate: { type: Date },
     paymentMethod: {
       type: String,
-      enum: ["momo", "bank", "card", "free"],
+      enum: ["momo", "bank", "card", "vnpay", "free"],
       default: "free",
     },
     momoTransactionId: { type: String, default: null },

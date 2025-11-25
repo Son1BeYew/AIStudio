@@ -1555,7 +1555,7 @@
           document.getElementById('verification-email').textContent = userEmail || 'email của bạn';
 
           setupCodeInputs();
-          startResendTimer();
+          // Timer will be started when code is actually sent (from sendVerificationAndContinue)
         }
       }
 
@@ -1569,6 +1569,59 @@
 
         // Enable continue button
         document.getElementById('continue-to-verification').disabled = false;
+      }
+
+      async function sendVerificationAndContinue() {
+        if (!selectedPaymentMethod) {
+          alert('Vui lòng chọn phương thức thanh toán!');
+          return;
+        }
+
+        try {
+          // Show loading state
+          const continueBtn = document.getElementById('continue-to-verification');
+          const originalText = continueBtn.textContent;
+          continueBtn.textContent = 'Đang gửi mã...';
+          continueBtn.disabled = true;
+
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            continueBtn.textContent = originalText;
+            continueBtn.disabled = false;
+            return;
+          }
+
+          // Call API to send verification code
+          const response = await fetch('/api/premium/send-verification-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              plan: currentUpgradePlan
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Code sent successfully, move to step 3
+            goToStep(3);
+            startResendTimer(); // Start timer after successful sending
+          } else {
+            alert('Không thể gửi mã xác minh: ' + result.error);
+            continueBtn.textContent = originalText;
+            continueBtn.disabled = false;
+          }
+        } catch (error) {
+          console.error('Error sending verification code:', error);
+          alert('Lỗi khi gửi mã xác minh. Vui lòng thử lại!');
+          const continueBtn = document.getElementById('continue-to-verification');
+          continueBtn.textContent = 'Tiếp tục';
+          continueBtn.disabled = false;
+        }
       }
 
       function setupCodeInputs() {
@@ -1619,15 +1672,39 @@
         }, 1000);
       }
 
-      function resendVerificationCode() {
-        // Reset timer and hide resend button
-        startResendTimer();
+      async function resendVerificationCode() {
+        try {
+          // Reset timer and hide resend button
+          startResendTimer();
 
-        // Here you would typically call an API to resend the code
-        console.log('Resending verification code...');
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            return;
+          }
 
-        // For demo purposes, just show an alert
-        alert('Mã xác minh mới đã được gửi đến email của bạn!');
+          const response = await fetch('/api/premium/send-verification-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              plan: currentUpgradePlan
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert('Mã xác minh mới đã được gửi đến email của bạn!');
+          } else {
+            alert('Không thể gửi lại mã: ' + result.error);
+          }
+        } catch (error) {
+          console.error('Error resending code:', error);
+          alert('Lỗi khi gửi lại mã. Vui lòng thử lại!');
+        }
       }
 
       function getVerificationCode() {
@@ -1661,20 +1738,92 @@
           completeBtn.textContent = 'Đang xử lý...';
           completeBtn.disabled = true;
 
-          // Call original processUpgrade function
-          await processUpgrade(currentUpgradePlan);
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            return;
+          }
 
-          // Close modal on success
-          closeUpgradeModal();
+          // Call verification API
+          const response = await fetch('/api/premium/verify-and-upgrade', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              plan: currentUpgradePlan,
+              code: verificationCode,
+              paymentMethod: selectedPaymentMethod
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Verification successful, now proceed to actual payment
+            if (selectedPaymentMethod === 'momo') {
+              // Create MoMo payment
+              await createMomoPayment(currentUpgradePlan);
+            } else if (selectedPaymentMethod === 'vnpay') {
+              alert('🔒 Tính năng VNPay đang được phát triển!');
+              closeUpgradeModal();
+            } else {
+              alert('❌ Phương thức thanh toán không hợp lệ!');
+              closeUpgradeModal();
+            }
+          } else {
+            alert('❌ ' + result.error);
+          }
 
         } catch (error) {
           console.error('Upgrade failed:', error);
-          alert('Thanh toán thất bại. Vui lòng thử lại!');
+          alert('❌ Thanh toán thất bại. Vui lòng thử lại!');
         } finally {
           // Reset button state
           const completeBtn = document.querySelector('#upgrade-step-3 .btn-primary');
           completeBtn.textContent = 'Xác Nhận & Thanh Toán';
           completeBtn.disabled = false;
+        }
+      }
+
+      // Create MoMo payment after verification
+      async function createMomoPayment(planType) {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            return;
+          }
+
+          const response = await fetch("/api/premium/purchase", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ plan: planType }),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("API Error:", response.status, errorText);
+            alert("Lỗi máy chủ: " + (response.statusText || "Vui lòng thử lại sau"));
+            return;
+          }
+
+          const result = await response.json();
+
+          if (result.success && result.payUrl) {
+            // Close modal and redirect to MoMo
+            closeUpgradeModal();
+            window.open(result.payUrl, '_blank');
+          } else {
+            alert('Không thể tạo thanh toán MoMo: ' + (result.error || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Error creating MoMo payment:', error);
+          alert('Lỗi khi tạo thanh toán MoMo. Vui lòng thử lại!');
         }
       }
 
@@ -2332,7 +2481,7 @@
 
           <div class="step-actions">
             <button class="btn-secondary" onclick="goToStep(1)">Quay lại</button>
-            <button class="btn-primary" onclick="goToStep(3)" id="continue-to-verification" disabled>Tiếp tục</button>
+            <button class="btn-primary" onclick="sendVerificationAndContinue()" id="continue-to-verification" disabled>Tiếp tục</button>
           </div>
         </div>
 

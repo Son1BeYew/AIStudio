@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const User = require("../models/User");
 const Premium = require("../models/Premium");
+const emailService = require("../services/emailService");
 
 const signAccessToken = (user) => {
   return jwt.sign(
@@ -69,6 +70,19 @@ exports.register = async (req, res) => {
 
     // Create free premium plan for new user
     await createFreePremiumForUser(user._id);
+
+    // Send welcome email
+    try {
+      const emailTemplate = emailService.getWelcomeTemplate(user.email, user.fullname);
+      await emailService.sendEmail({
+        to: user.email,
+        ...emailTemplate
+      });
+      console.log("Welcome email sent to:", user.email);
+    } catch (emailError) {
+      console.error("Error sending welcome email:", emailError);
+      // Don't fail registration if email fails
+    }
 
     const accessToken = signAccessToken(user);
     const refreshToken = signRefreshToken(user);

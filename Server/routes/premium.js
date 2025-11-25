@@ -8,6 +8,9 @@ const {
   cancelPremium,
   momoCallback,
   getPlans,
+  sendVerificationCode,
+  verifyAndUpgrade,
+  getVerificationStatus,
 } = require("../controllers/premiumController");
 
 const checkAuth = (req, res, next) => {
@@ -46,5 +49,10 @@ router.post("/cancel", checkAuth, cancelPremium);
 
 // Momo callback (no auth required)
 router.post("/momo-callback", momoCallback);
+
+// Email verification routes
+router.post("/send-verification-code", checkAuth, sendVerificationCode);
+router.post("/verify-and-upgrade", checkAuth, verifyAndUpgrade);
+router.get("/verification-status", checkAuth, getVerificationStatus);
 
 module.exports = router;
