@@ -322,11 +322,40 @@ exports.getCurrentPremium = async (req, res) => {
       userId = new mongoose.Types.ObjectId(userId);
     }
 
-    // Use lean query for better performance
+    // First check User model for premium info (more reliable)
+    const user = await User.findById(userId, {
+      hasPremium: 1,
+      premiumType: 1,
+      premiumExpiry: 1,
+    }).lean();
+
+    if (user && user.hasPremium && user.premiumType && user.premiumType !== "free") {
+      // User has premium from User model
+      const planConfig = await getPlanConfigFromDB(user.premiumType);
+
+      return res.json({
+        hasPremium: true,
+        planName: planConfig ? planConfig.name : user.premiumType.toUpperCase(),
+        plan: user.premiumType,
+        expiryDate: user.premiumExpiry,
+        imagesCreated: 0,
+        dailyLimit: planConfig ? planConfig.dailyLimit : -1,
+        features: planConfig ? planConfig.features : [],
+      });
+    }
+
+    // Fallback: Check Premium collection
     const currentPremium = await Premium.findOne(
-      { userId, status: "active" },
       {
-        plan: 1, // Include plan field
+        userId,
+        status: "active",
+        $or: [
+          { endDate: { $gt: new Date() } },
+          { endDate: null }
+        ]
+      },
+      {
+        plan: 1,
         planName: 1,
         price: 1,
         duration: 1,
@@ -342,37 +371,15 @@ exports.getCurrentPremium = async (req, res) => {
     if (!currentPremium) {
       // Get free plan config from database
       const freePlanConfig = await getPlanConfigFromDB("free");
-      if (!freePlanConfig) {
-        // Create default free plan if not found in database
-        currentPremium = await Premium.create({
-          userId,
-          plan: "free",
-          planName: "Miễn phí",
-          price: 0,
-          duration: 0,
-          dailyLimit: 15,
-          status: "active",
-          paymentMethod: "free",
-          features: [
-            { name: "15 ảnh mỗi ngày", enabled: true },
-            { name: "Chất lượng tiêu chuẩn", enabled: true },
-            { name: "Tải ảnh có watermark", enabled: true },
-            { name: "Mẫu cơ bản", enabled: true },
-          ],
-        });
-      } else {
-        currentPremium = await Premium.create({
-          userId,
-          plan: "free",
-          planName: freePlanConfig.name,
-          price: freePlanConfig.price,
-          duration: freePlanConfig.duration,
-          dailyLimit: freePlanConfig.dailyLimit,
-          status: "active",
-          paymentMethod: "free",
-          features: freePlanConfig.features,
-        });
-      }
+      return res.json({
+        hasPremium: false,
+        planName: freePlanConfig ? freePlanConfig.name : "Miễn phí",
+        plan: "free",
+        expiryDate: null,
+        imagesCreated: 0,
+        dailyLimit: freePlanConfig ? freePlanConfig.dailyLimit : 15,
+        features: freePlanConfig ? freePlanConfig.features : [],
+      });
     }
 
     const isPremium = currentPremium.plan !== "free";
