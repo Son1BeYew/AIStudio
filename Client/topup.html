@@ -473,14 +473,14 @@
         font-size: 16px;
       }
 
-      .plans-grid {
+      .premium-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
         margin-bottom: 40px;
       }
 
-      .plan-card {
+      .premium-card {
         border-radius: 12px;
         padding: 30px 25px;
         text-align: center;
@@ -490,34 +490,34 @@
         border: 2px solid transparent;
       }
 
-      .plan-free {
+      .premium-card--free {
         background: #f8f9fa;
         border: 2px solid #e9ecef;
       }
 
-      .plan-popular {
+      .premium-card--popular {
         background: linear-gradient(135deg, #e9ecef, #e9ecef);
         color: bl;
         transform: scale(1.05);
       }
 
-      .plan-standard {
+      .premium-card--standard {
         background: white;
         border: 2px solid #e9ecef;
       }
 
-      .plan-max {
+      .premium-card--max {
         background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
         border: 2px solid #fdcb6e;
         color: #2d3436;
       }
 
-      .plan-card:hover {
+      .premium-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
       }
 
-      .plan-popular:hover {
+      .premium-card--popular:hover {
         transform: scale(1.05) translateY(-5px);
       }
 
@@ -546,17 +546,17 @@
         font-size: 24px;
       }
 
-      .plan-free .plan-icon {
+      .premium-card--free .plan-icon {
         background: #e9ecef;
         color: #6c757d;
       }
 
-      .plan-standard .plan-icon {
+      .premium-card--standard .plan-icon {
         background: #e3f2fd;
         color: #2196f3;
       }
 
-      .plan-max .plan-icon {
+      .premium-card--max .plan-icon {
         background: rgba(255, 255, 255, 0.3);
         color: #f39c12;
       }
@@ -601,11 +601,11 @@
         flex-shrink: 0;
       }
 
-      .plan-popular .plan-features li::before {
+      .premium-card--popular .plan-features li::before {
         color: rgba(255, 255, 255, 0.9);
       }
 
-      .plan-btn {
+      .premium-btn {
         width: 100%;
         padding: 15px;
         border: none;
@@ -617,27 +617,27 @@
         margin-top: 25px;
       }
 
-      .plan-free .plan-btn {
+      .premium-card--free .premium-btn {
         background: #6c757d;
         color: white;
       }
 
-      .plan-popular .plan-btn {
+      .premium-card--popular .premium-btn {
         background: white;
         color: #4a90e2;
       }
 
-      .plan-standard .plan-btn {
+      .premium-card--standard .premium-btn {
         background: #2196f3;
         color: white;
       }
 
-      .plan-btn:hover {
+      .premium-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
       }
 
-      .plan-btn.current-plan {
+      .premium-btn.current-plan {
         background: #28a745;
         color: white;
       }
@@ -900,15 +900,15 @@
           position: static;
         }
 
-        .plans-grid {
+        .premium-grid {
           grid-template-columns: 1fr;
         }
 
-        .plan-popular {
+        .premium-card--popular {
           transform: scale(1);
         }
 
-        .plan-popular:hover {
+        .premium-card--popular:hover {
           transform: translateY(-5px);
         }
 
@@ -1014,12 +1014,12 @@
           font-size: 22px;
         }
 
-        .plans-grid {
+        .premium-grid {
           grid-template-columns: 1fr;
           gap: 15px;
         }
 
-        .plan-card {
+        .premium-card {
           padding: 25px 20px;
         }
 
@@ -1039,7 +1039,7 @@
         <button class="tab-btn active" onclick="switchTab('topup')">
           Nạp Tiền
         </button>
-        <button class="tab-btn" onclick="switchTab('premium')">Premium</button>
+        <button class="tab-btn" onclick="switchTab('premium')">Nâng cấp gói</button>
       </div>
 
       <!-- Topup Tab Content -->
@@ -1142,7 +1142,7 @@
               hạn
             </p>
 
-            <div class="plans-grid" id="plans-grid">
+            <div class="premium-grid" id="premium-grid">
               <!-- Plans will be loaded dynamically from database -->
               <div class="loading-plans">
                 <p>Đang tải danh sách gói...</p>
@@ -1310,7 +1310,7 @@
 
           if (!response.ok) {
             console.error("Plans API Error:", response.status, response.statusText);
-            document.getElementById("plans-grid").innerHTML =
+            document.getElementById("premium-grid").innerHTML =
               '<div class="loading-error"><p>Không thể tải danh sách gói. Vui lòng thử lại sau.</p></div>';
             return;
           }
@@ -1326,7 +1326,7 @@
           }
         } catch (error) {
           console.error("Error loading plans:", error);
-          document.getElementById("plans-grid").innerHTML =
+          document.getElementById("premium-grid").innerHTML =
             '<div class="loading-error"><p>Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.</p></div>';
         }
       }
@@ -1336,7 +1336,7 @@
         // Store plans globally for modal usage
         window.currentPlans = plans;
 
-        const plansGrid = document.getElementById("plans-grid");
+        const plansGrid = document.getElementById("premium-grid");
 
         const planOrder = ['free', 'pro', 'max'];
         const icons = {
@@ -1355,12 +1355,12 @@
           const plan = plans[planKey];
           if (!plan) return '';
 
-          const planClass = planKey === 'free' ? 'plan-free' :
-                           planKey === 'pro' ? 'plan-popular' :
-                           planKey === 'max' ? 'plan-max' : 'plan-standard';
+          const planClass = planKey === 'free' ? 'premium-card--free' :
+                           planKey === 'pro' ? 'premium-card--popular' :
+                           planKey === 'max' ? 'premium-card--max' : 'premium-card--standard';
 
           return `
-            <div class="plan-card ${planClass}" data-plan="${planKey}">
+            <div class="premium-card ${planClass}" data-plan="${planKey}">
               ${badges[planKey]}
               <div class="plan-icon">${icons[planKey]}</div>
               <div class="plan-name">${plan.name}</div>
@@ -1372,7 +1372,7 @@
               <ul class="plan-features">
                 ${plan.features.map(feature => `<li>${feature.name}</li>`).join('')}
               </ul>
-              <button class="plan-btn" data-plan="${planKey}">
+              <button class="premium-btn" data-plan="${planKey}">
                 ${planKey === 'free' ? 'Đang sử dụng' : 'Nâng cấp gói'}
               </button>
             </div>
@@ -1382,7 +1382,7 @@
         plansGrid.innerHTML = html;
 
         // Add event listeners to plan buttons
-        plansGrid.querySelectorAll('.plan-btn').forEach(btn => {
+        plansGrid.querySelectorAll('.premium-btn').forEach(btn => {
           const planType = btn.dataset.plan;
           if (planType && planType !== 'free') {
             btn.addEventListener('click', () => selectPlan(planType));
@@ -1457,7 +1457,7 @@
         const planCards = document.querySelectorAll(".plan-card");
         planCards.forEach((card) => {
           const planType = card.dataset.plan;
-          const button = card.querySelector(".plan-btn");
+          const button = card.querySelector(".premium-btn");
 
           if (planType === currentPlan) {
             button.textContent = "Đang sử dụng";

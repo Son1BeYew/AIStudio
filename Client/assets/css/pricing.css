@@ -189,14 +189,14 @@
   color: #f57c00;
 }
 
-/* Pricing Plans Section */
-.pricing-plans {
+/* Subscription Plans Section */
+.subscription-plans {
   max-width: 1200px;
   margin: 0 auto 80px;
   padding: 0 20px;
 }
 
-.pricing-plans h2 {
+.subscription-plans h2 {
   font-size: 32px;
   font-weight: 700;
   color: #222;
@@ -204,13 +204,13 @@
   text-align: center;
 }
 
-.plans-grid {
+.subscription-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 30px;
 }
 
-.plan-card {
+.subscription-card {
   background: white;
   border-radius: 15px;
   padding: 40px 30px;
@@ -220,12 +220,12 @@
   border: 2px solid transparent;
 }
 
-.plan-card:hover {
+.subscription-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
-.plan-card.professional {
+.subscription-card--professional {
   border-color: #667eea;
   background: linear-gradient(
     135deg,
@@ -235,12 +235,16 @@
   transform: scale(1.05);
 }
 
-.plan-card.professional:hover {
+.subscription-card--professional:hover {
   transform: scale(1.05) translateY(-10px);
 }
 
-.plan-card.enterprise {
+.subscription-card--enterprise {
   border-color: #ffc107;
+}
+
+.subscription-card--starter {
+  border-color: #e9ecef;
 }
 
 .plan-header {
@@ -302,7 +306,7 @@
   border-bottom: none;
 }
 
-.plan-btn {
+.subscription-btn {
   width: 100%;
   padding: 14px 20px;
   border: 2px solid #667eea;
@@ -318,20 +322,40 @@
   margin-top: 20px;
 }
 
-.plan-btn:hover {
+.subscription-btn:hover {
   background: #667eea;
   color: white;
   transform: scale(1.05);
 }
 
-.plan-btn.professional-btn {
+.subscription-btn--professional {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
 }
 
-.plan-btn.professional-btn:hover {
+.subscription-btn--professional:hover {
   opacity: 0.9;
+}
+
+.subscription-btn--enterprise {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: white;
+  border: none;
+}
+
+.subscription-btn--enterprise:hover {
+  opacity: 0.9;
+}
+
+.subscription-btn--starter {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.subscription-btn--starter:hover {
+  background: #6c757d;
+  color: white;
 }
 
 /* FAQ Section */
@@ -471,11 +495,11 @@
     padding: 12px;
   }
 
-  .plan-card.professional {
+  .subscription-card--professional {
     transform: scale(1);
   }
 
-  .plan-card.professional:hover {
+  .subscription-card--professional:hover {
     transform: translateY(-10px);
   }
 
@@ -507,7 +531,7 @@
   }
 
   .pricing-table-section h2,
-  .pricing-plans h2,
+  .subscription-plans h2,
   .pricing-faq h2 {
     font-size: 24px;
   }

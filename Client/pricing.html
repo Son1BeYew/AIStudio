@@ -112,10 +112,10 @@
       </section>
 
       <!-- Premium Subscription Plans -->
-      <section class="pricing-plans">
+      <section class="subscription-plans">
         <h2>📦 Gói Premium Trả Phí</h2>
-        <div class="plans-grid">
-          <div class="plan-card starter">
+        <div class="subscription-grid">
+          <div class="subscription-card subscription-card--starter">
             <div class="plan-header">
               <h3>🎯 Miễn Phí</h3>
               <p class="plan-price">₫0</p>
@@ -127,10 +127,15 @@
               <li>✓ Tốc độ bình thường</li>
               <li>✓ Có watermark</li>
             </ul>
-            <button class="plan-btn" onclick="window.location.href='/tao-anh.html'">Sử Dụng Ngay</button>
+            <button
+              class="subscription-btn"
+              onclick="window.location.href='/tao-anh.html'"
+            >
+              Sử Dụng Ngay
+            </button>
           </div>
 
-          <div class="plan-card professional">
+          <div class="subscription-card subscription-card--professional">
             <div class="plan-header">
               <h3>⭐ Gói Pro</h3>
               <p class="plan-price">₫199,000</p>
@@ -145,12 +150,15 @@
               <li>✓ Hỗ trợ chat 24/7</li>
               <li>✓ Không watermark</li>
             </ul>
-            <button class="plan-btn professional-btn" onclick="window.location.href='/topup.html'">
+            <button
+              class="subscription-btn subscription-btn--professional"
+              onclick="window.location.href='/topup.html'"
+            >
               Nâng Cấp Ngay
             </button>
           </div>
 
-          <div class="plan-card enterprise">
+          <div class="subscription-card subscription-card--enterprise">
             <div class="plan-header">
               <h3>👑 Gói Max</h3>
               <p class="plan-price">₫1,990,000</p>
@@ -166,68 +174,17 @@
               <li>✓ API Access</li>
               <li>✓ Quản lý team (5 thành viên)</li>
             </ul>
-            <button class="plan-btn" onclick="window.location.href='/topup.html'">Nâng Cấp Ngay</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Pay-As-You-Go Topup Plans -->
-      <section class="pricing-plans">
-        <h2>💰 Gói Nạp Tiền Linh Hoạt</h2>
-        <p style="text-align: center; color: #666; margin-bottom: 30px;">Nạp tiền và sử dụng khi cần thiết</p>
-        <div class="plans-grid">
-          <div class="plan-card starter">
-            <div class="plan-header">
-              <h3>🌟 Khởi Động</h3>
-              <p class="plan-price">₫50,000</p>
-              <p class="plan-credit">~20 ảnh</p>
-            </div>
-            <ul class="plan-features">
-              <li>✓ 200 credits tạo ảnh</li>
-              <li>✓ Hỗ trợ email</li>
-              <li>✓ Lưu trữ 30 ngày</li>
-              <li>✓ Tốc độ chuẩn</li>
-            </ul>
-            <button class="plan-btn" onclick="toTopup(50000)">Nạp Tiền</button>
-          </div>
-
-          <div class="plan-card professional">
-            <div class="plan-header">
-              <h3>🚀 Chuyên Nghiệp</h3>
-              <p class="plan-price">₫150,000</p>
-              <p class="plan-credit">~60 ảnh</p>
-            </div>
-            <ul class="plan-features">
-              <li>✓ 600 credits tạo ảnh</li>
-              <li>✓ Hỗ trợ chat 24/7</li>
-              <li>✓ Lưu trữ 90 ngày</li>
-              <li>✓ Ưu tiên xử lý</li>
-              <li>✓ Batch processing</li>
-            </ul>
-            <button class="plan-btn professional-btn" onclick="toTopup(150000)">
-              Nạp Tiền
+            <button
+              class="subscription-btn subscription-btn--enterprise"
+              onclick="window.location.href='/topup.html'"
+            >
+              Nâng Cấp Ngay
             </button>
           </div>
-
-          <div class="plan-card enterprise">
-            <div class="plan-header">
-              <h3>💎 Doanh Nghiệp</h3>
-              <p class="plan-price">₫500,000</p>
-              <p class="plan-credit">~200 ảnh</p>
-            </div>
-            <ul class="plan-features">
-              <li>✓ 2,000 credits tạo ảnh</li>
-              <li>✓ Hỗ trợ điện thoại 24/7</li>
-              <li>✓ Lưu trữ vô thời hạn</li>
-              <li>✓ Ưu tiên tối đa</li>
-              <li>✓ API access</li>
-              <li>✓ Quản lý team</li>
-            </ul>
-            <button class="plan-btn" onclick="toTopup(500000)">Nạp Tiền</button>
-          </div>
         </div>
       </section>
 
+  
       <!-- FAQ Section -->
       <section class="pricing-faq">
         <h2>❓ Câu Hỏi Thường Gặp</h2>
