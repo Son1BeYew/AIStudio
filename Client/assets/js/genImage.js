@@ -1,1049 +1,1063 @@
-    let trendData = [];
+let trendData = [];
 
-      // Load trending prompts từ API
-      async function loadTrendingPrompts() {
-        try {
-          const response = await fetch("/api/prompts-trending");
-          if (!response.ok) {
-            console.error("Lỗi khi load trending prompts");
-            return;
-          }
+// Load trending prompts từ API
+async function loadTrendingPrompts() {
+  try {
+    const response = await fetch("/api/prompts-trending");
+    if (!response.ok) {
+      console.error("Lỗi khi load trending prompts");
+      return;
+    }
 
-          trendData = await response.json();
-          initTrendsGrid();
-        } catch (error) {
-          console.error("Lỗi load trending prompts:", error);
-        }
-      }
+    trendData = await response.json();
+    initTrendsGrid();
+  } catch (error) {
+    console.error("Lỗi load trending prompts:", error);
+  }
+}
 
-      // Initialize trends grid
-      function initTrendsGrid() {
-        const trendsGrid = document.getElementById("trendsGrid");
-        if (trendData.length === 0) {
-          trendsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">Không có trending prompts</p>';
-          return;
-        }
+// Initialize trends grid
+function initTrendsGrid() {
+  const trendsGrid = document.getElementById("trendsGrid");
+  if (trendData.length === 0) {
+    trendsGrid.innerHTML =
+      '<p style="grid-column: 1/-1; text-align: center; color: #999;">Không có trending prompts</p>';
+    return;
+  }
 
-        trendsGrid.innerHTML = trendData.map((trend, index) => `
+  trendsGrid.innerHTML = trendData
+    .map(
+      (trend, index) => `
           <div class="trend-card" onclick="selectTrend(${index})">
             <div class="trend-image-wrapper">
-              <img src="${trend.image || 'https://via.placeholder.com/300'}" alt="${trend.title}" class="trend-image">
+              <img src="${
+                trend.image || "https://via.placeholder.com/300"
+              }" alt="${trend.title}" class="trend-image">
               <div class="trend-overlay">
                 <p>${trend.title}</p>
               </div>
             </div>
           </div>
-        `).join("");
-      }
+        `
+    )
+    .join("");
+}
 
-      // Select trend and populate prompt
-      function selectTrend(index) {
-        if (!checkAuthBeforeAction()) return;
+// Select trend and populate prompt
+function selectTrend(index) {
+  if (!checkAuthBeforeAction()) return;
 
-        const trend = trendData[index];
-        if (!trend) return;
+  const trend = trendData[index];
+  if (!trend) return;
 
-        // Show trend creator section
-        document.getElementById("trendCreatorSection").style.display = "block";
-        document.querySelector(".trends-section").style.display = "none";
-        
-        // Update trend name display
-        document.getElementById("trend-selected-style").textContent = trend.title;
-        
-        // Store trend data globally
-        window.currentTrend = trend;
-        window.trendSelectedFile = null;
-        window.currentTrendIndex = index;
+  // Show trend creator section
+  document.getElementById("trendCreatorSection").style.display = "block";
+  document.querySelector(".trends-section").style.display = "none";
 
-        // Setup upload area - remove old elements and recreate to clear listeners
-        const uploadArea = document.getElementById("trend-upload-area");
-        const fileInput = document.getElementById("trend-file-input");
-        const chooseBtn = document.getElementById("trend-choose-btn");
+  // Update trend name display
+  document.getElementById("trend-selected-style").textContent = trend.title;
 
-        // Clone and replace to remove all old event listeners
-        const newUploadArea = uploadArea.cloneNode(true);
-        const newFileInput = fileInput.cloneNode(true);
-        const newChooseBtn = chooseBtn.cloneNode(true);
-        
-        uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
-        fileInput.parentNode.replaceChild(newFileInput, fileInput);
-        chooseBtn.parentNode.replaceChild(newChooseBtn, chooseBtn);
+  // Store trend data globally
+  window.currentTrend = trend;
+  window.trendSelectedFile = null;
+  window.currentTrendIndex = index;
 
-        // Get references to new elements
-        const updatedUploadArea = document.getElementById("trend-upload-area");
-        const updatedFileInput = document.getElementById("trend-file-input");
-        const updatedChooseBtn = document.getElementById("trend-choose-btn");
+  // Setup upload area - remove old elements and recreate to clear listeners
+  const uploadArea = document.getElementById("trend-upload-area");
+  const fileInput = document.getElementById("trend-file-input");
+  const chooseBtn = document.getElementById("trend-choose-btn");
 
-        updatedChooseBtn.addEventListener("click", (e) => {
-          console.log("Button clicked");
-          e.stopPropagation();
-          updatedFileInput.click();
-        });
+  // Clone and replace to remove all old event listeners
+  const newUploadArea = uploadArea.cloneNode(true);
+  const newFileInput = fileInput.cloneNode(true);
+  const newChooseBtn = chooseBtn.cloneNode(true);
 
-        updatedUploadArea.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          updatedUploadArea.style.borderColor = "#666";
-        });
+  uploadArea.parentNode.replaceChild(newUploadArea, uploadArea);
+  fileInput.parentNode.replaceChild(newFileInput, fileInput);
+  chooseBtn.parentNode.replaceChild(newChooseBtn, chooseBtn);
 
-        updatedUploadArea.addEventListener("dragleave", () => {
-          updatedUploadArea.style.borderColor = "#ccc";
-        });
+  // Get references to new elements
+  const updatedUploadArea = document.getElementById("trend-upload-area");
+  const updatedFileInput = document.getElementById("trend-file-input");
+  const updatedChooseBtn = document.getElementById("trend-choose-btn");
 
-        updatedUploadArea.addEventListener("drop", (e) => {
-          e.preventDefault();
-          const file = e.dataTransfer.files[0];
-          if (file) handleTrendFile(file);
-        });
+  updatedChooseBtn.addEventListener("click", (e) => {
+    console.log("Button clicked");
+    e.stopPropagation();
+    updatedFileInput.click();
+  });
 
-        const fileChangeHandler = (e) => {
-          const file = e.target.files[0];
-          if (file) {
-            console.log("File input change triggered");
-            handleTrendFile(file);
-            updatedFileInput.value = "";
-          }
-        };
-        updatedFileInput.addEventListener("change", fileChangeHandler);
+  updatedUploadArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    updatedUploadArea.style.borderColor = "#666";
+  });
 
-        // Scroll to top
-        window.scrollTo(0, 0);
+  updatedUploadArea.addEventListener("dragleave", () => {
+    updatedUploadArea.style.borderColor = "#ccc";
+  });
 
-        // Show notification
-        const notification = document.createElement("div");
-        notification.className = "trend-notification";
-        notification.innerHTML = `
+  updatedUploadArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) handleTrendFile(file);
+  });
+
+  const fileChangeHandler = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      console.log("File input change triggered");
+      handleTrendFile(file);
+      updatedFileInput.value = "";
+    }
+  };
+  updatedFileInput.addEventListener("change", fileChangeHandler);
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+
+  // Show notification
+  const notification = document.createElement("div");
+  notification.className = "trend-notification";
+  notification.innerHTML = `
           <div class="notification-content">
-            <strong>✨ ${trend.title}</strong> đã được chọn!
+            <strong> ${trend.title}</strong> đã được chọn!
             <p>Hãy tải ảnh lên và nhấn "Tạo ảnh"</p>
           </div>
         `;
-        document.body.appendChild(notification);
+  document.body.appendChild(notification);
 
-        setTimeout(() => {
-          notification.classList.add("show");
-        }, 10);
+  setTimeout(() => {
+    notification.classList.add("show");
+  }, 10);
 
-        setTimeout(() => {
-          notification.classList.remove("show");
-          setTimeout(() => notification.remove(), 300);
-        }, 3000);
-      }
+  setTimeout(() => {
+    notification.classList.remove("show");
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
 
-      // Handle trend file upload
-      function handleTrendFile(file) {
-        console.log("handleTrendFile called with:", file.name);
-        window.trendSelectedFile = file;
-        const uploadArea = document.getElementById("trend-upload-area");
-        const reader = new FileReader();
-        reader.onload = () => {
-          uploadArea.innerHTML = `
+// Handle trend file upload
+function handleTrendFile(file) {
+  console.log("handleTrendFile called with:", file.name);
+  window.trendSelectedFile = file;
+  const uploadArea = document.getElementById("trend-upload-area");
+  const reader = new FileReader();
+  reader.onload = () => {
+    uploadArea.innerHTML = `
             <img src="${reader.result}" 
               style="max-width:100%; border-radius:8px; display:block; margin:auto;">
           `;
-        };
-        reader.readAsDataURL(file);
-      }
+  };
+  reader.readAsDataURL(file);
+}
 
-      // Reset trend creator
-      function resetTrendCreator() {
-        document.getElementById("trendCreatorSection").style.display = "none";
-        document.querySelector(".trends-section").style.display = "block";
-        window.currentTrend = null;
-        window.trendSelectedFile = null;
-        document.getElementById("trend-additional-desc").value = "";
-        document.getElementById("trend-output-area").innerHTML = `
+// Reset trend creator
+function resetTrendCreator() {
+  document.getElementById("trendCreatorSection").style.display = "none";
+  document.querySelector(".trends-section").style.display = "block";
+  window.currentTrend = null;
+  window.trendSelectedFile = null;
+  document.getElementById("trend-additional-desc").value = "";
+  document.getElementById("trend-output-area").innerHTML = `
           <div class="output-placeholder">
             <p>Ảnh kết quả sẽ xuất hiện tại đây</p>
           </div>
         `;
-        document.getElementById("trend-download-btn").style.display = "none";
+  document.getElementById("trend-download-btn").style.display = "none";
+}
+
+// Generate trend image
+document.addEventListener("DOMContentLoaded", () => {
+  const generateBtn = document.getElementById("trend-generate-btn");
+  if (generateBtn) {
+    generateBtn.addEventListener("click", async () => {
+      if (!checkAuthBeforeAction()) return;
+
+      if (!window.trendSelectedFile) {
+        alert("Vui lòng chọn ảnh trước");
+        return;
       }
 
-      // Generate trend image
-      document.addEventListener("DOMContentLoaded", () => {
-        const generateBtn = document.getElementById("trend-generate-btn");
-        if (generateBtn) {
-          generateBtn.addEventListener("click", async () => {
-            if (!checkAuthBeforeAction()) return;
+      const additionalDesc = document.getElementById(
+        "trend-additional-desc"
+      ).value;
 
-            if (!window.trendSelectedFile) {
-              alert("Vui lòng chọn ảnh trước");
-              return;
-            }
-
-            const additionalDesc = document.getElementById("trend-additional-desc").value;
-
-            showConfirmDialog(null, window.trendSelectedFile, "trending", {
-              trendDescription: additionalDesc
-            });
-          });
-        }
+      showConfirmDialog(null, window.trendSelectedFile, "trending", {
+        trendDescription: additionalDesc,
       });
+    });
+  }
+});
 
-      function displayTrendOutput(result) {
-        const outputArea = document.getElementById("trend-output-area");
-        const downloadBtn = document.getElementById("trend-download-btn");
+function displayTrendOutput(result) {
+  const outputArea = document.getElementById("trend-output-area");
+  const downloadBtn = document.getElementById("trend-download-btn");
 
-        outputArea.innerHTML = `
+  outputArea.innerHTML = `
           <img src="${result.localPath}?t=${Date.now()}" alt="Generated image">
         `;
 
-        downloadBtn.style.display = "flex";
-        downloadBtn.onclick = () =>
-          downloadImage(result.localPath, `trend_${window.currentTrend.title}`);
-      }
+  downloadBtn.style.display = "flex";
+  downloadBtn.onclick = () =>
+    downloadTrendImage(result.localPath, `trend_${window.currentTrend.title}`);
+}
 
-      function downloadImage(imagePath, name) {
-        const link = document.createElement("a");
-        link.href = imagePath;
-        link.download = `${name}_${Date.now()}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+async function downloadTrendImage(imagePath, name) {
+  try {
+    // Fetch the image as a blob
+    const response = await fetch(imagePath);
+    if (!response.ok) {
+      throw new Error("Failed to fetch image");
+    }
 
-      // Tab switching
-      const tabButtons = document.querySelectorAll(".tab-button");
-      const tabContents = document.querySelectorAll(".tab-content");
+    const blob = await response.blob();
 
-      tabButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const tabName = button.dataset.tab;
+    // Create an object URL for the blob
+    const blobUrl = URL.createObjectURL(blob);
 
-          // Remove active from all buttons and contents
-          tabButtons.forEach((btn) => btn.classList.remove("active"));
-          tabContents.forEach((content) => content.classList.remove("active"));
+    // Create download link
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `${name}_${Date.now()}.jpg`;
 
-          // Add active to clicked button and corresponding content
-          button.classList.add("active");
-          document.getElementById(`${tabName}-tab`).classList.add("active");
-        });
-      });
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-      
-      // ASCII Art Generation
-      const uploadArea = document.getElementById("upload-area");
-      const fileInput = document.getElementById("file-input");
-      const chooseBtn = document.getElementById("choose-btn");
-      const genderSelect = document.getElementById("gender-select");
-      const promptSelect = document.getElementById("prompt-select");
-      const generateBtn = document.getElementById("generate-btn");
-      let selectedFile = null;
+    // Clean up the object URL after a short delay
+    setTimeout(() => {
+      URL.revokeObjectURL(blobUrl);
+    }, 100);
+  } catch (error) {
+    console.error("Error downloading image:", error);
+    alert("Không thể tải ảnh. Vui lòng thử lại sau.");
+  }
+}
 
-      uploadArea.addEventListener("click", (e) => {
-        if (e.target === chooseBtn || chooseBtn.contains(e.target)) return;
-        fileInput.click();
-      });
-      chooseBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        fileInput.click();
-      });
+// Tab switching
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabContents = document.querySelectorAll(".tab-content");
 
-      uploadArea.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = "#666";
-      });
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const tabName = button.dataset.tab;
 
-      uploadArea.addEventListener("dragleave", () => {
-        uploadArea.style.borderColor = "#ccc";
-      });
+    // Remove active from all buttons and contents
+    tabButtons.forEach((btn) => btn.classList.remove("active"));
+    tabContents.forEach((content) => content.classList.remove("active"));
 
-      uploadArea.addEventListener("drop", (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) handleFile(file);
-      });
+    // Add active to clicked button and corresponding content
+    button.classList.add("active");
+    document.getElementById(`${tabName}-tab`).classList.add("active");
+  });
+});
 
-      fileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) handleFile(file);
-      });
+// ASCII Art Generation
+const uploadArea = document.getElementById("upload-area");
+const fileInput = document.getElementById("file-input");
+const chooseBtn = document.getElementById("choose-btn");
+const genderSelect = document.getElementById("gender-select");
+const promptSelect = document.getElementById("prompt-select");
+const generateBtn = document.getElementById("generate-btn");
+let selectedFile = null;
 
-      function handleFile(file) {
-        selectedFile = file;
-        const reader = new FileReader();
-        reader.onload = () => {
-          uploadArea.innerHTML = `
+uploadArea.addEventListener("click", (e) => {
+  if (e.target === chooseBtn || chooseBtn.contains(e.target)) return;
+  fileInput.click();
+});
+chooseBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  fileInput.click();
+});
+
+uploadArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  uploadArea.style.borderColor = "#666";
+});
+
+uploadArea.addEventListener("dragleave", () => {
+  uploadArea.style.borderColor = "#ccc";
+});
+
+uploadArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+
+fileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) handleFile(file);
+});
+
+function handleFile(file) {
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = () => {
+    uploadArea.innerHTML = `
             <img src="${reader.result}" 
               style="max-width:100%; border-radius:8px; display:block; margin:auto;">
           `;
-        };
-        reader.readAsDataURL(file);
+  };
+  reader.readAsDataURL(file);
+}
+
+// Load prompts từ API
+async function loadPrompts(gender = "") {
+  try {
+    const url = gender ? `/api/prompts?gender=${gender}` : "/api/prompts";
+    const response = await fetch(url);
+    const prompts = await response.json();
+
+    // Clear all existing options except first one
+    promptSelect.innerHTML = '<option value="">Chọn prompt...</option>';
+
+    // Add new options
+    prompts.forEach((prompt) => {
+      if (prompt.isActive) {
+        const option = document.createElement("option");
+        option.value = prompt.name;
+        option.textContent = prompt.title || prompt.name;
+        promptSelect.appendChild(option);
       }
+    });
+  } catch (error) {
+    console.error("Lỗi load prompts:", error);
+    promptSelect.innerHTML = '<option value="">Lỗi load prompts</option>';
+  }
+}
 
-      // Load prompts từ API
-      async function loadPrompts(gender = '') {
-        try {
-          const url = gender ? `/api/prompts?gender=${gender}` : "/api/prompts";
-          const response = await fetch(url);
-          const prompts = await response.json();
+// Generate ảnh
+let currentImageUrl = null;
 
-          // Clear all existing options except first one
-          promptSelect.innerHTML = '<option value="">Chọn prompt...</option>';
+generateBtn.addEventListener("click", async () => {
+  if (!checkAuthBeforeAction()) return;
 
-          // Add new options
-          prompts.forEach((prompt) => {
-            if (prompt.isActive) {
-              const option = document.createElement("option");
-              option.value = prompt.name;
-              option.textContent = prompt.title || prompt.name;
-              promptSelect.appendChild(option);
-            }
-          });
-        } catch (error) {
-          console.error("Lỗi load prompts:", error);
-          promptSelect.innerHTML = '<option value="">Lỗi load prompts</option>';
-        }
-      }
+  if (!selectedFile) {
+    alert("Vui lòng chọn ảnh trước");
+    return;
+  }
+  if (!promptSelect.value) {
+    alert("Vui lòng chọn chế độ ảnh");
+    return;
+  }
 
-      // Generate ảnh
-      let currentImageUrl = null;
+  showConfirmDialog(promptSelect.value, selectedFile, "faceImage", {
+    promptSelect: promptSelect.value,
+  });
+});
 
-      generateBtn.addEventListener("click", async () => {
-        if (!checkAuthBeforeAction()) return;
+// Hiển thị kết quả output
+function displayOutput(result) {
+  const outputArea = document.getElementById("output-area");
+  const outputInfo = document.getElementById("output-info");
+  const downloadBtn = document.getElementById("download-btn");
 
-        if (!selectedFile) {
-          alert("Vui lòng chọn ảnh trước");
-          return;
-        }
-        if (!promptSelect.value) {
-          alert("Vui lòng chọn chế độ ảnh");
-          return;
-        }
-
-        showConfirmDialog(promptSelect.value, selectedFile, "faceImage", {
-          promptSelect: promptSelect.value
-        });
-      });
-
-      // Hiển thị kết quả output
-      function displayOutput(result) {
-        const outputArea = document.getElementById("output-area");
-        const outputInfo = document.getElementById("output-info");
-        const downloadBtn = document.getElementById("download-btn");
-
-        // Hiển thị ảnh
-        outputArea.innerHTML = `
+  // Hiển thị ảnh
+  outputArea.innerHTML = `
           <img src="${result.localPath}?t=${Date.now()}" alt="Generated image">
         `;
 
-        // Hiển thị thông tin
-        document.getElementById("output-prompt-name").textContent =
-          result.promptName;
-        document.getElementById("output-prompt-title").textContent =
-          result.promptTitle;
-        outputInfo.style.display = "block";
+  // Hiển thị thông tin
+  document.getElementById("output-prompt-name").textContent = result.promptName;
+  document.getElementById("output-prompt-title").textContent =
+    result.promptTitle;
+  outputInfo.style.display = "block";
 
-        // Hiển thị nút download
-        downloadBtn.style.display = "flex";
-        downloadBtn.onclick = () =>
-          downloadImage(result.localPath, result.promptName);
-      }
+  // Hiển thị nút download
+  downloadBtn.style.display = "flex";
+  downloadBtn.onclick = () =>
+    downloadImage(result.localPath, result.promptName);
+}
 
-      // Download ảnh
-      function downloadImage(imagePath, promptName) {
-        const link = document.createElement("a");
-        link.href = imagePath;
-        link.download = `${promptName}_${Date.now()}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+// Download ảnh
+async function downloadImage(imagePath, promptName) {
+  try {
+    // Fetch the image as a blob
+    const response = await fetch(imagePath);
+    if (!response.ok) {
+      throw new Error("Failed to fetch image");
+    }
 
-      // Load prompts khi page load
-      document.addEventListener("DOMContentLoaded", () => {
-        loadTrendingPrompts();
-        loadPrompts();
+    const blob = await response.blob();
 
-        // Add event listener for gender filter
-        genderSelect.addEventListener("change", () => {
-          const selectedGender = genderSelect.value;
-          // Reset prompt dropdown trước khi load lại
-          promptSelect.innerHTML = '<option value="">Loading prompts...</option>';
-          loadPrompts(selectedGender);
-        });
-      });
+    // Create an object URL for the blob
+    const blobUrl = URL.createObjectURL(blob);
 
-      // Background Image Generation
-      const bgUploadArea = document.getElementById("bg-upload-area");
-      const bgFileInput = document.getElementById("bg-file-input");
-      const bgChooseBtn = document.getElementById("bg-choose-btn");
-      const bgTypeSelect = document.getElementById("bg-type-select");
-      const bgGenerateBtn = document.getElementById("bg-generate-btn");
-      let bgSelectedFile = null;
+    // Create download link
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `${promptName}_${Date.now()}.jpg`;
 
-      bgUploadArea.addEventListener("click", (e) => {
-        if (e.target === bgChooseBtn || bgChooseBtn.contains(e.target)) return;
-        bgFileInput.click();
-      });
-      bgChooseBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        bgFileInput.click();
-      });
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-      bgUploadArea.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        bgUploadArea.style.borderColor = "#666";
-      });
+    // Clean up the object URL after a short delay
+    setTimeout(() => {
+      URL.revokeObjectURL(blobUrl);
+    }, 100);
+  } catch (error) {
+    console.error("Error downloading image:", error);
+    alert("Không thể tải ảnh. Vui lòng thử lại sau.");
+  }
+}
 
-      bgUploadArea.addEventListener("dragleave", () => {
-        bgUploadArea.style.borderColor = "#ccc";
-      });
+// Load prompts khi page load
+document.addEventListener("DOMContentLoaded", () => {
+  loadTrendingPrompts();
+  loadPrompts();
 
-      bgUploadArea.addEventListener("drop", (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) handleBgFile(file);
-      });
+  // Add event listener for gender filter
+  genderSelect.addEventListener("change", () => {
+    const selectedGender = genderSelect.value;
+    // Reset prompt dropdown trước khi load lại
+    promptSelect.innerHTML = '<option value="">Loading prompts...</option>';
+    loadPrompts(selectedGender);
+  });
+});
 
-      bgFileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) handleBgFile(file);
-      });
+// Background Image Generation
+const bgPromptInput = document.getElementById("bg-prompt-input");
+const bgGenerateBtn = document.getElementById("bg-generate-btn");
 
-      function handleBgFile(file) {
-        bgSelectedFile = file;
-        const reader = new FileReader();
-        reader.onload = () => {
-          bgUploadArea.innerHTML = `
-            <img src="${reader.result}" 
-              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
-          `;
-        };
-        reader.readAsDataURL(file);
-      }
+bgGenerateBtn.addEventListener("click", async () => {
+  if (!checkAuthBeforeAction()) return;
 
-      bgGenerateBtn.addEventListener("click", async () => {
-        if (!checkAuthBeforeAction()) return;
+  const prompt = bgPromptInput.value.trim();
+  if (!prompt) {
+    alert("Vui lòng nhập mô tả bối cảnh bạn muốn tạo");
+    return;
+  }
 
-        if (!bgSelectedFile) {
-          alert("Vui lòng chọn ảnh trước");
-          return;
-        }
-        if (!bgTypeSelect.value) {
-          alert("Vui lòng chọn loại bối cảnh");
-          return;
-        }
+  showConfirmDialog(null, null, "background", {
+    bgPrompt: prompt,
+  });
+});
 
-        showConfirmDialog(null, bgSelectedFile, "background", {
-          bgType: bgTypeSelect.value,
-          bgDescription: document.getElementById("bg-description").value
-        });
-      });
+function displayBgOutput(result) {
+  const bgOutputArea = document.getElementById("bg-output-area");
+  const bgDownloadBtn = document.getElementById("bg-download-btn");
 
-      function displayBgOutput(result) {
-        const bgOutputArea = document.getElementById("bg-output-area");
-        const bgDownloadBtn = document.getElementById("bg-download-btn");
-
-        bgOutputArea.innerHTML = `
+  bgOutputArea.innerHTML = `
           <img src="${
             result.localPath
           }?t=${Date.now()}" alt="Generated background">
         `;
 
-        bgDownloadBtn.style.display = "flex";
-        bgDownloadBtn.onclick = () =>
-          downloadImage(result.localPath, `background_${bgTypeSelect.value}`);
-      }
+  bgDownloadBtn.style.display = "flex";
+  bgDownloadBtn.onclick = () =>
+    downloadImage(result.localPath, `background_${Date.now()}`);
+}
 
-      // Outfit Tab
-      const outfitUploadArea = document.getElementById("outfit-upload-area");
-      const outfitFileInput = document.getElementById("outfit-file-input");
-      const outfitChooseBtn = document.getElementById("outfit-choose-btn");
-      const clothingUploadArea = document.getElementById("clothing-upload-area");
-      const clothingFileInput = document.getElementById("clothing-file-input");
-      const clothingChooseBtn = document.getElementById("clothing-choose-btn");
-      const outfitGenderSelect = document.getElementById("outfit-gender-select");
-      const outfitTypeSelect = document.getElementById("outfit-type-select");
-      const outfitHairstyleSelect = document.getElementById(
-        "outfit-hairstyle-select"
-      );
-      const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
-      let outfitSelectedFile = null;
-      let clothingSelectedFile = null;
+// Outfit Tab
+const outfitUploadArea = document.getElementById("outfit-upload-area");
+const outfitFileInput = document.getElementById("outfit-file-input");
+const outfitChooseBtn = document.getElementById("outfit-choose-btn");
+const clothingUploadArea = document.getElementById("clothing-upload-area");
+const clothingFileInput = document.getElementById("clothing-file-input");
+const clothingChooseBtn = document.getElementById("clothing-choose-btn");
+const outfitGenderSelect = document.getElementById("outfit-gender-select");
+const outfitTypeSelect = document.getElementById("outfit-type-select");
+const outfitHairstyleSelect = document.getElementById(
+  "outfit-hairstyle-select"
+);
+const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
+let outfitSelectedFile = null;
+let clothingSelectedFile = null;
 
-      // Load outfit types and hairstyles based on gender
-      async function loadOutfitStyles(gender) {
-        try {
-          const response = await fetch(`/api/outfit-styles?gender=${gender}`);
-          const data = await response.json();
-          
-          if (!response.ok) {
-            throw new Error(data.error || "Lỗi load dữ liệu");
-          }
+// Load outfit types and hairstyles based on gender
+async function loadOutfitStyles(gender) {
+  try {
+    const response = await fetch(`/api/outfit-styles?gender=${gender}`);
+    const data = await response.json();
 
-          // Load outfit types
-          outfitTypeSelect.innerHTML = '<option value="">Chọn loại</option>';
-          if (data.outfitTypes && data.outfitTypes.length > 0) {
-            data.outfitTypes.forEach((type) => {
-              const option = document.createElement("option");
-              option.value = type.value;
-              option.textContent = type.name;
-              outfitTypeSelect.appendChild(option);
-            });
-            outfitTypeSelect.disabled = false;
-          } else {
-            outfitTypeSelect.disabled = true;
-          }
+    if (!response.ok) {
+      throw new Error(data.error || "Lỗi load dữ liệu");
+    }
 
-          // Load hairstyles
-          outfitHairstyleSelect.innerHTML = '<option value="">Chọn kiểu tóc</option>';
-          if (data.hairstyles && data.hairstyles.length > 0) {
-            data.hairstyles.forEach((hairstyle) => {
-              const option = document.createElement("option");
-              option.value = hairstyle.value;
-              option.textContent = hairstyle.name;
-              outfitHairstyleSelect.appendChild(option);
-            });
-            outfitHairstyleSelect.disabled = false;
-          } else {
-            outfitHairstyleSelect.disabled = true;
-          }
-        } catch (error) {
-          console.error("Lỗi load outfit styles:", error);
-          outfitTypeSelect.innerHTML = '<option value="">Lỗi load dữ liệu</option>';
-          outfitHairstyleSelect.innerHTML = '<option value="">Lỗi load dữ liệu</option>';
-          outfitTypeSelect.disabled = true;
-          outfitHairstyleSelect.disabled = true;
-        }
-      }
-
-      // Gender selection event
-      outfitGenderSelect.addEventListener("change", (e) => {
-        const gender = e.target.value;
-        if (gender) {
-          loadOutfitStyles(gender);
-        } else {
-          outfitTypeSelect.innerHTML = '<option value="">Chọn loại</option>';
-          outfitHairstyleSelect.innerHTML = '<option value="">Chọn kiểu tóc</option>';
-          outfitTypeSelect.disabled = true;
-          outfitHairstyleSelect.disabled = true;
-        }
+    // Load outfit types
+    outfitTypeSelect.innerHTML = '<option value="">Chọn loại</option>';
+    if (data.outfitTypes && data.outfitTypes.length > 0) {
+      data.outfitTypes.forEach((type) => {
+        const option = document.createElement("option");
+        option.value = type.value;
+        option.textContent = type.name;
+        outfitTypeSelect.appendChild(option);
       });
+      outfitTypeSelect.disabled = false;
+    } else {
+      outfitTypeSelect.disabled = true;
+    }
 
-      outfitUploadArea.addEventListener("click", (e) => {
-        if (e.target === outfitChooseBtn || outfitChooseBtn.contains(e.target)) return;
-        outfitFileInput.click();
+    // Load hairstyles
+    outfitHairstyleSelect.innerHTML = '<option value="">Chọn kiểu tóc</option>';
+    if (data.hairstyles && data.hairstyles.length > 0) {
+      data.hairstyles.forEach((hairstyle) => {
+        const option = document.createElement("option");
+        option.value = hairstyle.value;
+        option.textContent = hairstyle.name;
+        outfitHairstyleSelect.appendChild(option);
       });
-      outfitChooseBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        outfitFileInput.click();
-      });
+      outfitHairstyleSelect.disabled = false;
+    } else {
+      outfitHairstyleSelect.disabled = true;
+    }
+  } catch (error) {
+    console.error("Lỗi load outfit styles:", error);
+    outfitTypeSelect.innerHTML = '<option value="">Lỗi load dữ liệu</option>';
+    outfitHairstyleSelect.innerHTML =
+      '<option value="">Lỗi load dữ liệu</option>';
+    outfitTypeSelect.disabled = true;
+    outfitHairstyleSelect.disabled = true;
+  }
+}
 
-      outfitUploadArea.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        outfitUploadArea.style.borderColor = "#666";
-      });
+// Gender selection event
+outfitGenderSelect.addEventListener("change", (e) => {
+  const gender = e.target.value;
+  if (gender) {
+    loadOutfitStyles(gender);
+  } else {
+    outfitTypeSelect.innerHTML = '<option value="">Chọn loại</option>';
+    outfitHairstyleSelect.innerHTML = '<option value="">Chọn kiểu tóc</option>';
+    outfitTypeSelect.disabled = true;
+    outfitHairstyleSelect.disabled = true;
+  }
+});
 
-      outfitUploadArea.addEventListener("dragleave", () => {
-        outfitUploadArea.style.borderColor = "#ccc";
-      });
+outfitUploadArea.addEventListener("click", (e) => {
+  if (e.target === outfitChooseBtn || outfitChooseBtn.contains(e.target))
+    return;
+  outfitFileInput.click();
+});
+outfitChooseBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  outfitFileInput.click();
+});
 
-      outfitUploadArea.addEventListener("drop", (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) handleOutfitFile(file);
-      });
+outfitUploadArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  outfitUploadArea.style.borderColor = "#666";
+});
 
-      outfitFileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) handleOutfitFile(file);
-      });
+outfitUploadArea.addEventListener("dragleave", () => {
+  outfitUploadArea.style.borderColor = "#ccc";
+});
 
-      function handleOutfitFile(file) {
-        outfitSelectedFile = file;
-        const reader = new FileReader();
-        reader.onload = () => {
-          outfitUploadArea.innerHTML = `
+outfitUploadArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) handleOutfitFile(file);
+});
+
+outfitFileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) handleOutfitFile(file);
+});
+
+function handleOutfitFile(file) {
+  outfitSelectedFile = file;
+  const reader = new FileReader();
+  reader.onload = () => {
+    outfitUploadArea.innerHTML = `
             <img src="${reader.result}" 
               style="max-width:100%; border-radius:8px; display:block; margin:auto;">
           `;
-        };
-        reader.readAsDataURL(file);
-      }
+  };
+  reader.readAsDataURL(file);
+}
 
-      // Clothing upload handlers
-      clothingUploadArea.addEventListener("click", (e) => {
-        if (e.target === clothingChooseBtn || clothingChooseBtn.contains(e.target)) return;
-        clothingFileInput.click();
-      });
-      clothingChooseBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        clothingFileInput.click();
-      });
+// Clothing upload handlers
+clothingUploadArea.addEventListener("click", (e) => {
+  if (e.target === clothingChooseBtn || clothingChooseBtn.contains(e.target))
+    return;
+  clothingFileInput.click();
+});
+clothingChooseBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  clothingFileInput.click();
+});
 
-      clothingUploadArea.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        clothingUploadArea.style.borderColor = "#666";
-      });
+clothingUploadArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  clothingUploadArea.style.borderColor = "#666";
+});
 
-      clothingUploadArea.addEventListener("dragleave", () => {
-        clothingUploadArea.style.borderColor = "#ccc";
-      });
+clothingUploadArea.addEventListener("dragleave", () => {
+  clothingUploadArea.style.borderColor = "#ccc";
+});
 
-      clothingUploadArea.addEventListener("drop", (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) handleClothingFile(file);
-      });
+clothingUploadArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) handleClothingFile(file);
+});
 
-      clothingFileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) handleClothingFile(file);
-      });
+clothingFileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) handleClothingFile(file);
+});
 
-      function handleClothingFile(file) {
-        clothingSelectedFile = file;
-        const reader = new FileReader();
-        reader.onload = () => {
-          clothingUploadArea.innerHTML = `
+function handleClothingFile(file) {
+  clothingSelectedFile = file;
+  const reader = new FileReader();
+  reader.onload = () => {
+    clothingUploadArea.innerHTML = `
             <img src="${reader.result}" 
               style="max-width:100%; border-radius:8px; display:block; margin:auto;">
           `;
-        };
-        reader.readAsDataURL(file);
-      }
+  };
+  reader.readAsDataURL(file);
+}
 
-      outfitGenerateBtn.addEventListener("click", async () => {
-        if (!checkAuthBeforeAction()) return;
+outfitGenerateBtn.addEventListener("click", async () => {
+  if (!checkAuthBeforeAction()) return;
 
-        if (!outfitSelectedFile) {
-          alert("Vui lòng chọn ảnh người trước");
-          return;
-        }
+  if (!outfitSelectedFile) {
+    alert("Vui lòng chọn ảnh người trước");
+    return;
+  }
 
-        if (!clothingSelectedFile) {
-          if (!outfitGenderSelect.value) {
-            alert("Vui lòng chọn giới tính");
-            return;
-          }
-          if (!outfitTypeSelect.value || !outfitHairstyleSelect.value) {
-            alert("Vui lòng chọn loại trang phục và kiểu tóc");
-            return;
-          }
-        }
+  if (!clothingSelectedFile) {
+    if (!outfitGenderSelect.value) {
+      alert("Vui lòng chọn giới tính");
+      return;
+    }
+    if (!outfitTypeSelect.value || !outfitHairstyleSelect.value) {
+      alert("Vui lòng chọn loại trang phục và kiểu tóc");
+      return;
+    }
+  }
 
-        const outfitDescription = document.getElementById("outfit-description").value;
+  const outfitDescription = document.getElementById("outfit-description").value;
 
-        showConfirmDialog(null, outfitSelectedFile, "outfit", {
-          outfitType: outfitTypeSelect.value,
-          outfitHairstyle: outfitHairstyleSelect.value,
-          outfitDescription: outfitDescription,
-          clothingFile: clothingSelectedFile
-        });
-      });
+  showConfirmDialog(null, outfitSelectedFile, "outfit", {
+    outfitType: outfitTypeSelect.value,
+    outfitHairstyle: outfitHairstyleSelect.value,
+    outfitDescription: outfitDescription,
+    clothingFile: clothingSelectedFile,
+  });
+});
 
-      function displayOutfitOutput(result) {
-        const outfitOutputArea = document.getElementById("outfit-output-area");
-        const outfitDownloadBtn = document.getElementById(
-          "outfit-download-btn"
-        );
+function displayOutfitOutput(result) {
+  const outfitOutputArea = document.getElementById("outfit-output-area");
+  const outfitDownloadBtn = document.getElementById("outfit-download-btn");
 
-        outfitOutputArea.innerHTML = `
+  outfitOutputArea.innerHTML = `
           <img src="${result.localPath}?t=${Date.now()}" alt="Generated outfit">
         `;
 
-        outfitDownloadBtn.style.display = "flex";
-        outfitDownloadBtn.onclick = () =>
-          downloadImage(result.localPath, `outfit_${outfitTypeSelect.value}`);
-      }
- 
+  outfitDownloadBtn.style.display = "flex";
+  outfitDownloadBtn.onclick = () =>
+    downloadImage(result.localPath, `outfit_${outfitTypeSelect.value}`);
+}
 
-    // Check authentication and show modal if needed
-    function checkAuthBeforeAction() {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        showLoginModal();
-        return false;
-      }
-      return true;
-    }
+// Check authentication and show modal if needed
+function checkAuthBeforeAction() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    showLoginModal();
+    return false;
+  }
+  return true;
+}
 
-    function showLoginModal() {
-      const modal = document.getElementById("loginModal");
-      modal.classList.remove("hidden");
-    }
+function showLoginModal() {
+  const modal = document.getElementById("loginModal");
+  modal.classList.remove("hidden");
+}
 
-    function closeLoginModal() {
-      const modal = document.getElementById("loginModal");
-      modal.classList.add("hidden");
-    }
+function closeLoginModal() {
+  const modal = document.getElementById("loginModal");
+  modal.classList.add("hidden");
+}
 
-    // Close modal when clicking overlay
-    document.addEventListener("DOMContentLoaded", function () {
-      const modal = document.getElementById("loginModal");
-      const overlay = modal.querySelector(".modal-overlay");
-      if (overlay) {
-        overlay.addEventListener("click", closeLoginModal);
-      }
+// Close modal when clicking overlay
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("loginModal");
+  const overlay = modal.querySelector(".modal-overlay");
+  if (overlay) {
+    overlay.addEventListener("click", closeLoginModal);
+  }
+});
+
+// Confirmation Dialog Functions
+let pendingGenerateData = {
+  promptName: null,
+  selectedFile: null,
+  type: "faceImage",
+};
+
+async function showConfirmDialog(
+  promptName,
+  file,
+  type = "faceImage",
+  extra = {}
+) {
+  try {
+    pendingGenerateData = { promptName, selectedFile: file, type, extra };
+
+    const token = localStorage.getItem("token");
+    let promptData = null;
+    let fee = 0;
+
+    const response = await fetch("/api/prompts", {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    // Confirmation Dialog Functions
-    let pendingGenerateData = {
-      promptName: null,
-      selectedFile: null,
-      type: "faceImage"
-    };
+    const prompts = await response.json();
+    promptData = prompts.find((p) => p.name === promptName);
 
-    async function showConfirmDialog(promptName, file, type = "faceImage", extra = {}) {
-      try {
-        pendingGenerateData = { promptName, selectedFile: file, type, extra };
-        
-        const token = localStorage.getItem("token");
-        let promptData = null;
-        let fee = 0;
-        
-        const response = await fetch("/api/prompts", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        const prompts = await response.json();
-        promptData = prompts.find(p => p.name === promptName);
-        
-        if (!promptData) {
-          const trendingResponse = await fetch("/api/prompts-trending", {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          const trendingPrompts = await trendingResponse.json();
-          promptData = trendingPrompts.find(p => p.name === promptName);
-        }
-        
-        if (type === "faceImage") {
-          fee = promptData?.fee || 0;
-        } else if (type === "outfit") {
-          const configResponse = await fetch("/api/service-config/outfit", {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          const configData = await configResponse.json();
-          fee = configData?.fee || 0;
-        } else if (type === "background") {
-          const configResponse = await fetch("/api/service-config/background", {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          const configData = await configResponse.json();
-          fee = configData?.fee || 0;
-        }
-        
-        const profileResponse = await fetch("/api/profile/me", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const profileData = await profileResponse.json();
-        const balance = profileData.balance || 0;
-        
-        document.getElementById("confirmPrice").textContent = fee.toLocaleString() + " VND";
-        document.getElementById("confirmBalance").textContent = balance.toLocaleString() + " VND";
-        
-        if (balance < fee) {
-          document.getElementById("confirmBalance").style.color = "#d32f2f";
-          document.querySelector(".btn-confirm").disabled = true;
-        } else {
-          document.getElementById("confirmBalance").style.color = "#10b981";
-          document.querySelector(".btn-confirm").disabled = false;
-        }
-        
-        const dialog = document.getElementById("confirmDialog");
-        dialog.classList.remove("hidden");
-      } catch (error) {
-        console.error("Lỗi load thông tin giá:", error);
-        alert("Lỗi khi tải thông tin giá");
-      }
+    if (!promptData) {
+      const trendingResponse = await fetch("/api/prompts-trending", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const trendingPrompts = await trendingResponse.json();
+      promptData = trendingPrompts.find((p) => p.name === promptName);
     }
 
-    function closeConfirmDialog() {
-      const dialog = document.getElementById("confirmDialog");
-      dialog.classList.add("hidden");
-      pendingGenerateData = { promptName: null, selectedFile: null, type: "faceImage" };
+    if (type === "faceImage") {
+      fee = promptData?.fee || 0;
+    } else if (type === "outfit") {
+      const configResponse = await fetch("/api/service-config/outfit", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const configData = await configResponse.json();
+      fee = configData?.fee || 0;
+    } else if (type === "background") {
+      const configResponse = await fetch("/api/service-config/background", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const configData = await configResponse.json();
+      fee = configData?.fee || 0;
     }
 
-    async function proceedGenerate() {
-      const type = pendingGenerateData.type;
-      
-      if (type === "faceImage") {
-        await proceedGenerateFaceImage();
-      } else if (type === "background") {
-        await proceedGenerateBackground();
-      } else if (type === "outfit") {
-        await proceedGenerateOutfit();
-      } else if (type === "trending") {
-        await proceedGenerateTrending();
-      }
+    const profileResponse = await fetch("/api/profile/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const profileData = await profileResponse.json();
+    const balance = profileData.balance || 0;
+
+    document.getElementById("confirmPrice").textContent =
+      fee.toLocaleString() + " VND";
+    document.getElementById("confirmBalance").textContent =
+      balance.toLocaleString() + " VND";
+
+    if (balance < fee) {
+      document.getElementById("confirmBalance").style.color = "#d32f2f";
+      document.querySelector(".btn-confirm").disabled = true;
+    } else {
+      document.getElementById("confirmBalance").style.color = "#10b981";
+      document.querySelector(".btn-confirm").disabled = false;
     }
 
-    async function proceedGenerateFaceImage() {
-      if (!pendingGenerateData.selectedFile || !pendingGenerateData.promptName) {
-        alert("Dữ liệu không hợp lệ");
-        return;
-      }
+    const dialog = document.getElementById("confirmDialog");
+    dialog.classList.remove("hidden");
+  } catch (error) {
+    console.error("Lỗi load thông tin giá:", error);
+    alert("Lỗi khi tải thông tin giá");
+  }
+}
 
-      const promptName = pendingGenerateData.promptName;
-      const selectedFile = pendingGenerateData.selectedFile;
-      
-      closeConfirmDialog();
-      
-      const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("promptName", promptName);
-      formData.append("image", selectedFile);
+function closeConfirmDialog() {
+  const dialog = document.getElementById("confirmDialog");
+  dialog.classList.add("hidden");
+  pendingGenerateData = {
+    promptName: null,
+    selectedFile: null,
+    type: "faceImage",
+  };
+}
 
-      try {
-        const generateBtn = document.getElementById("generate-btn");
-        generateBtn.disabled = true;
-        generateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
-        
-        const outputArea = document.getElementById("output-area");
-        outputArea.innerHTML = `
+async function proceedGenerate() {
+  const type = pendingGenerateData.type;
+
+  if (type === "faceImage") {
+    await proceedGenerateFaceImage();
+  } else if (type === "background") {
+    await proceedGenerateBackground();
+  } else if (type === "outfit") {
+    await proceedGenerateOutfit();
+  } else if (type === "trending") {
+    await proceedGenerateTrending();
+  }
+}
+
+async function proceedGenerateFaceImage() {
+  if (!pendingGenerateData.selectedFile || !pendingGenerateData.promptName) {
+    alert("Dữ liệu không hợp lệ");
+    return;
+  }
+
+  const promptName = pendingGenerateData.promptName;
+  const selectedFile = pendingGenerateData.selectedFile;
+
+  closeConfirmDialog();
+
+  const token = localStorage.getItem("token");
+  const formData = new FormData();
+  formData.append("promptName", promptName);
+  formData.append("image", selectedFile);
+
+  try {
+    const generateBtn = document.getElementById("generate-btn");
+    generateBtn.disabled = true;
+    generateBtn.innerHTML =
+      "<span class='loading-spinner'></span>Đang xử lý...";
+
+    const outputArea = document.getElementById("output-area");
+    outputArea.innerHTML = `
           <div class="loading-container">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Đang tạo ảnh...</div>
           </div>
         `;
 
-        const response = await fetch("/api/ai/generate", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+    const response = await fetch("/api/ai/generate", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-        const result = await response.json();
+    const result = await response.json();
 
-        if (result.success) {
-          currentImageUrl = result.localPath;
-          displayOutput(result);
-        } else {
-          const outputArea = document.getElementById("output-area");
-          outputArea.innerHTML = `
+    if (result.success) {
+      currentImageUrl = result.localPath;
+      displayOutput(result);
+    } else {
+      const outputArea = document.getElementById("output-area");
+      outputArea.innerHTML = `
             <div class="output-placeholder" style="color: #d32f2f;">
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-          alert("Lỗi: " + (result.error || result.message));
-        }
-      } catch (error) {
-        console.error("Lỗi:", error);
-        const outputArea = document.getElementById("output-area");
-        outputArea.innerHTML = `
+      alert("Lỗi: " + (result.error || result.message));
+    }
+  } catch (error) {
+    console.error("Lỗi:", error);
+    const outputArea = document.getElementById("output-area");
+    outputArea.innerHTML = `
           <div class="output-placeholder" style="color: #d32f2f;">
             <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
           </div>
         `;
-        alert("Lỗi khi tạo ảnh: " + error.message);
-      } finally {
-        const generateBtn = document.getElementById("generate-btn");
-        generateBtn.disabled = false;
-        generateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
-      }
-    }
+    alert("Lỗi khi tạo ảnh: " + error.message);
+  } finally {
+    const generateBtn = document.getElementById("generate-btn");
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = "<span></span>Tạo ảnh";
+  }
+}
 
-    async function proceedGenerateBackground() {
-      if (!pendingGenerateData.selectedFile) {
-        alert("Dữ liệu không hợp lệ");
-        return;
-      }
+async function proceedGenerateBackground() {
+  if (!pendingGenerateData.extra.bgPrompt) {
+    alert("Dữ liệu không hợp lệ");
+    return;
+  }
 
-      const selectedFile = pendingGenerateData.selectedFile;
-      const bgType = pendingGenerateData.extra.bgType;
-      const bgDescription = pendingGenerateData.extra.bgDescription;
-      
-      closeConfirmDialog();
-      
-      const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("type", bgType);
-      formData.append("description", bgDescription);
-      formData.append("image", selectedFile);
+  const bgPrompt = pendingGenerateData.extra.bgPrompt;
 
-      try {
-        const bgGenerateBtn = document.getElementById("bg-generate-btn");
-        bgGenerateBtn.disabled = true;
-        bgGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
-        
-        const bgOutputArea = document.getElementById("bg-output-area");
-        bgOutputArea.innerHTML = `
+  closeConfirmDialog();
+
+  const token = localStorage.getItem("token");
+
+  try {
+    const bgGenerateBtn = document.getElementById("bg-generate-btn");
+    bgGenerateBtn.disabled = true;
+    bgGenerateBtn.innerHTML =
+      "<span class='loading-spinner'></span>Đang xử lý...";
+
+    const bgOutputArea = document.getElementById("bg-output-area");
+    bgOutputArea.innerHTML = `
           <div class="loading-container">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Đang tạo bối cảnh...</div>
           </div>
         `;
 
-        const response = await fetch("/api/ai/generate-background", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+    const response = await fetch("/api/ai/generate-background", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: bgPrompt,
+      }),
+    });
 
-        const result = await response.json();
+    const result = await response.json();
 
-        if (result.success) {
-          displayBgOutput(result);
-        } else {
-          const bgOutputArea = document.getElementById("bg-output-area");
-          bgOutputArea.innerHTML = `
+    if (result.success) {
+      displayBgOutput(result);
+    } else {
+      const bgOutputArea = document.getElementById("bg-output-area");
+      bgOutputArea.innerHTML = `
             <div class="output-placeholder" style="color: #d32f2f;">
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-          alert("Lỗi: " + (result.error || result.message));
-        }
-      } catch (error) {
-        console.error("Lỗi:", error);
-        const bgOutputArea = document.getElementById("bg-output-area");
-        bgOutputArea.innerHTML = `
+      alert("Lỗi: " + (result.error || result.message));
+    }
+  } catch (error) {
+    console.error("Lỗi:", error);
+    const bgOutputArea = document.getElementById("bg-output-area");
+    bgOutputArea.innerHTML = `
           <div class="output-placeholder" style="color: #d32f2f;">
             <p>❌ Lỗi khi tạo bối cảnh: ${error.message}</p>
           </div>
         `;
-        alert("Lỗi khi tạo bối cảnh: " + error.message);
-      } finally {
-        const bgGenerateBtn = document.getElementById("bg-generate-btn");
-        bgGenerateBtn.disabled = false;
-        bgGenerateBtn.innerHTML = "<span></span>Tạo Bối Cảnh";
-      }
-    }
+    alert("Lỗi khi tạo bối cảnh: " + error.message);
+  } finally {
+    const bgGenerateBtn = document.getElementById("bg-generate-btn");
+    bgGenerateBtn.disabled = false;
+    bgGenerateBtn.innerHTML = "<span></span>Tạo Bối Cảnh";
+  }
+}
 
-    async function proceedGenerateOutfit() {
-      if (!pendingGenerateData.selectedFile) {
-        alert("Dữ liệu không hợp lệ");
-        return;
-      }
+async function proceedGenerateOutfit() {
+  if (!pendingGenerateData.selectedFile) {
+    alert("Dữ liệu không hợp lệ");
+    return;
+  }
 
-      const selectedFile = pendingGenerateData.selectedFile;
-      const outfitType = pendingGenerateData.extra.outfitType;
-      const outfitHairstyle = pendingGenerateData.extra.outfitHairstyle;
-      const outfitDescription = pendingGenerateData.extra.outfitDescription;
-      const clothingFile = pendingGenerateData.extra.clothingFile;
-      
-      closeConfirmDialog();
-      
-      const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("type", outfitType);
-      formData.append("hairstyle", outfitHairstyle);
-      formData.append("description", outfitDescription);
-      formData.append("image", selectedFile);
-      if (clothingFile) {
-        formData.append("clothing", clothingFile);
-      }
+  const selectedFile = pendingGenerateData.selectedFile;
+  const outfitType = pendingGenerateData.extra.outfitType;
+  const outfitHairstyle = pendingGenerateData.extra.outfitHairstyle;
+  const outfitDescription = pendingGenerateData.extra.outfitDescription;
+  const clothingFile = pendingGenerateData.extra.clothingFile;
 
-      try {
-        const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
-        outfitGenerateBtn.disabled = true;
-        outfitGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+  closeConfirmDialog();
 
-        const outfitOutputArea = document.getElementById("outfit-output-area");
-        outfitOutputArea.innerHTML = `
+  const token = localStorage.getItem("token");
+  const formData = new FormData();
+  formData.append("type", outfitType);
+  formData.append("hairstyle", outfitHairstyle);
+  formData.append("description", outfitDescription);
+  formData.append("image", selectedFile);
+  if (clothingFile) {
+    formData.append("clothing", clothingFile);
+  }
+
+  try {
+    const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
+    outfitGenerateBtn.disabled = true;
+    outfitGenerateBtn.innerHTML =
+      "<span class='loading-spinner'></span>Đang xử lý...";
+
+    const outfitOutputArea = document.getElementById("outfit-output-area");
+    outfitOutputArea.innerHTML = `
           <div class="loading-container">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Đang thay đổi trang phục...</div>
           </div>
         `;
 
-        const response = await fetch("/api/ai/generate-outfit", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+    const response = await fetch("/api/ai/generate-outfit", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-        const result = await response.json();
+    const result = await response.json();
 
-        if (result.success) {
-          displayOutfitOutput(result);
-        } else {
-          const outfitOutputArea = document.getElementById("outfit-output-area");
-          outfitOutputArea.innerHTML = `
+    if (result.success) {
+      displayOutfitOutput(result);
+    } else {
+      const outfitOutputArea = document.getElementById("outfit-output-area");
+      outfitOutputArea.innerHTML = `
             <div class="output-placeholder" style="color: #d32f2f;">
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-          alert("Lỗi: " + (result.error || result.message));
-        }
-      } catch (error) {
-        console.error("Lỗi:", error);
-        const outfitOutputArea = document.getElementById("outfit-output-area");
-        outfitOutputArea.innerHTML = `
+      alert("Lỗi: " + (result.error || result.message));
+    }
+  } catch (error) {
+    console.error("Lỗi:", error);
+    const outfitOutputArea = document.getElementById("outfit-output-area");
+    outfitOutputArea.innerHTML = `
           <div class="output-placeholder" style="color: #d32f2f;">
             <p>❌ Lỗi khi thay đổi trang phục: ${error.message}</p>
           </div>
         `;
-        alert("Lỗi khi thay đổi trang phục: " + error.message);
-      } finally {
-        const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
-        outfitGenerateBtn.disabled = false;
-        outfitGenerateBtn.innerHTML = "<span></span>Thay Đổi";
-      }
-    }
+    alert("Lỗi khi thay đổi trang phục: " + error.message);
+  } finally {
+    const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
+    outfitGenerateBtn.disabled = false;
+    outfitGenerateBtn.innerHTML = "<span></span>Thay Đổi";
+  }
+}
 
-    async function proceedGenerateTrending() {
-      if (!pendingGenerateData.selectedFile || !window.currentTrend) {
-        alert("Dữ liệu không hợp lệ");
-        return;
-      }
+async function proceedGenerateTrending() {
+  if (!pendingGenerateData.selectedFile || !window.currentTrend) {
+    alert("Dữ liệu không hợp lệ");
+    return;
+  }
 
-      const selectedFile = pendingGenerateData.selectedFile;
-      const currentTrend = window.currentTrend;
-      const trendDescription = pendingGenerateData.extra.trendDescription;
-      
-      closeConfirmDialog();
-      
-      const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("promptName", currentTrend.name);
-      formData.append("image", selectedFile);
-      if (trendDescription) {
-        formData.append("description", trendDescription);
-      }
+  const selectedFile = pendingGenerateData.selectedFile;
+  const currentTrend = window.currentTrend;
+  const trendDescription = pendingGenerateData.extra.trendDescription;
 
-      try {
-        const trendGenerateBtn = document.getElementById("trend-generate-btn");
-        trendGenerateBtn.disabled = true;
-        trendGenerateBtn.innerHTML = "<span class='loading-spinner'></span>Đang xử lý...";
+  closeConfirmDialog();
 
-        const trendOutputArea = document.getElementById("trend-output-area");
-        trendOutputArea.innerHTML = `
+  const token = localStorage.getItem("token");
+  const formData = new FormData();
+  formData.append("promptName", currentTrend.name);
+  formData.append("image", selectedFile);
+  if (trendDescription) {
+    formData.append("description", trendDescription);
+  }
+
+  try {
+    const trendGenerateBtn = document.getElementById("trend-generate-btn");
+    trendGenerateBtn.disabled = true;
+    trendGenerateBtn.innerHTML =
+      "<span class='loading-spinner'></span>Đang xử lý...";
+
+    const trendOutputArea = document.getElementById("trend-output-area");
+    trendOutputArea.innerHTML = `
           <div class="loading-container">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Đang tạo ảnh...</div>
           </div>
         `;
 
-        const response = await fetch("/api/ai/generate", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
+    const response = await fetch("/api/ai/generate", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-        const result = await response.json();
+    const result = await response.json();
 
-        if (result.success) {
-          displayTrendOutput(result);
-        } else {
-          const trendOutputArea = document.getElementById("trend-output-area");
-          trendOutputArea.innerHTML = `
+    if (result.success) {
+      displayTrendOutput(result);
+    } else {
+      const trendOutputArea = document.getElementById("trend-output-area");
+      trendOutputArea.innerHTML = `
             <div class="output-placeholder" style="color: #d32f2f;">
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-          alert("Lỗi: " + (result.error || result.message));
-        }
-      } catch (error) {
-        console.error("Lỗi:", error);
-        const trendOutputArea = document.getElementById("trend-output-area");
-        trendOutputArea.innerHTML = `
+      alert("Lỗi: " + (result.error || result.message));
+    }
+  } catch (error) {
+    console.error("Lỗi:", error);
+    const trendOutputArea = document.getElementById("trend-output-area");
+    trendOutputArea.innerHTML = `
           <div class="output-placeholder" style="color: #d32f2f;">
-            <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
+            <p> Lỗi khi tạo ảnh: ${error.message}</p>
           </div>
         `;
-        alert("Lỗi khi tạo ảnh: " + error.message);
-      } finally {
-        const trendGenerateBtn = document.getElementById("trend-generate-btn");
-        trendGenerateBtn.disabled = false;
-        trendGenerateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
-      }
-    }
+    alert("Lỗi khi tạo ảnh: " + error.message);
+  } finally {
+    const trendGenerateBtn = document.getElementById("trend-generate-btn");
+    trendGenerateBtn.disabled = false;
+    trendGenerateBtn.innerHTML = "<span></span>Tạo ảnh";
+  }
+}

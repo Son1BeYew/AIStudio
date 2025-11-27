@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Ví | EternaPicSHT AI</title>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Link CSS chung -->
+    <link rel="stylesheet" href="../admin/css/style.css" />
+
+    <style>
+      .wallet-container {
+        padding: 32px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .wallet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+      }
+
+      .wallet-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .time-filter {
+        display: flex;
+        gap: 12px;
+      }
+
+      .filter-btn {
+        padding: 10px 16px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        color: #64748b;
+        transition: all 0.2s;
+      }
+
+      .filter-btn:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+      }
+
+      .filter-btn.active {
+        background: #6366f1;
+        color: white;
+        border-color: #6366f1;
+      }
+
+      .wallet-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+
+      .wallet-card {
+        background: white;
+        border-radius: 16px;
+        padding: 28px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+      }
+
+      .wallet-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      }
+
+      .wallet-card.nap-tien {
+        background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);
+      }
+
+      .wallet-card.thang {
+        background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);
+      }
+
+      .wallet-card.tuan {
+        background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);
+      }
+
+      .wallet-card.ngay {
+        background: linear-gradient(135deg, #fce7f3 0%, #ffffff 100%);
+      }
+
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: 16px;
+      }
+
+      .nap-tien .card-icon {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .thang .card-icon {
+        background: #10b981;
+        color: white;
+      }
+
+      .tuan .card-icon {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .ngay .card-icon {
+        background: #ec4899;
+        color: white;
+      }
+
+      .card-title {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .card-value {
+        font-size: 32px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 12px;
+      }
+
+      .card-desc {
+        font-size: 13px;
+        color: #94a3b8;
+      }
+
+      .transactions-section {
+        background: white;
+        border-radius: 16px;
+        padding: 28px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .section-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .export-btn {
+        padding: 10px 16px;
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+
+      .export-btn:hover {
+        background: #4f46e5;
+      }
+
+      .search-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .search-box input {
+        flex: 1;
+        border: none;
+        background: none;
+        outline: none;
+        font-size: 14px;
+        color: #1e293b;
+      }
+
+      .search-box input::placeholder {
+        color: #94a3b8;
+      }
+
+      .search-box i {
+        color: #94a3b8;
+      }
+
+      .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .transactions-table th {
+        background: #f8fafc;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        color: #475569;
+        border-bottom: 1px solid #e2e8f0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .transactions-table td {
+        padding: 16px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+        color: #1e293b;
+      }
+
+      .transactions-table tr:hover {
+        background: #f8fafc;
+      }
+
+      .transaction-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .transaction-type.nap {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .transaction-type.tao-anh {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .transaction-type.hoan-tien {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .amount {
+        font-weight: 700;
+      }
+
+      .amount.positive {
+        color: #10b981;
+      }
+
+      .amount.negative {
+        color: #ef4444;
+      }
+
+      .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f1f5f9;
+        border-top: 4px solid #6366f1;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #94a3b8;
+      }
+
+      .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        color: #cbd5e1;
+      }
+
+      .empty-state h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+        color: #64748b;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .wallet-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .wallet-header {
+          flex-direction: column;
+          gap: 20px;
+          align-items: stretch;
+        }
+
+        .time-filter {
+          justify-content: center;
+        }
+
+        .transactions-table {
+          font-size: 12px;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+          padding: 8px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wallet-container">
+      <div class="wallet-header">
+        <h1>Quản lý Ví</h1>
+        <div class="time-filter">
+          <button class="filter-btn active" onclick="filterData('today')">
+            Hôm nay
+          </button>
+          <button class="filter-btn" onclick="filterData('week')">
+            Tuần này
+          </button>
+          <button class="filter-btn" onclick="filterData('month')">
+            Tháng này
+          </button>
+          <button class="filter-btn" onclick="filterData('all')">Tất cả</button>
+        </div>
+      </div>
+
+      <div class="wallet-stats">
+        <div class="wallet-card nap-tien">
+          <div class="card-icon">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <div class="card-title">Tổng tiền nạp</div>
+          <div class="card-value" id="totalDeposit">0đ</div>
+          <div class="card-desc">Tổng số tiền người dùng đã nạp</div>
+        </div>
+
+        <div class="wallet-card thang">
+          <div class="card-icon">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <div class="card-title">Tạo ảnh tháng</div>
+          <div class="card-value" id="monthSpent">0đ</div>
+          <div class="card-desc">Tổng tiền tạo ảnh trong tháng</div>
+        </div>
+
+        <div class="wallet-card tuan">
+          <div class="card-icon">
+            <i class="fas fa-calendar-week"></i>
+          </div>
+          <div class="card-title">Tạo ảnh tuần</div>
+          <div class="card-value" id="weekSpent">0đ</div>
+          <div class="card-desc">Tổng tiền tạo ảnh trong tuần</div>
+        </div>
+
+        <div class="wallet-card ngay">
+          <div class="card-icon">
+            <i class="fas fa-calendar-day"></i>
+          </div>
+          <div class="card-title">Tạo ảnh hôm nay</div>
+          <div class="card-value" id="todaySpent">0đ</div>
+          <div class="card-desc">Tổng tiền tạo ảnh hôm nay</div>
+        </div>
+      </div>
+
+      <div class="transactions-section">
+        <div class="section-header">
+          <h2>Lịch sử giao dịch</h2>
+          <button class="export-btn" onclick="exportData()">
+            <i class="fas fa-download"></i>
+            Xuất Excel
+          </button>
+        </div>
+
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên người dùng, email..."
+            id="searchInput"
+            onkeyup="searchTransactions()"
+          />
+        </div>
+
+        <div class="loading-spinner" id="loadingSpinner">
+          <div class="spinner"></div>
+        </div>
+
+        <div id="errorMessage" style="display: none; padding: 20px; text-align: center; color: #ef4444;">
+          Không thể tải dữ liệu. Vui lòng thử lại sau.
+        </div>
+
+        <div id="emptyState" style="display: none;" class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <h3>Không có giao dịch nào</h3>
+          <p>Chưa có giao dịch nào trong khoảng thời gian đã chọn</p>
+        </div>
+
+        <table
+          class="transactions-table"
+          id="transactionsTable"
+          style="display: none"
+        >
+          <thead>
+            <tr>
+              <th>Thời gian</th>
+              <th>Người dùng</th>
+              <th>Loại giao dịch</th>
+              <th>Số tiền</th>
+              <th>Nội dung</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsBody">
+            <!-- Dữ liệu sẽ được load bằng JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      let currentFilter = "today";
+      let transactionsData = [];
+
+      // Token xác thực
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+
+      // Load dữ liệu khi trang được mở
+      document.addEventListener("DOMContentLoaded", function () {
+        loadWalletData();
+      });
+
+      // Load dữ liệu ví
+      async function loadWalletData() {
+        try {
+          // Hiển thị loading
+          document.getElementById("loadingSpinner").style.display = "flex";
+          document.getElementById("transactionsTable").style.display = "none";
+          document.getElementById("errorMessage").style.display = "none";
+          document.getElementById("emptyState").style.display = "none";
+
+          // Gọi API để lấy dữ liệu
+          const response = await fetch(
+            `/api/admin/wallet-stats?filter=${currentFilter}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to load wallet data");
+          }
+
+          const data = await response.json();
+
+          // Cập nhật thống kê
+          document.getElementById("totalDeposit").textContent = formatCurrency(
+            data.totalDeposit || 0
+          );
+          document.getElementById("monthSpent").textContent = formatCurrency(
+            data.monthSpent || 0
+          );
+          document.getElementById("weekSpent").textContent = formatCurrency(
+            data.weekSpent || 0
+          );
+          document.getElementById("todaySpent").textContent = formatCurrency(
+            data.todaySpent || 0
+          );
+
+          // Lưu dữ liệu giao dịch
+          transactionsData = data.transactions || [];
+
+          // Hiển thị bảng giao dịch
+          if (transactionsData.length === 0) {
+            document.getElementById("emptyState").style.display = "block";
+          } else {
+            displayTransactions(transactionsData);
+          }
+
+          // Ẩn loading, hiện bảng
+          document.getElementById("loadingSpinner").style.display = "none";
+
+        } catch (error) {
+          console.error("Error loading wallet data:", error);
+
+          // Hiển thị thông báo lỗi
+          document.getElementById("loadingSpinner").style.display = "none";
+          document.getElementById("errorMessage").style.display = "block";
+        }
+      }
+
+      // Hiển thị danh sách giao dịch
+      function displayTransactions(transactions) {
+        const tbody = document.getElementById("transactionsBody");
+        tbody.innerHTML = "";
+
+        if (transactions.length === 0) {
+          document.getElementById("transactionsTable").style.display = "none";
+          document.getElementById("emptyState").style.display = "block";
+          return;
+        }
+
+        document.getElementById("transactionsTable").style.display = "table";
+        document.getElementById("emptyState").style.display = "none";
+
+        transactions.forEach((transaction) => {
+          const row = document.createElement("tr");
+
+          const typeClass =
+            transaction.type === "nap"
+              ? "nap"
+              : transaction.type === "tao-anh"
+              ? "tao-anh"
+              : "hoan-tien";
+
+          const amountClass = transaction.amount > 0 ? "positive" : "negative";
+
+          row.innerHTML = `
+                    <td>${formatDateTime(transaction.timestamp)}</td>
+                    <td>
+                        <div style="font-weight: 600;">${
+                          transaction.userName
+                        }</div>
+                        <div style="font-size: 12px; color: #94a3b8;">${
+                          transaction.userEmail
+                        }</div>
+                    </td>
+                    <td>
+                        <span class="transaction-type ${typeClass}">
+                            ${getTransactionIcon(transaction.type)}
+                            ${getTransactionName(transaction.type)}
+                        </span>
+                    </td>
+                    <td class="amount ${amountClass}">
+                        ${transaction.amount > 0 ? "+" : ""}${formatCurrency(
+            Math.abs(transaction.amount)
+          )}
+                    </td>
+                    <td>${transaction.description}</td>
+                `;
+
+          tbody.appendChild(row);
+        });
+      }
+
+      // Lọc dữ liệu theo thời gian
+      function filterData(filter) {
+        currentFilter = filter;
+
+        // Cập nhật trạng thái button
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        event.target.classList.add("active");
+
+        // Load lại dữ liệu
+        loadWalletData();
+      }
+
+      // Tìm kiếm giao dịch
+      function searchTransactions() {
+        const searchTerm = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+
+        if (!searchTerm) {
+          displayTransactions(transactionsData);
+          return;
+        }
+
+        const filteredTransactions = transactionsData.filter(
+          (transaction) =>
+            transaction.userName.toLowerCase().includes(searchTerm) ||
+            transaction.userEmail.toLowerCase().includes(searchTerm) ||
+            transaction.description.toLowerCase().includes(searchTerm)
+        );
+
+        displayTransactions(filteredTransactions);
+      }
+
+      // Xuất dữ liệu ra Excel
+      function exportData() {
+        if (transactionsData.length === 0) {
+          alert("Không có dữ liệu để xuất!");
+          return;
+        }
+
+        // Tạo file CSV đơn giản
+        let csvContent =
+          "Thời gian,Người dùng,Email,Loại giao dịch,Số tiền,Nội dung\n";
+
+        transactionsData.forEach((transaction) => {
+          const row = [
+            formatDateTime(transaction.timestamp),
+            transaction.userName,
+            transaction.userEmail,
+            getTransactionName(transaction.type),
+            transaction.amount,
+            transaction.description,
+          ]
+            .map((field) => `"${field}"`)
+            .join(",");
+
+          csvContent += row + "\n";
+        });
+
+        // Tạo blob và tải về
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute("href", url);
+        link.setAttribute(
+          "download",
+          `wallet_transactions_${currentFilter}_${
+            new Date().toISOString().split("T")[0]
+          }.csv`
+        );
+        link.style.visibility = "hidden";
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Helper functions
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat("vi-VN").format(amount) + "đ";
+      }
+
+      function formatDateTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function getTransactionName(type) {
+        const names = {
+          nap: "Nạp tiền",
+          "tao-anh": "Tạo ảnh",
+          "hoan-tien": "Hoàn tiền",
+        };
+        return names[type] || type;
+      }
+
+      function getTransactionIcon(type) {
+        const icons = {
+          nap: '<i class="fas fa-plus"></i>',
+          "tao-anh": '<i class="fas fa-image"></i>',
+          "hoan-tien": '<i class="fas fa-undo"></i>',
+        };
+        return icons[type] || "";
+      }
+    </script>
+  </body>
+</html>

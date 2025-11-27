@@ -1,576 +1,2300 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nạp tiền | EternaPicSHT AI </title>
-  <link rel="stylesheet" href="/assets/css/styles.css" />
-  <link rel="stylesheet" href="/assets/css/header.css" />
-  <link rel="stylesheet" href="/assets/css/footer.css" />
-  <style>
-    .topup-container {
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-    }
-
-    .topup-wrapper {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .topup-card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .topup-card h2 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #222;
-    }
-
-    .topup-card p {
-      color: #666;
-      margin-bottom: 30px;
-      font-size: 14px;
-    }
-
-    .history-card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      height: fit-content;
-      position: sticky;
-      top: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #333;
-      font-size: 14px;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: inherit;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #555;
-      box-shadow: 0 0 0 3px rgba(85, 85, 85, 0.1);
-    }
-
-    .amount-presets {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .amount-btn {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #f5f5f5;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s;
-      font-size: 13px;
-    }
-
-    .amount-btn:hover {
-      background: #e5e5e5;
-      border-color: #555;
-    }
-
-    .amount-btn.active {
-      background: #555;
-      color: #fff;
-      border-color: #555;
-    }
-
-    .payment-method {
-      margin: 20px 0;
-    }
-
-    .payment-method h3 {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: #333;
-    }
-
-    .method-options {
-      display: flex;
-      gap: 10px;
-    }
-
-    .method-option {
-      flex: 1;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.3s;
-    }
-
-    .method-option:hover {
-      border-color: #555;
-    }
-
-    .method-option.active {
-      border-color: #555;
-      background: #f5f5f5;
-    }
-
-    .method-option input {
-      display: none;
-    }
-
-    .topup-btn {
-      width: 100%;
-      padding: 14px;
-      background: #555;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-      margin-top: 10px;
-    }
-
-    .topup-btn:hover:not(:disabled) {
-      background: #333;
-    }
-
-    .topup-btn:disabled {
-      background: #999;
-      cursor: not-allowed;
-    }
-
-    .history-section {
-      margin: 0;
-      padding: 0;
-      border: none;
-    }
-
-    .history-section h3 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 15px;
-    }
-
-    .history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .history-item {
-      padding: 12px;
-      background: #f5f5f5;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .history-info {
-      flex: 1;
-    }
-
-    .history-amount {
-      font-weight: 600;
-      color: #2ecc71;
-    }
-
-    .history-time {
-      font-size: 12px;
-      color: #999;
-    }
-
-    .history-status {
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .status-success {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .status-pending {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .status-failed {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    .view-all-btn {
-      width: 100%;
-      padding: 10px;
-      margin-top: 15px;
-      background: #f5f5f5;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #555;
-      transition: all 0.3s;
-      font-size: 14px;
-    }
-
-    .view-all-btn:hover {
-      background: #e5e5e5;
-      border-color: #555;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: #fff;
-      border-radius: 12px;
-      padding: 30px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 15px;
-    }
-
-    .modal-header h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #999;
-    }
-
-    .close-btn:hover {
-      color: #333;
-    }
-
-    .modal-history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .info-message {
-      background: #e7f3ff;
-      border-left: 4px solid #0066cc;
-      padding: 12px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      color: #004085;
-    }
-
-    .balance-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .balance-card h3 {
-      margin: 0 0 10px 0;
-      font-size: 14px;
-      opacity: 0.9;
-      font-weight: 500;
-    }
-
-    .balance-amount {
-      font-size: 32px;
-      font-weight: 700;
-      margin: 0;
-      letter-spacing: 0.5px;
-    }
-
-    .balance-unit {
-      font-size: 18px;
-      opacity: 0.9;
-      margin-left: 5px;
-    }
-
-    @media (max-width: 1024px) {
-      .topup-container {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-
-      .history-card {
-        position: static;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .topup-container {
-        padding: 15px;
-        margin: 20px auto;
-      }
-
-      .topup-card,
-      .history-card {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nạp tiền & Premium | EternaPicSHT AI</title>
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/header.css" />
+    <link rel="stylesheet" href="/assets/css/footer.css" />
+    <style>
+      .main-container {
+        max-width: 1200px;
+        margin: 40px auto;
         padding: 20px;
       }
 
-      .topup-card h2 {
-        font-size: 20px;
+      .tabs {
+        display: flex;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #ddd;
       }
 
-      .history-section h3 {
+      .tab-btn {
+        padding: 15px 30px;
+        background: none;
+        border: none;
+        cursor: pointer;
         font-size: 16px;
+        font-weight: 600;
+        color: #666;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+      }
+
+      .tab-btn:hover {
+        color: #333;
+      }
+
+      .tab-btn.active {
+        color: #555;
+        border-bottom-color: #555;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .topup-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      .topup-wrapper {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topup-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .topup-card h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #222;
+      }
+
+      .topup-card p {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+
+      .history-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #555;
+        box-shadow: 0 0 0 3px rgba(85, 85, 85, 0.1);
       }
 
       .amount-presets {
-        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .amount-btn {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f5f5f5;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        font-size: 13px;
+      }
+
+      .amount-btn:hover {
+        background: #e5e5e5;
+        border-color: #555;
+      }
+
+      .amount-btn.active {
+        background: #555;
+        color: #fff;
+        border-color: #555;
+      }
+
+      .payment-method {
+        margin: 20px 0;
+      }
+
+      .payment-method h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #333;
       }
 
       .method-options {
+        display: flex;
+        gap: 10px;
+      }
+
+      .method-option {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .method-logo {
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+
+      .method-option:hover {
+        border-color: #555;
+      }
+
+      .method-option.active {
+        border-color: #555;
+        background: #f5f5f5;
+      }
+
+      .method-option input {
+        display: none;
+      }
+
+      .topup-btn {
+        width: 100%;
+        padding: 14px;
+        background: #555;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 10px;
+      }
+
+      .topup-btn:hover:not(:disabled) {
+        background: #333;
+      }
+
+      .topup-btn:disabled {
+        background: #999;
+        cursor: not-allowed;
+      }
+
+      .history-section {
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      .history-section h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+      }
+
+      .history-list {
+        display: flex;
         flex-direction: column;
+        gap: 10px;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <div id="header"></div>
+      .history-item {
+        padding: 12px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-  <div class="topup-container">
-    <div class="topup-wrapper">
-      <div class="topup-card">
-        <div class="balance-card">
-          <h3>Số Dư Tài Khoản</h3>
-          <div style="display: flex; align-items: baseline;">
-            <span class="balance-amount" id="balance-display">0</span>
-            <span class="balance-unit">đ</span>
+      .history-info {
+        flex: 1;
+      }
+
+      .history-amount {
+        font-weight: 600;
+        color: #2ecc71;
+      }
+
+      .history-time {
+        font-size: 12px;
+        color: #999;
+      }
+
+      .history-status {
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .status-success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-pending {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .status-failed {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .view-all-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 15px;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #555;
+        transition: all 0.3s;
+        font-size: 14px;
+      }
+
+      .view-all-btn:hover {
+        background: #e5e5e5;
+        border-color: #555;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 15px;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .close-btn:hover {
+        color: #333;
+      }
+
+      .modal-history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .info-message {
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: #004085;
+      }
+
+      .balance-card {
+        background: linear-gradient(135deg, #666 0%, white 100%);
+        color: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .balance-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        opacity: 0.9;
+        font-weight: 500;
+      }
+
+      .balance-amount {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.5px;
+      }
+
+      .balance-unit {
+        font-size: 18px;
+        opacity: 0.9;
+        margin-left: 5px;
+      }
+
+      /* Premium Styles */
+      .premium-container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .current-plan-section {
+        background: linear-gradient(135deg, white, #666);
+        border-radius: 16px;
+        padding: 40px;
+        color: white;
+        margin-bottom: 40px;
+        text-align: center;
+      }
+
+      .current-plan-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .current-plan-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        margin-bottom: 25px;
+      }
+
+      .current-plan-stats {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 30px;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .plans-section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #333;
+        text-align: center;
+      }
+
+      .section-subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 16px;
+      }
+
+      .premium-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .premium-card {
+        border-radius: 12px;
+        padding: 30px 25px;
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+      }
+
+      .premium-card--free {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+      }
+
+      .premium-card--popular {
+        background: linear-gradient(135deg, #e9ecef, #e9ecef);
+        color: bl;
+        transform: scale(1.05);
+      }
+
+      .premium-card--standard {
+        background: white;
+        border: 2px solid #e9ecef;
+      }
+
+      .premium-card--max {
+        background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+        border: 2px solid #fdcb6e;
+        color: #2d3436;
+      }
+
+      .premium-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .premium-card--popular:hover {
+        transform: scale(1.05) translateY(-5px);
+      }
+
+      .popular-badge {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ff4757;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .plan-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      .premium-card--free .plan-icon {
+        background: #e9ecef;
+        color: #6c757d;
+      }
+
+      .premium-card--standard .plan-icon {
+        background: #e3f2fd;
+        color: #2196f3;
+      }
+
+      .premium-card--max .plan-icon {
+        background: rgba(255, 255, 255, 0.3);
+        color: #f39c12;
+      }
+
+      .plan-name {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .plan-price {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 5px;
+      }
+
+      .plan-duration {
+        font-size: 14px;
+        margin-bottom: 25px;
+        opacity: 0.8;
+      }
+
+      .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+      }
+
+      .plan-features li {
+        padding: 8px 0;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+
+      .plan-features li::before {
+        content: "✓";
+        color: #28a745;
+        font-weight: bold;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+
+      .premium-card--popular .plan-features li::before {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .premium-btn {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 25px;
+      }
+
+      .premium-card--free .premium-btn {
+        background: #6c757d;
+        color: white;
+      }
+
+      .premium-card--popular .premium-btn {
+        background: white;
+        color: #4a90e2;
+      }
+
+      .premium-card--standard .premium-btn {
+        background: #2196f3;
+        color: white;
+      }
+
+      .premium-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .premium-btn.current-plan {
+        background: #28a745;
+        color: white;
+      }
+
+      .faq-section {
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      .faq-item {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #e9ecef;
+      }
+
+      .faq-question {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      .faq-answer {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.5;
+      }
+
+      .upgrade-history-section {
+        background: white;
+        border-radius: 16px;
+        padding: 0;
+        margin-top: 60px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+      }
+
+      .section-header {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        padding: 40px 30px;
+        text-align: center;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .history-timeline {
+        padding: 40px 30px;
+        min-height: 200px;
+      }
+
+      .empty-history {
+        text-align: center;
+        padding: 40px 20px;
+      }
+
+      .empty-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+      }
+
+      .empty-history h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .empty-history p {
+        color: #666;
+        font-size: 16px;
+        line-height: 1.5;
+        margin-bottom: 25px;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .upgrade-now-btn {
+        background: linear-gradient(135deg, #4a90e2, #666);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3 );
+      }
+
+      .upgrade-now-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+      }
+
+      .history-item-timeline {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        position: relative;
+      }
+
+      .history-item-timeline::before {
+        content: "";
+        position: absolute;
+        left: 20px;
+        top: 40px;
+        bottom: -30px;
+        width: 2px;
+        background: #e9ecef;
+      }
+
+      .history-item-timeline:last-child::before {
+        display: none;
+      }
+
+      .history-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        flex-shrink: 0;
+        font-size: 18px;
+        z-index: 1;
+      }
+
+      .history-icon.success {
+        background: #d4edda;
+        color: #666;
+        border: 2px solid #c3e6cb;
+      }
+
+      .history-icon.pending {
+        background: #fff3cd;
+        color: #ffc107;
+        border: 2px solid #ffeaa7;
+      }
+
+      .history-icon.failed {
+        background: #f8d7da;
+        color: #dc3545;
+        border: 2px solid #f5c6cb;
+      }
+
+      .history-content {
+        flex: 1;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+      }
+
+      .history-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .history-plan-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .history-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: auto;
+      }
+
+      .history-status.success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .history-status.pending {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .history-status.failed {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .history-details {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .history-date {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .history-price {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 600;
+      }
+
+      .view-all-btn {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        color: #6c757d;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin: 0 30px 30px;
+        display: block;
+        width: calc(100% - 60px);
+      }
+
+      .view-all-btn:hover {
+        background: #e9ecef;
+        color: #495057;
+      }
+
+      .loading-plans,
+      .loading-error {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .loading-plans p,
+      .loading-error p {
+        font-size: 16px;
+        margin-bottom: 15px;
+      }
+
+      .loading-error p {
+        color: #dc3545;
+      }
+
+      @media (max-width: 1024px) {
+        .topup-container {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .history-card {
+          position: static;
+        }
+
+        .premium-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .premium-card--popular {
+          transform: scale(1);
+        }
+
+        .premium-card--popular:hover {
+          transform: translateY(-5px);
+        }
+
+        .current-plan-stats {
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .section-header {
+          padding: 30px 20px;
+        }
+
+        .history-timeline {
+          padding: 30px 20px;
+        }
+
+        .history-details {
+          flex-direction: column;
+          gap: 8px;
+          align-items: flex-start;
+        }
+
+        .upgrade-history-section {
+          margin-top: 40px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .main-container {
+          padding: 15px;
+          margin: 20px auto;
+        }
+
+        .tabs {
+          flex-direction: column;
+          border-bottom: none;
+          gap: 5px;
+        }
+
+        .tab-btn {
+          margin-bottom: 0;
+          border-bottom: none;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 12px 20px;
+        }
+
+        .tab-btn.active {
+          border-color: #555;
+          background: #f5f5f5;
+        }
+
+        .topup-container {
+          padding: 0;
+          margin: 0;
+        }
+
+        .topup-card,
+        .history-card,
+        .premium-history-card {
+          padding: 20px;
+        }
+
+        .topup-card h2 {
+          font-size: 20px;
+        }
+
+        .history-section h3 {
+          font-size: 16px;
+        }
+
+        .amount-presets {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .method-options {
+          flex-direction: column;
+        }
+
+        .method-option {
+          justify-content: flex-start;
+          gap: 12px;
+        }
+
+        .method-logo {
+          width: 32px;
+          height: 32px;
+        }
+
+        .current-plan-section {
+          padding: 25px;
+        }
+
+        .current-plan-title {
+          font-size: 24px;
+        }
+
+        .current-plan-stats {
+          gap: 15px;
+        }
+
+        .stat-value {
+          font-size: 22px;
+        }
+
+        .premium-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .premium-card {
+          padding: 25px 20px;
+        }
+
+        .section-title {
+          font-size: 24px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="header"></div>
+
+    <div class="main-container">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('topup')">
+          Nạp Tiền
+        </button>
+        <button class="tab-btn" onclick="switchTab('premium')">Nâng cấp gói</button>
+      </div>
+
+      <!-- Topup Tab Content -->
+      <div id="topup-tab" class="tab-content active">
+        <div class="topup-container">
+          <div class="topup-wrapper">
+            <div class="topup-card">
+          <div class="balance-card">
+                <h3>Thông Tin Tài Khoản</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                  <div>
+                    <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8); margin-bottom: 5px;">Số Dư Hiện Tại</div>
+                    <div style="display: flex; align-items: baseline">
+                      <span class="balance-amount" id="balance-display">0</span>
+                      <span class="balance-unit">đ</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8); margin-bottom: 5px;">Tổng Tiền Đã Nạp</div>
+                    <div style="display: flex; align-items: baseline">
+                      <span class="balance-amount" id="total-deposited-display">0</span>
+                      <span class="balance-unit">đ</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                      <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8); margin-bottom: 5px;">Gói Hiện Tại</div>
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="balance-amount" id="current-plan-display" style="font-size: 1.2rem;">FREE</span>
+                        <span class="plan-badge" id="plan-badge-display" style="padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: rgba(255,255,255,0.2); color: white;">BASIC</span>
+                      </div>
+                    </div>
+                    <div style="text-align: right;">
+                      <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">Số dư khả dụng</div>
+                      <div style="font-size: 1.1rem; font-weight: 600;" id="available-balance-display">0đ</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <h2>Nạp Tiền</h2>
+              <p>Nạp tiền vào tài khoản để sử dụng các tính năng tạo ảnh</p>
+
+              <div class="info-message">
+                Hiện tại chúng tôi hỗ trợ thanh toán qua Momo. VNPay sẽ sớm được cập nhật.
+              </div>
+
+              <div class="form-group">
+                <label>Chọn số tiền nạp</label>
+                <div class="amount-presets">
+                  <button class="amount-btn" data-amount="20000">20K</button>
+                  <button class="amount-btn" data-amount="50000">50K</button>
+                  <button class="amount-btn" data-amount="100000">100K</button>
+                  <button class="amount-btn" data-amount="200000">200K</button>
+                  <button class="amount-btn" data-amount="500000">500K</button>
+                  <button class="amount-btn" data-amount="1000000">1M</button>
+                </div>
+                <input
+                  type="number"
+                  id="amount-input"
+                  placeholder="Hoặc nhập số tiền (VNĐ)"
+                  min="1000"
+                  step="1000"
+                />
+              </div>
+
+              <div class="payment-method">
+                <h3>Phương thức thanh toán</h3>
+                <div class="method-options">
+                  <label class="method-option active">
+                    <input type="radio" name="payment-method" value="momo" checked />
+                    <img
+                      src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square-1024x1024.png"
+                      alt="MoMo logo"
+                      class="method-logo"
+                    />
+                    <span>MoMo</span>
+                  </label>
+                  <label class="method-option">
+                    <input type="radio" name="payment-method" value="vnpay" />
+                    <img
+                      src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg"
+                      alt="VNPay logo"
+                      class="method-logo"
+                    />
+                    <span>VNPay</span>
+                  </label>
+                </div>
+              </div>
+
+              <button class="topup-btn" id="topup-btn" disabled>
+                Nạp Tiền Ngay
+              </button>
+            </div>
+          </div>
+
+          <div class="history-card">
+            <div class="history-section">
+              <h3>Lịch Sử Nạp Tiền</h3>
+              <div class="history-list" id="history-list">
+                <p style="text-align: center; color: #999">
+                  Chưa có lịch sử nạp tiền
+                </p>
+              </div>
+              <button
+                class="view-all-btn"
+                id="view-all-btn"
+                style="display: none"
+              >
+                Xem Tất Cả
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
-        <h2> Nạp Tiền</h2>
-        <p>Nạp tiền vào tài khoản để sử dụng các tính năng tạo ảnh</p>
+      <!-- Premium Tab Content -->
+      <div id="premium-tab" class="tab-content">
+          <div class="plans-section">
+            <h2 class="section-title">
+              Nâng cấp gói để sử dụng các tính năng nâng cao
+            </h2>
+            <p class="section-subtitle">
+              Nâng cấp để mở khóa các tính năng cao cấp và tạo ảnh không giới
+              hạn
+            </p>
 
-        <div class="info-message">
-          Hiện tại chúng tôi hỗ trợ thanh toán qua Momo. Kênh thanh toán sẽ được cập nhật sau.
-        </div>
-
-        <div class="form-group">
-          <label>Chọn số tiền nạp</label>
-          <div class="amount-presets">
-            <button class="amount-btn" data-amount="20000">20K</button>
-            <button class="amount-btn" data-amount="50000">50K</button>
-            <button class="amount-btn" data-amount="100000">100K</button>
-            <button class="amount-btn" data-amount="200000">200K</button>
-            <button class="amount-btn" data-amount="500000">500K</button>
-            <button class="amount-btn" data-amount="1000000">1M</button>
+            <div class="premium-grid" id="premium-grid">
+              <!-- Plans will be loaded dynamically from database -->
+              <div class="loading-plans">
+                <p>Đang tải danh sách gói...</p>
+              </div>
+            </div>
           </div>
-          <input type="number" id="amount-input" placeholder="Hoặc nhập số tiền (VNĐ)" min="1000" step="1000" />
-        </div>
 
-        <div class="payment-method">
-          <h3>Phương thức thanh toán</h3>
-          <div class="method-options">
-            <label class="method-option active">
-              <input type="radio" name="payment-method" value="momo" checked />
-              <span> Momo</span>
-            </label>
+          <!-- FAQ Section -->
+          <div class="faq-section">
+            <h2 class="section-title">Câu hỏi thường gặp</h2>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                Tôi có thể hủy gói Premium bất cứ lúc nào không?
+              </div>
+              <div class="faq-answer">
+                Có, bạn có thể hủy gói Premium bất cứ lúc nào. Bạn vẫn sẽ sử
+                dụng được các tính năng Premium đến hết kỳ thanh toán hiện tại.
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                Phương thức thanh toán nào được chấp nhận?
+              </div>
+              <div class="faq-answer">
+                Chúng tôi chấp nhận thanh toán qua Ví Momo, thẻ ngân hàng và các
+                phương thức thanh toán điện tử khác.
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                Ảnh của tôi có được lưu trữ bao lâu?
+              </div>
+              <div class="faq-answer">
+                Ảnh của bạn được lưu trữ vĩnh viễn trên hệ thống của chúng tôi.
+                Với gói Premium, bạn có thể tải về tất cả ảnh gốc.
+              </div>
+            </div>
+          </div>
+
+          <!-- History Section -->
+          <div class="upgrade-history-section">
+            <div class="section-header">
+              <h2 class="section-title">Lịch sử nâng cấp</h2>
+              <p class="section-subtitle">
+                Theo dõi quá trình nâng cấp và thanh toán của bạn
+              </p>
+            </div>
+
+            <div class="history-timeline" id="premium-history-list">
+              <div class="empty-history">
+                <div class="empty-icon">📋</div>
+                <h3>Chưa có lịch sử nâng cấp</h3>
+                <p>
+                  Bạn chưa thực hiện nâng cấp nào. Chọn một gói Premium để bắt
+                  đầu trải nghiệm các tính năng cao cấp.
+                </p>
+                <button class="upgrade-now-btn" onclick="scrollToPlans()">
+                  Nâng cấp ngay
+                </button>
+              </div>
+            </div>
+
+            <button
+              class="view-all-btn"
+              id="premium-view-all-btn"
+              style="display: none"
+            >
+              Xem tất cả lịch sử
+            </button>
           </div>
         </div>
-
-        <button class="topup-btn" id="topup-btn" disabled>Nạp Tiền Ngay</button>
       </div>
     </div>
 
-    <div class="history-card">
-      <div class="history-section">
-        <h3> Lịch Sử Nạp Tiền</h3>
-        <div class="history-list" id="history-list">
-          <p style="text-align: center; color: #999;">Chưa có lịch sử nạp tiền</p>
+    <!-- Modal cho lịch sử đầy đủ -->
+    <div class="modal" id="history-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Lịch Sử Nạp Tiền</h2>
+          <button class="close-btn" id="close-modal-btn">&times;</button>
         </div>
-        <button class="view-all-btn" id="view-all-btn" style="display: none;">Xem Tất Cả</button>
+        <div class="modal-history-list" id="modal-history-list">
+          <p style="text-align: center; color: #999">Đang tải...</p>
+        </div>
       </div>
     </div>
-  </div>
-  </div>
 
-  <!-- Modal cho lịch sử đầy đủ -->
-  <div class="modal" id="history-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Lịch Sử Nạp Tiền</h2>
-        <button class="close-btn" id="close-modal-btn">&times;</button>
-      </div>
-      <div class="modal-history-list" id="modal-history-list">
-        <p style="text-align: center; color: #999;">Đang tải...</p>
+    <!-- Modal cho lịch sử premium đầy đủ -->
+    <div class="modal" id="premium-history-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Lịch Sử Premium</h2>
+          <button class="close-btn" id="premium-close-modal-btn">
+            &times;
+          </button>
+        </div>
+        <div class="modal-history-list" id="premium-modal-history-list">
+          <p style="text-align: center; color: #999">Đang tải...</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="footer"></div>
+    <div id="footer"></div>
 
-  <script src="/assets/js/main.js"></script>
-  <script>
-    const amountInput = document.getElementById("amount-input");
-    const topupBtn = document.getElementById("topup-btn");
-    const amountBtns = document.querySelectorAll(".amount-btn");
-    const historyList = document.getElementById("history-list");
-    let selectedAmount = null;
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/floating-chat-loader.js"></script>
+    <script>
+      const amountInput = document.getElementById("amount-input");
+      const topupBtn = document.getElementById("topup-btn");
+      const amountBtns = document.querySelectorAll(".amount-btn");
+      const historyList = document.getElementById("history-list");
+      let selectedAmount = null;
 
-    // Check login
-    function checkLogin() {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Vui lòng đăng nhập trước");
-        window.location.href = "/login.html";
-        return false;
-      }
-      return true;
-    }
+      // Premium variables
+      let selectedPlan = null;
+      let allPremiumHistory = [];
 
-    amountBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        amountBtns.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        selectedAmount = parseInt(btn.dataset.amount);
-        amountInput.value = selectedAmount;
-        updateTopupBtn();
-      });
-    });
-
-    amountInput.addEventListener("input", () => {
-      amountBtns.forEach((b) => b.classList.remove("active"));
-      selectedAmount = parseInt(amountInput.value) || null;
-      updateTopupBtn();
-    });
-
-    function updateTopupBtn() {
-      topupBtn.disabled = !selectedAmount || selectedAmount < 1000;
-    }
-
-    // Topup button
-    topupBtn.addEventListener("click", async () => {
-      if (!checkLogin()) return;
-
-      const token = localStorage.getItem("token");
-      const amount = selectedAmount || parseInt(amountInput.value);
-
-      if (!amount || amount < 1000) {
-        alert("Vui lòng nhập số tiền hợp lệ (tối thiểu 1000đ)");
-        return;
+      // Check login
+      function checkLogin() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Vui lòng đăng nhập trước");
+          window.location.href = "/login.html";
+          return false;
+        }
+        return true;
       }
 
-      try {
-        topupBtn.disabled = true;
-        topupBtn.textContent = "⏳ Đang xử lý...";
+      // Tab switching function
+      function switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        event.target.classList.add("active");
 
-        const response = await fetch("/api/topup/create-momo", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ amount }),
+        // Update tab content
+        document.querySelectorAll(".tab-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+        document.getElementById(`${tabName}-tab`).classList.add("active");
+
+        // Load data for the switched tab
+        if (tabName === "premium") {
+          loadPremiumData();
+
+          // Also update immediately after tab switch to avoid delay
+          setTimeout(() => {
+            const mainPlanDisplay = document.getElementById("current-plan-display");
+            const mainPlanText = mainPlanDisplay ? mainPlanDisplay.textContent : '';
+
+            let planType = 'free';
+            if (mainPlanText.includes('PRO')) {
+              planType = 'pro';
+            } else if (mainPlanText.includes('MAX')) {
+              planType = 'max';
+            } else if (mainPlanText.includes('BASIC')) {
+              planType = 'basic';
+            }
+
+            updatePlanButtons(planType);
+          }, 50); // Very small delay to ensure DOM is ready
+        }
+      }
+
+      // Load premium data
+      async function loadPremiumData() {
+        if (!checkLogin()) return;
+
+        await loadPlans();
+        await loadCurrentPremium();
+        loadPremiumHistory();
+      }
+
+      // Load plans from database
+      async function loadPlans() {
+        try {
+          const response = await fetch("/api/premium/plans");
+
+          if (!response.ok) {
+            console.error("Plans API Error:", response.status, response.statusText);
+            document.getElementById("premium-grid").innerHTML =
+              '<div class="loading-error"><p>Không thể tải danh sách gói. Vui lòng thử lại sau.</p></div>';
+            return null;
+          }
+
+          const data = await response.json();
+
+          if (data.success && data.plans) {
+            renderPlans(data.plans);
+            return data.plans;
+          } else if (!data.success) {
+            throw new Error(data.error || "Failed to load plans");
+          } else {
+            throw new Error("Invalid response format");
+          }
+        } catch (error) {
+          console.error("Error loading plans:", error);
+          document.getElementById("premium-grid").innerHTML =
+            '<div class="loading-error"><p>Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.</p></div>';
+            return null;
+        }
+      }
+
+      // Render plans from database data
+      function renderPlans(plans) {
+        // Store plans globally for modal usage
+        window.currentPlans = plans;
+
+        const plansGrid = document.getElementById("premium-grid");
+
+        const planOrder = ['free', 'pro', 'max'];
+        const icons = {
+          free: '🎯',
+          pro: '⭐',
+          max: '👑'
+        };
+
+        const badges = {
+          free: '',
+          pro: '<div class="popular-badge">Phổ biến nhất</div>',
+          max: '<div class="popular-badge">Giá tốt nhất</div>'
+        };
+
+        let html = planOrder.map(planKey => {
+          const plan = plans[planKey];
+          if (!plan) return '';
+
+          const planClass = planKey === 'free' ? 'premium-card--free' :
+                           planKey === 'pro' ? 'premium-card--popular' :
+                           planKey === 'max' ? 'premium-card--max' : 'premium-card--standard';
+
+          return `
+            <div class="premium-card ${planClass}" data-plan="${planKey}">
+              ${badges[planKey]}
+              <div class="plan-icon">${icons[planKey]}</div>
+              <div class="plan-name">${plan.name}</div>
+              <div class="plan-price">${plan.price > 0 ? plan.price.toLocaleString('vi-VN') + 'đ' : '0đ'}</div>
+              <div class="plan-duration">${plan.duration === 0 ? 'Miễn phí' :
+                plan.duration === 30 ? 'mỗi tháng' :
+                plan.duration === 365 ? 'mỗi năm' :
+                `${plan.duration} ngày`}</div>
+              <ul class="plan-features">
+                ${plan.features.map(feature => `<li>${feature.name}</li>`).join('')}
+              </ul>
+              <button class="premium-btn" data-plan="${planKey}">
+                ${planKey === 'free' ? 'Gói miễn phí' : 'Nâng cấp gói'}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        plansGrid.innerHTML = html;
+
+        // Add event listeners to plan buttons
+        plansGrid.querySelectorAll('.premium-btn').forEach(btn => {
+          const planType = btn.dataset.plan;
+          if (planType && planType !== 'free') {
+            btn.addEventListener('click', () => selectPlan(planType));
+          }
         });
 
-        console.log("📡 Response status:", response.status);
-        console.log("📡 Response headers:", response.headers);
+        // Try to get current plan from multiple sources (prioritize topup tab) - IMMEDIATE UPDATE
+        const updatePlanButtonsImmediately = () => {
+          // Method 1: Check the main balance display (topup tab) - most reliable
+          const mainPlanDisplay = document.getElementById("current-plan-display");
+          const mainPlanText = mainPlanDisplay ? mainPlanDisplay.textContent : '';
 
-        const text = await response.text();
-        console.log("📡 Response body:", text);
+          // Method 2: Check premium badge (premium tab)
+          const premiumPlanBadge = document.getElementById("current-plan-badge");
+          const premiumPlanText = premiumPlanBadge ? premiumPlanBadge.textContent : '';
 
-        const result = JSON.parse(text);
-        console.log("📡 Parsed result:", result);
+          // Prioritize main display since it shows PRO correctly
+          let planType = 'free';
+          const sourceText = mainPlanText || premiumPlanText;
 
-        if (result.success && result.payUrl) {
-          // Redirect to Momo payment
-          window.location.href = result.payUrl;
-        } else {
-          alert("Lỗi: " + (result.error || result.message || "Không thể tạo link thanh toán"));
-        }
-      } catch (error) {
-        console.error("❌ Lỗi:", error);
-        alert("Lỗi khi tạo link thanh toán: " + error.message);
-      } finally {
-        topupBtn.disabled = false;
-        topupBtn.textContent = "Nạp Tiền Ngay";
+          if (sourceText.includes('PRO')) {
+            planType = 'pro';
+          } else if (sourceText.includes('MAX')) {
+            planType = 'max';
+          } else if (sourceText.includes('BASIC')) {
+            planType = 'basic';
+          }
+
+          updatePlanButtons(planType);
+        };
+
+        // Update immediately after HTML is set
+        updatePlanButtonsImmediately();
+
+        // Also update after a small delay for any dynamic content
+        setTimeout(updatePlanButtonsImmediately, 100);
       }
-    });
 
-    function renderHistoryItems(items, limit = null) {
-      const itemsToShow = limit ? items.slice(0, limit) : items;
-      return itemsToShow
-        .map((item) => {
-          const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
-          const statusClass = `status-${item.status}`;
-          const statusText =
-            item.status === "success"
-              ? "✓ Thành công"
-              : item.status === "pending"
+      // Load current premium status
+      async function loadCurrentPremium() {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/premium/current", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!response.ok) {
+            console.error("API Error:", response.status, response.statusText);
+            // Show error state with null checks
+            const badgeEl = document.getElementById("current-plan-badge");
+            const imagesEl = document.getElementById("images-count");
+            const creditsEl = document.getElementById("credits-left");
+            const resetEl = document.getElementById("next-reset");
+
+            if (badgeEl) badgeEl.textContent = "Không thể tải";
+            if (imagesEl) imagesEl.textContent = "-";
+            if (creditsEl) creditsEl.textContent = "-";
+            if (resetEl) resetEl.textContent = "-";
+
+            updatePlanButtons("free");
+            return;
+          }
+
+          const data = await response.json();
+
+
+          let planBadge = "Miễn phí";
+          let imagesCount = 0;
+          let creditsLeft = 15;
+          let nextReset = "Hôm nay";
+
+          if (data.hasPremium) {
+            planBadge = data.planName;
+            imagesCount = data.imagesCreated || 0;
+            creditsLeft = data.dailyLimit === -1 ? "∞" : data.dailyLimit;
+
+            if (data.expiryDate) {
+              const expiryDate = new Date(data.expiryDate);
+              const today = new Date();
+              const daysLeft = Math.ceil(
+                (expiryDate - today) / (1000 * 60 * 60 * 24)
+              );
+              nextReset = daysLeft > 0 ? `${daysLeft} ngày` : "Hết hạn";
+            } else {
+              nextReset = data.plan === "free" ? "Hôm nay" : "Vĩnh viễn";
+            }
+          }
+
+          // Update elements with null checks
+          const badgeEl = document.getElementById("current-plan-badge");
+          const imagesEl = document.getElementById("images-count");
+          const creditsEl = document.getElementById("credits-left");
+          const resetEl = document.getElementById("next-reset");
+
+          if (badgeEl) badgeEl.textContent = planBadge;
+          if (imagesEl) imagesEl.textContent = imagesCount;
+          if (creditsEl) creditsEl.textContent = creditsLeft;
+          if (resetEl) resetEl.textContent = nextReset;
+
+          // Update plan buttons state with a small delay to ensure DOM is ready
+          let currentPlanType = data?.plan || "free";
+
+          // Check if API data conflicts with main display (which is more reliable)
+          const mainPlanDisplay = document.getElementById("current-plan-display");
+          const mainPlanText = mainPlanDisplay ? mainPlanDisplay.textContent : '';
+
+          if (mainPlanText.includes('PRO') && currentPlanType !== 'pro') {
+            currentPlanType = 'pro';
+          } else if (mainPlanText.includes('MAX') && currentPlanType !== 'max') {
+            currentPlanType = 'max';
+          }
+
+          // Use setTimeout to ensure DOM is fully updated before updating buttons
+          setTimeout(() => {
+            updatePlanButtons(currentPlanType);
+          }, 200);
+        } catch (error) {
+          console.error("Error loading current premium:", error);
+          // Show error state with null checks
+          const badgeEl = document.getElementById("current-plan-badge");
+          const imagesEl = document.getElementById("images-count");
+          const creditsEl = document.getElementById("credits-left");
+          const resetEl = document.getElementById("next-reset");
+
+          if (badgeEl) badgeEl.textContent = "Lỗi tải";
+          if (imagesEl) imagesEl.textContent = "-";
+          if (creditsEl) creditsEl.textContent = "-";
+          if (resetEl) resetEl.textContent = "-";
+
+          updatePlanButtons("free");
+        }
+      }
+
+      // Update plan buttons state
+      function updatePlanButtons(currentPlan) {
+        const planCards = document.querySelectorAll(".premium-card");
+
+        if (planCards.length === 0) {
+          return;
+        }
+
+        // Try multiple approaches to find the current plan card
+        planCards.forEach((card) => {
+          const planType = card.dataset.plan;
+          const button = card.querySelector(".premium-btn");
+
+          if (!button) {
+            return;
+          }
+
+          // Multiple matching strategies
+          const isCurrentPlan = (
+            planType === currentPlan ||
+            (currentPlan === 'pro' && card.textContent.includes('PRO')) ||
+            (currentPlan === 'max' && card.textContent.includes('MAX')) ||
+            (currentPlan === 'free' && card.textContent.includes('FREE'))
+          );
+
+          if (isCurrentPlan) {
+            button.textContent = "Đang sử dụng";
+            button.classList.add("current-plan");
+            button.disabled = true;
+            button.style.background = "#666";
+            button.style.color = "white";
+          } else {
+            button.textContent = planType === 'free' ? 'Gói miễn phí' : 'Nâng cấp gói';
+            button.classList.remove("current-plan");
+            button.disabled = false;
+            button.style.background = "";
+            button.style.color = "";
+
+            // Re-add event listener for non-current plans
+            if (planType !== 'free') {
+              const newButton = button.cloneNode(true);
+              newButton.addEventListener('click', () => selectPlan(planType));
+              button.replaceWith(newButton);
+            }
+          }
+        });
+      }
+
+      // Global variables for upgrade modal
+      let currentUpgradePlan = null;
+      let selectedPaymentMethod = null;
+      let resendTimer = null;
+
+      // Select plan function
+      function selectPlan(planType) {
+        if (!checkLogin()) return;
+
+        const token = localStorage.getItem("token");
+        currentUpgradePlan = planType;
+
+        // Get plan details from database
+        const plans = window.currentPlans || {};
+        const plan = plans[planType];
+
+        if (!plan) {
+          alert("Thông tin gói không khả dụng. Vui lòng thử lại.");
+          return;
+        }
+
+        // Populate modal with plan details
+        document.getElementById('modal-plan-name').textContent = plan.name;
+        document.getElementById('modal-plan-duration').textContent = plan.duration > 0 ? `${plan.duration} ngày` : 'Vĩnh viễn';
+        document.getElementById('modal-plan-price').textContent = plan.price > 0 ? `${plan.price.toLocaleString('vi-VN')}đ` : 'Miễn phí';
+
+        // Show key features
+        const keyFeatures = plan.features && plan.features.length > 0
+          ? plan.features.filter(f => f.enabled).slice(0, 3).map(f => f.name).join(', ')
+          : 'Không giới hạn tính năng';
+        document.getElementById('modal-plan-features').textContent = keyFeatures;
+
+        // Show modal
+        document.getElementById('premium-upgrade-modal').style.display = 'block';
+
+        // Reset to step 1
+        goToStep(1);
+      }
+
+      // Modal functions
+      function closeUpgradeModal() {
+        document.getElementById('premium-upgrade-modal').style.display = 'none';
+        currentUpgradePlan = null;
+        selectedPaymentMethod = null;
+        if (resendTimer) {
+          clearInterval(resendTimer);
+          resendTimer = null;
+        }
+        // Reset form
+        document.querySelectorAll('.code-input').forEach(input => input.value = '');
+        document.querySelectorAll('input[name="payment"]').forEach(input => input.checked = false);
+        document.getElementById('continue-to-verification').disabled = true;
+      }
+
+      function goToStep(stepNumber) {
+        // Hide all steps
+        document.querySelectorAll('.upgrade-step').forEach(step => {
+          step.style.display = 'none';
+        });
+
+        // Show selected step
+        document.getElementById(`upgrade-step-${stepNumber}`).style.display = 'block';
+
+        // Special handling for step 3 - setup verification code inputs
+        if (stepNumber === 3) {
+          // Get user email from localStorage or user data
+          const userEmail = getCurrentUserEmail();
+          document.getElementById('verification-email').textContent = userEmail || 'email của bạn';
+
+          setupCodeInputs();
+          // Timer will be started when code is actually sent (from sendVerificationAndContinue)
+        }
+      }
+
+      function selectPaymentMethod(method) {
+        selectedPaymentMethod = method;
+
+        // Update radio buttons
+        document.querySelectorAll('input[name="payment"]').forEach(input => {
+          input.checked = input.value === method;
+        });
+
+        // Enable continue button
+        document.getElementById('continue-to-verification').disabled = false;
+      }
+
+      async function sendVerificationAndContinue() {
+        if (!selectedPaymentMethod) {
+          alert('Vui lòng chọn phương thức thanh toán!');
+          return;
+        }
+
+        try {
+          // Show loading state
+          const continueBtn = document.getElementById('continue-to-verification');
+          const originalText = continueBtn.textContent;
+          continueBtn.textContent = 'Đang gửi mã...';
+          continueBtn.disabled = true;
+
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            continueBtn.textContent = originalText;
+            continueBtn.disabled = false;
+            return;
+          }
+
+          // Call API to send verification code
+          const response = await fetch('/api/premium/send-verification-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              plan: currentUpgradePlan
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Code sent successfully, move to step 3
+            goToStep(3);
+            startResendTimer(); // Start timer after successful sending
+          } else {
+            alert('Không thể gửi mã xác minh: ' + result.error);
+            continueBtn.textContent = originalText;
+            continueBtn.disabled = false;
+          }
+        } catch (error) {
+          console.error('Error sending verification code:', error);
+          alert('Lỗi khi gửi mã xác minh. Vui lòng thử lại!');
+          const continueBtn = document.getElementById('continue-to-verification');
+          continueBtn.textContent = 'Tiếp tục';
+          continueBtn.disabled = false;
+        }
+      }
+
+      function setupCodeInputs() {
+        const codeInputs = document.querySelectorAll('.code-input');
+
+        codeInputs.forEach((input, index) => {
+          input.addEventListener('input', (e) => {
+            // Move to next input
+            if (e.target.value.length === 1 && index < codeInputs.length - 1) {
+              codeInputs[index + 1].focus();
+            }
+          });
+
+          input.addEventListener('keydown', (e) => {
+            // Move to previous input on backspace
+            if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+              codeInputs[index - 1].focus();
+            }
+          });
+
+          // Only allow numbers
+          input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+          });
+        });
+
+        // Focus first input
+        codeInputs[0].focus();
+      }
+
+      function startResendTimer() {
+        let seconds = 60;
+        const resendTimerEl = document.getElementById('resend-timer');
+        const resendBtnEl = document.getElementById('resend-code-btn');
+
+        resendTimerEl.style.display = 'inline';
+        resendBtnEl.style.display = 'none';
+
+        resendTimer = setInterval(() => {
+          seconds--;
+          resendTimerEl.textContent = `Gửi lại mã sau ${seconds}s`;
+
+          if (seconds <= 0) {
+            clearInterval(resendTimer);
+            resendTimerEl.style.display = 'none';
+            resendBtnEl.style.display = 'inline';
+          }
+        }, 1000);
+      }
+
+      async function resendVerificationCode() {
+        try {
+          // Reset timer and hide resend button
+          startResendTimer();
+
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            return;
+          }
+
+          const response = await fetch('/api/premium/send-verification-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              plan: currentUpgradePlan
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert('Mã xác minh mới đã được gửi đến email của bạn!');
+          } else {
+            alert('Không thể gửi lại mã: ' + result.error);
+          }
+        } catch (error) {
+          console.error('Error resending code:', error);
+          alert('Lỗi khi gửi lại mã. Vui lòng thử lại!');
+        }
+      }
+
+      function getVerificationCode() {
+        const codeInputs = document.querySelectorAll('.code-input');
+        let code = '';
+
+        codeInputs.forEach(input => {
+          code += input.value;
+        });
+
+        return code;
+      }
+
+      async function completeUpgrade() {
+        const verificationCode = getVerificationCode();
+
+        if (verificationCode.length !== 6) {
+          alert('Vui lòng nhập đầy đủ 6 số mã xác minh!');
+          return;
+        }
+
+        if (!selectedPaymentMethod) {
+          alert('Vui lòng chọn phương thức thanh toán!');
+          return;
+        }
+
+        try {
+          // Show loading state
+          const completeBtn = document.querySelector('#upgrade-step-3 .btn-primary');
+          const originalText = completeBtn.textContent;
+          completeBtn.textContent = 'Đang xử lý...';
+          completeBtn.disabled = true;
+
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            return;
+          }
+
+          // Call verification API
+          const response = await fetch('/api/premium/verify-and-upgrade', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              plan: currentUpgradePlan,
+              code: verificationCode,
+              paymentMethod: selectedPaymentMethod
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Verification successful, now proceed to actual payment
+            if (selectedPaymentMethod === 'momo') {
+              // Create MoMo payment
+              await createMomoPayment(currentUpgradePlan);
+            } else if (selectedPaymentMethod === 'vnpay') {
+              alert('🔒 Tính năng VNPay đang được phát triển!');
+              closeUpgradeModal();
+            } else {
+              alert('❌ Phương thức thanh toán không hợp lệ!');
+              closeUpgradeModal();
+            }
+          } else {
+            alert('❌ ' + result.error);
+          }
+
+        } catch (error) {
+          console.error('Upgrade failed:', error);
+          alert('❌ Thanh toán thất bại. Vui lòng thử lại!');
+        } finally {
+          // Reset button state
+          const completeBtn = document.querySelector('#upgrade-step-3 .btn-primary');
+          completeBtn.textContent = 'Xác Nhận & Thanh Toán';
+          completeBtn.disabled = false;
+        }
+      }
+
+      // Create MoMo payment after verification
+      async function createMomoPayment(planType) {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            return;
+          }
+
+          const response = await fetch("/api/premium/purchase", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ plan: planType }),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("API Error:", response.status, errorText);
+            alert("Lỗi máy chủ: " + (response.statusText || "Vui lòng thử lại sau"));
+            return;
+          }
+
+          const result = await response.json();
+
+          if (result.success && result.payUrl) {
+            // Close modal and redirect to MoMo
+            closeUpgradeModal();
+            window.open(result.payUrl, '_blank');
+          } else {
+            alert('Không thể tạo thanh toán MoMo: ' + (result.error || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Error creating MoMo payment:', error);
+          alert('Lỗi khi tạo thanh toán MoMo. Vui lòng thử lại!');
+        }
+      }
+
+      // Helper function to get current user email
+      function getCurrentUserEmail() {
+        // Try to get from localStorage (from login response)
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            if (user.email) return user.email;
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+          }
+        }
+
+        // Try to get from token decode (basic extraction)
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.email;
+          } catch (e) {
+            console.error('Error decoding token:', e);
+          }
+        }
+
+        // Fallback
+        return 'email của bạn';
+      }
+
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        const modal = document.getElementById('premium-upgrade-modal');
+        if (event.target === modal) {
+          closeUpgradeModal();
+        }
+      }
+
+      // Process upgrade
+      async function processUpgrade(planType) {
+        try {
+          const token = localStorage.getItem("token");
+
+          if (!token) {
+            alert("Vui lòng đăng nhập trước khi nâng cấp!");
+            return;
+          }
+
+          const response = await fetch("/api/premium/purchase", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ plan: planType }),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("API Error:", response.status, errorText);
+            alert(
+              "Lỗi máy chủ: " + (response.statusText || "Vui lòng thử lại sau")
+            );
+            return;
+          }
+
+          const result = await response.json();
+
+          if (result.success) {
+            if (result.payUrl) {
+              // Redirect to payment
+              window.location.href = result.payUrl;
+            } else {
+              alert(
+                "Nâng cấp thành công! Vui lòng tải lại trang để cập nhật thông tin."
+              );
+              loadCurrentPremium();
+              loadPremiumHistory(); // Refresh history
+            }
+          } else {
+            alert(
+              "Lỗi: " +
+                (result.error ||
+                  result.message ||
+                  "Không thể xử lý yêu cầu. Vui lòng liên hệ hỗ trợ.")
+            );
+          }
+        } catch (error) {
+          console.error("❌ Lỗi:", error);
+          alert(
+            "Lỗi kết nối: " +
+              error.message +
+              ". Vui lòng kiểm tra kết nối mạng và thử lại."
+          );
+        }
+      }
+
+      // Load premium history
+      async function loadPremiumHistory() {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/premium/history", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!response.ok) {
+            console.error(
+              "Premium History API Error:",
+              response.status,
+              response.statusText
+            );
+            document.getElementById("premium-history-list").innerHTML =
+              '<div class="empty-history"><div class="empty-icon">⚠️</div><h3>Lỗi tải lịch sử</h3><p>Không thể tải lịch sử nâng cấp. Vui lòng thử lại sau.</p></div>';
+            document.getElementById("premium-view-all-btn").style.display =
+              "none";
+            return;
+          }
+
+          allPremiumHistory = await response.json();
+
+          const premiumHistoryList = document.getElementById(
+            "premium-history-list"
+          );
+
+          // Show history with the new timeline design (empty state is handled in renderPremiumHistoryItems)
+          premiumHistoryList.innerHTML = renderPremiumHistoryItems(
+            allPremiumHistory,
+            6
+          );
+
+          // Show "View All" button if more than 10 items
+          const viewAllBtn = document.getElementById("premium-view-all-btn");
+          if (allPremiumHistory.length > 10) {
+            viewAllBtn.style.display = "block";
+          } else {
+            viewAllBtn.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Error loading premium history:", error);
+          document.getElementById("premium-history-list").innerHTML =
+            '<div class="empty-history"><div class="empty-icon">⚠️</div><h3>Lỗi kết nối</h3><p>Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.</p></div>';
+          document.getElementById("premium-view-all-btn").style.display =
+            "none";
+        }
+      }
+
+      // Scroll to plans section
+      function scrollToPlans() {
+        const plansSection = document.querySelector(".plans-section");
+        if (plansSection) {
+          plansSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
+      // Render premium history items with new timeline design
+      function renderPremiumHistoryItems(items, limit = null) {
+        const itemsToShow = limit ? items.slice(0, limit) : items;
+
+        if (itemsToShow.length === 0) {
+          return `
+          <div class="empty-history">
+            <div class="empty-icon">📋</div>
+            <h3>Chưa có lịch sử nâng cấp</h3>
+            <p>Bạn chưa thực hiện nâng cấp nào. Chọn một gói Premium để bắt đầu trải nghiệm các tính năng cao cấp.</p>
+            <button class="upgrade-now-btn" onclick="scrollToPlans()">Nâng cấp ngay</button>
+          </div>
+        `;
+        }
+
+        return itemsToShow
+          .map((item) => {
+            const date = new Date(item.createdAt);
+            const formattedDate = date.toLocaleDateString("vi-VN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+
+            const statusClass = item.status || "pending";
+            const statusText =
+              item.status === "active" || item.status === "success"
+                ? "✓ Thành công"
+                : item.status === "pending"
+                ? "⏳ Đang xử lý"
+                : item.status === "failed"
+                ? "✗ Thất bại"
+                : "⏳ Đang xử lý";
+
+            const statusIcon =
+              item.status === "active" || item.status === "success"
+                ? "✓"
+                : item.status === "pending"
+                ? "⏳"
+                : item.status === "failed"
+                ? "✗"
+                : "⏳";
+
+            const priceDisplay =
+              item.price > 0
+                ? `${item.price.toLocaleString("vi-VN")}đ`
+                : "Miễn phí";
+
+            return `
+            <div class="history-item-timeline">
+              <div class="history-icon ${statusClass}">${statusIcon}</div>
+              <div class="history-content">
+                <div class="history-header">
+                  <div class="history-plan-name">${
+                    item.planName || "Gói Premium"
+                  }</div>
+                  <span class="history-status ${statusClass}">${statusText}</span>
+                </div>
+                <div class="history-details">
+                  <div class="history-date">
+                    📅 ${formattedDate}
+                  </div>
+                  <div class="history-price">
+                    💰 ${priceDisplay}
+                  </div>
+                  ${
+                    item.paymentMethod
+                      ? `
+                    <div class="history-payment">
+                    💳 ${
+                      item.paymentMethod === "momo"
+                        ? "Ví Momo"
+                        : item.paymentMethod
+                    }
+                    </div>
+                  `
+                      : ""
+                  }
+                </div>
+              </div>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      amountBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          amountBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedAmount = parseInt(btn.dataset.amount);
+          amountInput.value = selectedAmount;
+          updateTopupBtn();
+        });
+      });
+
+      amountInput.addEventListener("input", () => {
+        amountBtns.forEach((b) => b.classList.remove("active"));
+        selectedAmount = parseInt(amountInput.value) || null;
+        updateTopupBtn();
+      });
+
+      function updateTopupBtn() {
+        topupBtn.disabled = !selectedAmount || selectedAmount < 1000;
+      }
+
+      // Topup button
+      topupBtn.addEventListener("click", async () => {
+        if (!checkLogin()) return;
+
+        const token = localStorage.getItem("token");
+        const amount = selectedAmount || parseInt(amountInput.value);
+        const selectedMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+        if (!amount || amount < 1000) {
+          alert("Vui lòng nhập số tiền hợp lệ (tối thiểu 1000đ)");
+          return;
+        }
+
+        // For now, only process MoMo payments
+        if (selectedMethod === "vnpay") {
+          alert("Thanh toán qua VNPay đang được phát triển. Vui lòng chọn MoMo để thanh toán.");
+          return;
+        }
+
+        try {
+          topupBtn.disabled = true;
+          topupBtn.textContent = "⏳ Đang xử lý...";
+
+          // Get the current page URL to return to after payment
+          const returnTo = window.location.pathname + window.location.search;
+          console.log("🔗 Sending returnTo:", returnTo);
+          console.log("💳 Payment method:", selectedMethod);
+
+          const response = await fetch("/api/topup/create-momo", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              amount,
+              returnTo
+            }),
+          });
+
+          console.log("📡 Response status:", response.status);
+          console.log("📡 Response headers:", response.headers);
+
+          const text = await response.text();
+          console.log("📡 Response body:", text);
+
+          const result = JSON.parse(text);
+          console.log("📡 Parsed result:", result);
+
+          if (result.success && result.payUrl) {
+            // Redirect to Momo payment
+            window.location.href = result.payUrl;
+          } else {
+            alert(
+              "Lỗi: " +
+                (result.error ||
+                  result.message ||
+                  "Không thể tạo link thanh toán")
+            );
+          }
+        } catch (error) {
+          console.error("❌ Lỗi:", error);
+          alert("Lỗi khi tạo link thanh toán: " + error.message);
+        } finally {
+          topupBtn.disabled = false;
+          topupBtn.textContent = "Nạp Tiền Ngay";
+        }
+      });
+
+      function renderHistoryItems(items, limit = null) {
+        const itemsToShow = limit ? items.slice(0, limit) : items;
+        return itemsToShow
+          .map((item) => {
+            const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
+            const statusClass = `status-${item.status}`;
+            const statusText =
+              item.status === "success"
+                ? "✓ Thành công"
+                : item.status === "pending"
                 ? " Chờ xử lý"
                 : "✗ Thất bại";
 
-          return `
+            return `
               <div class="history-item">
                 <div class="history-info">
                   <div class="history-amount">+${item.amount.toLocaleString()}đ</div>
@@ -579,141 +2303,707 @@
                 <span class="history-status ${statusClass}">${statusText}</span>
               </div>
             `;
-        })
-        .join("");
-    }
-
-    // Load user's current balance
-    async function loadBalance() {
-      if (!checkLogin()) return;
-
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch("/api/topup/balance", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) {
-          console.error("❌ Balance API error:", response.status);
-          document.getElementById("balance-display").textContent = "0";
-          return;
-        }
-
-        const data = await response.json();
-        const balance = data.balance || 0;
-
-        document.getElementById("balance-display").textContent = balance.toLocaleString("vi-VN");
-        console.log("✅ Balance loaded:", balance, "from:", data);
-      } catch (error) {
-        console.error("❌ Error loading balance:", error);
-        document.getElementById("balance-display").textContent = "0";
+          })
+          .join("");
       }
-    }
 
-    // Load topup history (10 items only)
-    let allHistory = [];
-    async function loadHistory() {
-      if (!checkLogin()) return;
+  // Load user's current balance and account summary
+      async function loadBalance() {
+        if (!checkLogin()) return;
 
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch("/api/topup/history", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/topup/account-summary", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-        allHistory = await response.json();
+          if (!response.ok) {
+            resetAccountDisplay();
+            return;
+          }
+
+          const data = await response.json();
+          const balance = data.balance || 0;
+          const totalDeposited = data.totalDeposited || 0;
+          const totalDepositsCount = data.totalDepositsCount || 0;
+          const todayDepositsAmount = data.todayDepositsAmount || 0;
+          const todayDepositsCount = data.todayDepositsCount || 0;
+          const currentPlan = data.currentPlan || "FREE";
+          const planBadge = data.planBadge || "BASIC";
+          const accountAge = data.accountAge || 0;
+          const recentTopups = data.recentTopups || [];
+
+          // Update balance display
+          document.getElementById("balance-display").textContent =
+            balance.toLocaleString("vi-VN");
+
+          // Update total deposited display
+          document.getElementById("total-deposited-display").textContent =
+            totalDeposited.toLocaleString("vi-VN");
+
+          // Update current plan display
+          document.getElementById("current-plan-display").textContent = currentPlan;
+          document.getElementById("plan-badge-display").textContent = planBadge;
+
+          // Update available balance display (same as current balance)
+          document.getElementById("available-balance-display").textContent =
+            balance.toLocaleString("vi-VN") + "đ";
+
+          // Update plan badge colors based on plan type
+          updatePlanBadgeStyle(currentPlan);
+
+        } catch (error) {
+          resetAccountDisplay();
+        }
+      }
+
+      // Helper function to reset account display
+      function resetAccountDisplay() {
+        document.getElementById("balance-display").textContent = "0";
+        document.getElementById("total-deposited-display").textContent = "0";
+        document.getElementById("current-plan-display").textContent = "FREE";
+        document.getElementById("plan-badge-display").textContent = "BASIC";
+        document.getElementById("available-balance-display").textContent = "0đ";
+        updatePlanBadgeStyle("FREE");
+      }
+
+      // Helper function to update plan badge styling
+      function updatePlanBadgeStyle(currentPlan) {
+        const planBadgeEl = document.getElementById("plan-badge-display");
+        if (currentPlan === "MAX") {
+          planBadgeEl.style.background = "linear-gradient(135deg, #9333ea, #ec4899)";
+          planBadgeEl.style.color = "#fff";
+          planBadgeEl.style.fontWeight = "700";
+        } else if (currentPlan === "PRO") {
+          planBadgeEl.style.background = "linear-gradient(135deg, #FFD700, #FFA500)";
+          planBadgeEl.style.color = "#000";
+          planBadgeEl.style.fontWeight = "600";
+        } else if (currentPlan === "BASIC+") {
+          planBadgeEl.style.background = "linear-gradient(135deg, #87CEEB, #4682B4)";
+          planBadgeEl.style.color = "#fff";
+          planBadgeEl.style.fontWeight = "600";
+        } else {
+          planBadgeEl.style.background = "rgba(255,255,255,0.2)";
+          planBadgeEl.style.color = "#fff";
+          planBadgeEl.style.fontWeight = "500";
+        }
+      }
+
+      // Load topup history (10 items only)
+      let allHistory = [];
+      async function loadHistory() {
+        if (!checkLogin()) return;
+
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/topup/history", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          allHistory = await response.json();
+
+          if (allHistory.length === 0) {
+            historyList.innerHTML =
+              '<p style="text-align: center; color: #999;">Chưa có lịch sử nạp tiền</p>';
+            document.getElementById("view-all-btn").style.display = "none";
+            return;
+          }
+
+          // Show only 10 items
+          historyList.innerHTML = renderHistoryItems(allHistory, 6);
+
+          // Show "View All" button if more than 10 items
+          const viewAllBtn = document.getElementById("view-all-btn");
+          if (allHistory.length > 10) {
+            viewAllBtn.style.display = "block";
+          } else {
+            viewAllBtn.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Lỗi load history:", error);
+          historyList.innerHTML =
+            '<p style="text-align: center; color: #f00;">Không thể tải lịch sử nạp tiền</p>';
+        }
+      }
+
+      // Load all history in modal
+      function showAllHistory() {
+        const modal = document.getElementById("history-modal");
+        const modalHistoryList = document.getElementById("modal-history-list");
 
         if (allHistory.length === 0) {
-          historyList.innerHTML =
-            '<p style="text-align: center; color: #999;">Chưa có lịch sử nạp tiền</p>';
-          document.getElementById("view-all-btn").style.display = "none";
-          return;
-        }
-
-        // Show only 10 items
-        historyList.innerHTML = renderHistoryItems(allHistory, 6);
-
-        // Show "View All" button if more than 10 items
-        const viewAllBtn = document.getElementById("view-all-btn");
-        if (allHistory.length > 10) {
-          viewAllBtn.style.display = "block";
+          modalHistoryList.innerHTML =
+            '<p style="text-align: center; color: #999;">Không có lịch sử nạp tiền</p>';
         } else {
-          viewAllBtn.style.display = "none";
+          modalHistoryList.innerHTML = renderHistoryItems(allHistory);
         }
-      } catch (error) {
-        console.error("Lỗi load history:", error);
-        historyList.innerHTML =
-          '<p style="text-align: center; color: #f00;">Không thể tải lịch sử nạp tiền</p>';
-      }
-    }
 
-    // Load all history in modal
-    function showAllHistory() {
-      const modal = document.getElementById("history-modal");
-      const modalHistoryList = document.getElementById("modal-history-list");
-
-      if (allHistory.length === 0) {
-        modalHistoryList.innerHTML =
-          '<p style="text-align: center; color: #999;">Không có lịch sử nạp tiền</p>';
-      } else {
-        modalHistoryList.innerHTML = renderHistoryItems(allHistory);
+        modal.classList.add("active");
       }
 
-      modal.classList.add("active");
-    }
+      // Close modal
+      function closeModal() {
+        document.getElementById("history-modal").classList.remove("active");
+      }
 
-    // Close modal
-    function closeModal() {
-      document.getElementById("history-modal").classList.remove("active");
-    }
+      // Auto-refresh history every 3 seconds while page is visible
+      let refreshInterval = null;
 
-    // Auto-refresh history every 3 seconds while page is visible
-    let refreshInterval = null;
+      function startAutoRefresh() {
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(() => {
+          loadBalance();
+          loadHistory();
+        }, 3000); // Refresh every 3 seconds
+      }
 
-    function startAutoRefresh() {
-      if (refreshInterval) clearInterval(refreshInterval);
-      refreshInterval = setInterval(() => {
+      function stopAutoRefresh() {
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          refreshInterval = null;
+        }
+      }
+
+      // Load on page load
+      document.addEventListener("DOMContentLoaded", () => {
         loadBalance();
         loadHistory();
-      }, 3000); // Refresh every 3 seconds
-    }
 
-    function stopAutoRefresh() {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        refreshInterval = null;
-      }
-    }
+        // Also load premium data on page load
+        loadPremiumData();
 
-    // Load on page load
-    document.addEventListener("DOMContentLoaded", () => {
-      loadBalance();
-      loadHistory();
+        // Handle payment method selection
+        const methodOptions = document.querySelectorAll('input[name="payment-method"]');
+        methodOptions.forEach((radio) => {
+          radio.addEventListener("change", () => {
+            // Remove active class from all labels
+            document.querySelectorAll(".method-option").forEach((label) => {
+              label.classList.remove("active");
+            });
+            // Add active class to selected label
+            radio.parentElement.classList.add("active");
+          });
+        });
 
-      // Start auto-refresh when page gets focus (user comes back from payment)
-      window.addEventListener("focus", startAutoRefresh);
-      window.addEventListener("blur", stopAutoRefresh);
+        // Start auto-refresh when page gets focus (user comes back from payment)
+        window.addEventListener("focus", startAutoRefresh);
+        window.addEventListener("blur", stopAutoRefresh);
 
-      // Also start auto-refresh on page load (in case user just returned)
-      startAutoRefresh();
+        // Also start auto-refresh on page load (in case user just returned)
+        startAutoRefresh();
 
-      // View All button
-      document.getElementById("view-all-btn").addEventListener("click", showAllHistory);
+        
+        // View All button
+        document
+          .getElementById("view-all-btn")
+          .addEventListener("click", showAllHistory);
 
-      // Close modal button
-      document.getElementById("close-modal-btn").addEventListener("click", closeModal);
+        // Close modal button
+        document
+          .getElementById("close-modal-btn")
+          .addEventListener("click", closeModal);
 
-      // Close modal when clicking outside
-      document.getElementById("history-modal").addEventListener("click", (e) => {
-        if (e.target.id === "history-modal") {
-          closeModal();
-        }
+        // Close modal when clicking outside
+        document
+          .getElementById("history-modal")
+          .addEventListener("click", (e) => {
+            if (e.target.id === "history-modal") {
+              closeModal();
+            }
+          });
       });
-    });
 
-    // Stop refresh when page unloads
-    window.addEventListener("beforeunload", stopAutoRefresh);
-  </script>
-</body>
+      // Stop refresh when page unloads
+      window.addEventListener("beforeunload", stopAutoRefresh);
 
+      // Initialize premium tab when loaded
+      document.addEventListener("DOMContentLoaded", () => {
+        // Premium history modal
+        document
+          .getElementById("premium-view-all-btn")
+          .addEventListener("click", showAllPremiumHistory);
+        document
+          .getElementById("premium-close-modal-btn")
+          .addEventListener("click", closePremiumModal);
+
+        // Close premium modal when clicking outside
+        document
+          .getElementById("premium-history-modal")
+          .addEventListener("click", (e) => {
+            if (e.target.id === "premium-history-modal") {
+              closePremiumModal();
+            }
+          });
+
+        // Load premium data when tab becomes active
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (
+              mutation.target.id === "premium-tab" &&
+              mutation.target.classList.contains("active")
+            ) {
+              loadPremiumData();
+            }
+          });
+        });
+
+        observer.observe(document.getElementById("premium-tab"), {
+          attributes: true,
+          attributeFilter: ["class"],
+        });
+      });
+
+      // Show all premium history in modal
+      function showAllPremiumHistory() {
+        const modal = document.getElementById("premium-history-modal");
+        const modalHistoryList = document.getElementById(
+          "premium-modal-history-list"
+        );
+
+        if (allPremiumHistory.length === 0) {
+          modalHistoryList.innerHTML =
+            '<p style="text-align: center; color: #999;">Không có lịch sử mua Premium</p>';
+        } else {
+          modalHistoryList.innerHTML =
+            renderPremiumHistoryItems(allPremiumHistory);
+        }
+
+        modal.classList.add("active");
+      }
+
+      // Close premium modal
+      function closePremiumModal() {
+        document
+          .getElementById("premium-history-modal")
+          .classList.remove("active");
+      }
+    </script>
+
+    <!-- Premium Upgrade Modal -->
+    <div id="premium-upgrade-modal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Nâng Cấp Gói Premium</h3>
+          <span class="close-btn" onclick="closeUpgradeModal()">&times;</span>
+        </div>
+
+        <!-- Step 1: Order Details -->
+        <div id="upgrade-step-1" class="upgrade-step">
+          <div class="step-header">
+            <span class="step-number">1</span>
+            <h4>Chi Tiết Đơn Hàng</h4>
+          </div>
+          <div class="order-details">
+            <div class="order-item">
+              <span class="order-label">Gói:</span>
+              <span id="modal-plan-name" class="order-value"></span>
+            </div>
+            <div class="order-item">
+              <span class="order-label">Thời hạn:</span>
+              <span id="modal-plan-duration" class="order-value"></span>
+            </div>
+            <div class="order-item">
+              <span class="order-label">Giá:</span>
+              <span id="modal-plan-price" class="order-value price-highlight"></span>
+            </div>
+            <div class="order-item">
+              <span class="order-label">Ưu đãi:</span>
+              <span id="modal-plan-features" class="order-value"></span>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button class="btn-primary" onclick="goToStep(2)">Tiếp tục</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Payment Method -->
+        <div id="upgrade-step-2" class="upgrade-step" style="display: none;">
+          <div class="step-header">
+            <span class="step-number">2</span>
+            <h4>Phương Thức Thanh Toán</h4>
+          </div>
+          <div class="payment-methods">
+            <div class="payment-option" onclick="selectPaymentMethod('momo')">
+              <div class="payment-radio">
+                <input type="radio" name="payment" value="momo" id="momo-payment">
+                <label for="momo-payment">
+                  <div class="payment-info">
+                    <img
+                      src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square-1024x1024.png"
+                      alt="MoMo logo"
+                      class="method-logo"
+                    />
+                    <span>   Thanh toán qua ví MoMo</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="payment-option" onclick="selectPaymentMethod('vnpay')">
+              <div class="payment-radio">
+                <input type="radio" name="payment" value="vnpay" id="vnpay-payment">
+                <label for="vnpay-payment">
+                  <img
+                      src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg"
+                      alt="VNPay logo"
+                      class="method-logo"
+                    />
+                    <span>   Thanh toán qua ví VNPAY</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Use saved information -->
+          <div class="saved-info-section">
+            <label class="checkbox-label">
+              <input type="checkbox" id="use-saved-info" checked>
+              <span class="checkmark"></span>
+              Sử dụng thông tin đã lưu
+            </label>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn-secondary" onclick="goToStep(1)">Quay lại</button>
+            <button class="btn-primary" onclick="sendVerificationAndContinue()" id="continue-to-verification" disabled>Tiếp tục</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Verification Code -->
+        <div id="upgrade-step-3" class="upgrade-step" style="display: none;">
+          <div class="step-header">
+            <span class="step-number">3</span>
+            <h4>Xác Minh Thanh Toán</h4>
+          </div>
+          <div class="verification-section">
+            <p>Nhập mã xác minh được gửi đến <strong id="verification-email"></strong></p>
+            <div class="code-inputs">
+              <input type="text" maxlength="1" class="code-input" data-index="0">
+              <input type="text" maxlength="1" class="code-input" data-index="1">
+              <input type="text" maxlength="1" class="code-input" data-index="2">
+              <input type="text" maxlength="1" class="code-input" data-index="3">
+              <input type="text" maxlength="1" class="code-input" data-index="4">
+              <input type="text" maxlength="1" class="code-input" data-index="5">
+            </div>
+            <div class="resend-section">
+              <span id="resend-timer">Gửi lại mã sau 60s</span>
+              <button id="resend-code-btn" class="btn-link" onclick="resendVerificationCode()" style="display: none;">Gửi lại mã</button>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button class="btn-secondary" onclick="goToStep(2)">Quay lại</button>
+            <button class="btn-primary" onclick="completeUpgrade()">Xác Nhận & Thanh Toán</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Styles -->
+    <style>
+      .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-content {
+        background: white;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e9ecef;
+        background: linear-gradient(135deg, #666 0%, #666 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .close-btn {
+        font-size: 24px;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+
+      .close-btn:hover {
+        opacity: 1;
+      }
+
+      .upgrade-step {
+        padding: 24px;
+      }
+
+      .step-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, #666, #fff);
+        color: white;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-right: 12px;
+      }
+
+      .step-header h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .order-details {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .order-item:last-child {
+        border-bottom: none;
+      }
+
+      .order-label {
+        font-weight: 500;
+        color: #666;
+      }
+
+      .order-value {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .price-highlight {
+        color: #e74c3c;
+        font-size: 18px;
+      }
+
+      .payment-methods {
+        margin-bottom: 20px;
+      }
+
+      .payment-option {
+        margin-bottom: 12px;
+      }
+
+      .payment-radio input[type="radio"] {
+        display: none;
+      }
+
+      .payment-radio label {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .payment-radio input[type="radio"]:checked + label {
+        border-color: #667eea;
+        background: #f8f9ff;
+      }
+
+      .payment-info {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+
+      .payment-logo {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: bold;
+        margin-right: 12px;
+        color: white;
+      }
+
+      .momo-logo {
+        background: #ff6b35;
+      }
+
+      .vnpay-logo {
+        background: #005baa;
+      }
+
+      .saved-info-section {
+        margin-bottom: 20px;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        display: none;
+      }
+
+      .checkmark {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        margin-right: 8px;
+        position: relative;
+        transition: all 0.3s;
+      }
+
+      .checkbox-label input[type="checkbox"]:checked + .checkmark {
+        background: #667eea;
+        border-color: #667eea;
+      }
+
+      .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+        content: '✓';
+        position: absolute;
+        color: white;
+        font-size: 12px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .verification-section {
+        text-align: center;
+      }
+
+      .verification-section p {
+        margin-bottom: 20px;
+        color: #666;
+      }
+
+      .code-inputs {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .code-input {
+        width: 45px;
+        height: 45px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        transition: all 0.3s;
+      }
+
+      .code-input:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .resend-section {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .btn-link {
+        background: none;
+        border: none;
+        color: #667eea;
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: 14px;
+      }
+
+      .btn-link:hover {
+        color: #5a67d8;
+      }
+
+      .step-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .btn-primary, .btn-secondary {
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s;
+        flex: 1;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #666, #fff);
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        background: #f8f9fa;
+        color: #666;
+        border: 1px solid #ddd;
+      }
+
+      .btn-secondary:hover {
+        background: #e9ecef;
+      }
+    </style>
+
+  </body>
 </html>

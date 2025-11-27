@@ -561,6 +561,11 @@
               <input type="number" id="promptOrder" value="0" min="0" />
             </div>
 
+            <div class="form-group">
+              <label for="promptFee" class="required">Giá (VND)</label>
+              <input type="number" id="promptFee" value="1000" min="0" placeholder="VD: 1000" required />
+            </div>
+
             <div class="form-group form-group-full">
               <label for="promptDescription">Mô Tả</label>
               <textarea
@@ -640,13 +645,14 @@
                 <th>Tên</th>
                 <th>Tiêu Đề</th>
                 <th style="width: 100px">Thứ Tự</th>
+                <th style="width: 120px">Giá</th>
                 <th style="width: 150px">Hành Động</th>
               </tr>
             </thead>
             <tbody id="tableBody">
               <tr>
                 <td
-                  colspan="5"
+                  colspan="6"
                   style="text-align: center; padding: 40px; color: #94a3b8"
                 >
                   <div style="font-size: 18px; margin-bottom: 10px">
@@ -781,6 +787,9 @@
                       prompt.order || 0
                     }</span></td>
                     <td>
+                        <strong style="color: #10b981;">${prompt.fee ? new Intl.NumberFormat('vi-VN').format(prompt.fee) : '0'}đ</strong>
+                    </td>
+                    <td>
                         <div class="action-buttons">
                             <button class="btn-edit" onclick="editPrompt('${
                               prompt._id
@@ -816,6 +825,9 @@
                         <small style="color: #94a3b8;">Thứ tự: ${
                           prompt.order || 0
                         }</small>
+                        <div style="margin: 8px 0;">
+                            <strong style="color: #10b981; font-size: 14px;">${prompt.fee ? new Intl.NumberFormat('vi-VN').format(prompt.fee) : '0'}đ</strong>
+                        </div>
                         <div class="card-actions" style="margin-top: 10px;">
                             <button class="btn btn-edit" onclick="editPrompt('${
                               prompt._id
@@ -862,6 +874,7 @@
           prompt.description || "";
         document.getElementById("promptText").value = prompt.prompt;
         document.getElementById("promptOrder").value = prompt.order || 0;
+        document.getElementById("promptFee").value = prompt.fee || 1000;
 
         if (prompt.image) {
           const preview = document.getElementById("imagePreview");
@@ -910,6 +923,7 @@
         const promptText = document.getElementById("promptText").value;
         const promptOrder =
           parseInt(document.getElementById("promptOrder").value) || 0;
+        const promptFee = parseInt(document.getElementById("promptFee").value) || 1000;
         const promptImage = document.getElementById("promptImage").files[0];
 
         showLoading(true);
@@ -933,7 +947,8 @@
             title: promptTitle,
             description: promptDescription,
             prompt: promptText,
-            order: promptOrder
+            order: promptOrder,
+            fee: promptFee
           };
 
           if (promptImage) {

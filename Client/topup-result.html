@@ -270,6 +270,10 @@
     }
 
     function showTimeoutMessage(topupId) {
+      // Get return URL from URL parameters, fallback to /topup.html
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('returnTo') || '/topup.html';
+
       resultContainer.innerHTML = `
           <div class="result-icon">⏳</div>
           <div class="result-title status-pending">Chờ Xác Nhận Thanh Toán</div>
@@ -279,12 +283,18 @@
           </div>
           <div class="btn-group">
             <button class="btn btn-primary" onclick="finalizePayment('${topupId}')">Kiểm Tra Lại</button>
-            <a href="/topup.html" class="btn btn-secondary">← Quay lại Nạp Tiền</a>
+            <a href="${returnTo}" class="btn btn-secondary">← Quay lại</a>
           </div>
         `;
     }
 
     function showSuccess(data) {
+      // Get return URL from URL parameters, fallback to /topup.html
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('returnTo') || '/topup.html';
+      console.log("🔗 showSuccess returnTo:", returnTo);
+      console.log("🔗 Current URL:", window.location.href);
+
       resultContainer.innerHTML = `
           <div class="result-icon success">✓</div>
           <div class="result-title status-success">Nạp Tiền Thành Công!</div>
@@ -299,13 +309,17 @@
             ✓ Bạn có thể sử dụng tiền nạp để tạo ảnh ngay lập tức
           </div>
           <div class="btn-group">
-            <a href="/topup.html" class="btn btn-primary">← Quay lại Nạp Tiền</a>
+            <a href="${returnTo}" class="btn btn-primary">← Quay lại</a>
             <a href="/studio.html" class="btn btn-secondary">Tạo Ảnh →</a>
           </div>
         `;
     }
 
     function showFailed(data) {
+      // Get return URL from URL parameters, fallback to /topup.html
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('returnTo') || '/topup.html';
+
       resultContainer.innerHTML = `
           <div class="result-icon">✗</div>
           <div class="result-title status-failed">Nạp Tiền Thất Bại</div>
@@ -314,7 +328,7 @@
             Giao dịch đã bị hủy hoặc thất bại. Không có tiền nào bị trừ từ tài khoản Momo của bạn.
           </div>
           <div class="btn-group">
-            <a href="/topup.html" class="btn btn-primary">← Quay lại Nạp Tiền</a>
+            <a href="${returnTo}" class="btn btn-primary">← Quay lại</a>
           </div>
         `;
     }
@@ -322,12 +336,16 @@
 
 
     function showError(message) {
+      // Get return URL from URL parameters, fallback to /topup.html
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('returnTo') || '/topup.html';
+
       resultContainer.innerHTML = `
           <div class="result-icon">⚠</div>
           <div class="result-title">Lỗi</div>
           <div class="error-box">${message}</div>
           <div class="btn-group">
-            <a href="/topup.html" class="btn btn-primary">← Quay lại Nạp Tiền</a>
+            <a href="${returnTo}" class="btn btn-primary">← Quay lại</a>
           </div>
         `;
     }

@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((res) => res.text())
       .then((data) => {
         const el = document.getElementById(id);
-        if (!el) return console.warn("⚠️ Không tìm thấy phần tử #" + id);
+        if (!el) return console.warn("Errol Data #" + id);
         el.innerHTML = data;
 
         if (componentCSS[id]) loadCSS(componentCSS[id]);
@@ -102,7 +102,7 @@ function checkAuth() {
 
           <div class="dropdown" id="dropdownMenu">
             <a href="/profile.html">Hồ sơ</a>
-            <a href="/account.html">Tài khoản</a>
+            <a href="/tai-khoan.html">Tài khoản</a>
             <a href="/history.html">Lịch sử</a>
             <a href="/topup.html">Nạp tiền</a>
             <hr />

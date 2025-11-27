@@ -41,7 +41,7 @@ exports.generateFaceImage = async (req, res) => {
     // Tìm prompt ở Prompt model
     let promptData = await Prompt.findOne({ name: promptName });
     let isTrendingPrompt = false;
-    
+
     // Nếu không tìm thấy, tìm ở PromptTrending model
     if (!promptData) {
       promptData = await PromptTrending.findOne({ name: promptName });
@@ -51,7 +51,9 @@ exports.generateFaceImage = async (req, res) => {
     }
 
     if (!promptData) {
-      return res.status(404).json({ error: "Không tìm thấy prompt ở trending" });
+      return res
+        .status(404)
+        .json({ error: "Không tìm thấy prompt ở trending" });
     }
 
     if (!isTrendingPrompt && !promptData.isActive) {
@@ -62,18 +64,25 @@ exports.generateFaceImage = async (req, res) => {
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
-    
+
     const profile = await Profile.findOne({ userId: userObjectId });
     const fee = promptData.fee || 0;
-    
+
     if (fee > 0) {
       if (!profile || profile.balance < fee) {
-        return res.status(400).json({ error: "Số dư không đủ để tạo ảnh. Vui lòng nạp tiền" });
+        return res
+          .status(400)
+          .json({ error: "Số dư không đủ để tạo ảnh. Vui lòng nạp tiền" });
       }
-      
+
       profile.balance -= fee;
       await profile.save();
-      console.log("💰 Fee deducted:", fee, "Remaining balance:", profile.balance);
+      console.log(
+        "💰 Fee deducted:",
+        fee,
+        "Remaining balance:",
+        profile.balance
+      );
     }
 
     const finalPrompt = promptData.prompt;
@@ -87,9 +96,9 @@ exports.generateFaceImage = async (req, res) => {
     }
     const buffer = await response.arrayBuffer();
     const imageBase64 = Buffer.from(buffer).toString("base64");
-    console.log("✅ Image fetched and converted to base64");
+    console.log("Image fetched and converted to base64");
 
-    console.log("📸 Running Replicate model với prompt:", promptData.name);
+    console.log("Running Replicate model với prompt:", promptData.name);
     const output = await replicate.run("google/nano-banana", {
       input: {
         prompt: finalPrompt,
@@ -103,7 +112,7 @@ exports.generateFaceImage = async (req, res) => {
       imageUrl = String(imageUrl);
     }
 
-    console.log("✅ Output URL:", imageUrl);
+    console.log("Output URL:", imageUrl);
 
     const outputResponse = await fetch(imageUrl);
     if (!outputResponse.ok) {
@@ -136,7 +145,7 @@ exports.generateFaceImage = async (req, res) => {
         outputImageUrl: imageUrl,
         status: "success",
       };
-      
+
       // Chỉ set promptId nếu không phải trending prompt
       if (!isTrendingPrompt) {
         historyData.promptId = promptData._id;
@@ -160,7 +169,7 @@ exports.generateFaceImage = async (req, res) => {
       localPath: cloudinaryOutputUrl,
     });
   } catch (error) {
-    console.error("❌ Lỗi Replicate:", error);
+    console.error("Lỗi Replicate:", error);
     console.error("Error stack:", error.stack);
 
     // Only send JSON response if we haven't already sent a response
@@ -179,10 +188,13 @@ exports.generateOutfit = async (req, res) => {
     const { type, hairstyle, description } = req.body;
     const userId = req.user?.id || req.user?._id;
     const cloudinaryFiles = req.cloudinaryFiles || {};
-    console.log("📦 Full cloudinaryFiles:", JSON.stringify(cloudinaryFiles, null, 2));
+    console.log(
+      "📦 Full cloudinaryFiles:",
+      JSON.stringify(cloudinaryFiles, null, 2)
+    );
     console.log("📦 req.file:", req.file);
     console.log("📦 req.files:", req.files);
-    
+
     let personImage = cloudinaryFiles.image || req.cloudinaryFile;
     let clothingImage = cloudinaryFiles.clothing;
 
@@ -202,58 +214,73 @@ exports.generateOutfit = async (req, res) => {
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
-    
+
     const profile = await Profile.findOne({ userId: userObjectId });
     let outfitFee = 0;
-    
+
     try {
       const configOutfit = await ServiceConfig.findOne({ service: "outfit" });
       outfitFee = configOutfit?.fee || 0;
     } catch (err) {
-      console.error("⚠️ Lỗi lấy outfit fee:", err.message);
+      console.error(" Lỗi lấy outfit fee:", err.message);
     }
-    
+
     if (outfitFee > 0) {
       if (!profile || profile.balance < outfitFee) {
-        return res.status(400).json({ error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền" });
+        return res.status(400).json({
+          error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền",
+        });
       }
-      
+
       profile.balance -= outfitFee;
       await profile.save();
-      console.log("💰 Outfit fee deducted:", outfitFee, "Remaining balance:", profile.balance);
+      console.log(
+        "Outfit fee deducted:",
+        outfitFee,
+        "Remaining balance:",
+        profile.balance
+      );
     }
 
     let outfitPrompt;
     if (clothingImage) {
-      outfitPrompt = `The person in the first image should wear the outfit from the second image. Keep the person's face and body structure similar, but change their clothing to match the style and appearance of the clothing shown in the second image.${description ? ` Additional details: ${description}` : ""}`;
+      outfitPrompt = `The person in the first image should wear the outfit from the second image. Keep the person's face and body structure similar, but change their clothing to match the style and appearance of the clothing shown in the second image.${
+        description ? ` Additional details: ${description}` : ""
+      }`;
     } else {
-      outfitPrompt = `Transform the person in this image by changing their outfit to: ${type} and hairstyle to: ${hairstyle}${description ? `. Additional details: ${description}` : ""}. Keep the person's face and body structure similar, only change the clothing and hair style.`;
+      outfitPrompt = `Transform the person in this image by changing their outfit to: ${type} and hairstyle to: ${hairstyle}${
+        description ? `. Additional details: ${description}` : ""
+      }. Keep the person's face and body structure similar, only change the clothing and hair style.`;
     }
 
-    console.log("🔄 Fetching person image from:", personImage.url);
+    console.log("Fetching person image from:", personImage.url);
     const response = await fetch(personImage.url);
     if (!response.ok) {
-      throw new Error(`Failed to fetch from Cloudinary: ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch from Cloudinary: ${response.statusText}`
+      );
     }
     const buffer = await response.arrayBuffer();
     const imageBase64 = Buffer.from(buffer).toString("base64");
-    console.log("✅ Person image fetched and converted to base64");
+    console.log("Person image fetched and converted to base64");
 
     let imageInputs = [`data:image/jpeg;base64,${imageBase64}`];
 
     if (clothingImage) {
-      console.log("🔄 Fetching clothing image from:", clothingImage.url);
+      console.log("Fetching clothing image from:", clothingImage.url);
       const clothingResponse = await fetch(clothingImage.url);
       if (!clothingResponse.ok) {
-        throw new Error(`Failed to fetch clothing image: ${clothingResponse.statusText}`);
+        throw new Error(
+          `Failed to fetch clothing image: ${clothingResponse.statusText}`
+        );
       }
       const clothingBuffer = await clothingResponse.arrayBuffer();
       const clothingBase64 = Buffer.from(clothingBuffer).toString("base64");
-      console.log("✅ Clothing image fetched and converted to base64");
+      console.log(" Clothing image fetched and converted to base64");
       imageInputs.push(`data:image/jpeg;base64,${clothingBase64}`);
     }
 
-    console.log("📸 Running Replicate model for outfit generation");
+    console.log(" Running Replicate model for outfit generation");
     const output = await replicate.run("google/nano-banana", {
       input: {
         prompt: outfitPrompt,
@@ -266,7 +293,7 @@ exports.generateOutfit = async (req, res) => {
       imageUrl = String(imageUrl);
     }
 
-    console.log("✅ Output URL:", imageUrl);
+    console.log("Output URL:", imageUrl);
 
     const outputResponse = await fetch(imageUrl);
     if (!outputResponse.ok) {
@@ -286,12 +313,16 @@ exports.generateOutfit = async (req, res) => {
     fs.unlinkSync(outputPath);
 
     const cloudinaryOutputUrl = cloudinaryResult.secure_url;
-    console.log("💾 Outfit ảnh đã lưu:", cloudinaryOutputUrl);
+    console.log("Outfit ảnh đã lưu:", cloudinaryOutputUrl);
 
     let history = null;
     try {
-      const promptName = clothingImage ? `outfit_custom_clothing` : `outfit_${type}_${hairstyle}`;
-      const promptTitle = clothingImage ? `Đổi trang phục: Tùy chỉnh` : `Đổi trang phục: ${type}, tóc: ${hairstyle}`;
+      const promptName = clothingImage
+        ? `outfit_custom_clothing`
+        : `outfit_${type}_${hairstyle}`;
+      const promptTitle = clothingImage
+        ? `Đổi trang phục: Tùy chỉnh`
+        : `Đổi trang phục: ${type}, tóc: ${hairstyle}`;
 
       history = await History.create({
         userId: userObjectId,
@@ -302,7 +333,7 @@ exports.generateOutfit = async (req, res) => {
         outputImageUrl: imageUrl,
         status: "success",
       });
-      console.log("✅ History lưu thành công:", history._id);
+      console.log("History lưu thành công:", history._id);
     } catch (historyError) {
       console.error("⚠️ Lỗi lưu history:", historyError.message);
     }
@@ -318,7 +349,7 @@ exports.generateOutfit = async (req, res) => {
       localPath: cloudinaryOutputUrl,
     });
   } catch (error) {
-    console.error("❌ Lỗi Outfit generation:", error);
+    console.error("Lỗi Outfit generation:", error);
     console.error("Error stack:", error.stack);
 
     if (!res.headersSent) {
@@ -333,61 +364,77 @@ exports.generateOutfit = async (req, res) => {
 
 exports.generateBackground = async (req, res) => {
   try {
-    const { type, description } = req.body;
+    const { prompt } = req.body;
     const userId = req.user?.id || req.user?._id;
-    const cloudinaryFile = req.cloudinaryFile;
 
-    console.log("📝 Request body:", { type, description, userId });
-    console.log("📤 Cloudinary file:", cloudinaryFile);
+    console.log("Request body:", { prompt, userId });
 
-    if (!cloudinaryFile) {
-      console.error("❌ No cloudinary file found");
-      return res.status(400).json({ error: "Ảnh là bắt buộc" });
-    }
-    if (!type) return res.status(400).json({ error: "Loại bối cảnh là bắt buộc" });
+    if (!prompt || prompt.trim() === "")
+      return res
+        .status(400)
+        .json({ error: "Prompt mô tả bối cảnh là bắt buộc" });
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
 
     // Kiểm tra và trừ phí background
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
-    
+
     const profile = await Profile.findOne({ userId: userObjectId });
     let backgroundFee = 0;
-    
+
     try {
       const configBg = await ServiceConfig.findOne({ service: "background" });
       backgroundFee = configBg?.fee || 0;
     } catch (err) {
       console.error("⚠️ Lỗi lấy background fee:", err.message);
     }
-    
+
     if (backgroundFee > 0) {
       if (!profile || profile.balance < backgroundFee) {
-        return res.status(400).json({ error: "Số dư không đủ để tạo bối cảnh. Vui lòng nạp tiền" });
+        return res
+          .status(400)
+          .json({ error: "Số dư không đủ để tạo bối cảnh. Vui lòng nạp tiền" });
       }
-      
+
       profile.balance -= backgroundFee;
       await profile.save();
-      console.log("💰 Background fee deducted:", backgroundFee, "Remaining balance:", profile.balance);
+      console.log(
+        "💰 Background fee deducted:",
+        backgroundFee,
+        "Remaining balance:",
+        profile.balance
+      );
     }
 
-    const backgroundPrompt = `Change the background of this image to a ${type} background${description ? `. Style: ${description}` : ""}. Keep the person in the same position, only change the background.`;
+    // Tạo prompt hoàn chỉnh để sinh bối cảnh
+    const backgroundPrompt = `Generate a beautiful background image: ${prompt}
 
-    console.log("🔄 Fetching image from:", cloudinaryFile.url);
-    const response = await fetch(cloudinaryFile.url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch from Cloudinary: ${response.statusText}`);
-    }
-    const buffer = await response.arrayBuffer();
-    const imageBase64 = Buffer.from(buffer).toString("base64");
-    console.log("✅ Image fetched and converted to base64");
+Image style requirements:
+- High resolution, photorealistic quality
+- Professional photography style
+- Good lighting and composition
+- Vibrant colors, sharp details
+- No people or characters, only background/scenery
+- Suitable for use as background image
+- Centered composition, balanced layout
 
-    console.log("📸 Running Replicate model for background generation");
+Photography style: professional landscape, architectural, or nature photography
+Quality: ultra detailed, 8K resolution, sharp focus
+Lighting: natural lighting, studio quality
+Composition: centered subject, balanced framing, professional layout`;
+
+    console.log("🔄 Generating background with prompt:", backgroundPrompt);
+
+    // Sử dụng model text-to-image để tạo bối cảnh từ prompt
     const output = await replicate.run("google/nano-banana", {
       input: {
         prompt: backgroundPrompt,
-        image_input: [`data:image/jpeg;base64,${imageBase64}`],
+        width: 1024,
+        height: 768,
+        num_inference_steps: 30,
+        guidance_scale: 7.5,
+        scheduler: "DPMSolverMultistep",
       },
     });
 
@@ -422,9 +469,9 @@ exports.generateBackground = async (req, res) => {
     try {
       history = await History.create({
         userId: userObjectId,
-        promptName: `background_${type}`,
-        promptTitle: `Thay đổi bối cảnh: ${type}`,
-        originalImagePath: cloudinaryFile.url,
+        promptName: "background_generation",
+        promptTitle: `Tạo bối cảnh: ${prompt.substring(0, 50)}...`,
+        originalImagePath: null, // Không có ảnh gốc
         outputImagePath: cloudinaryOutputUrl,
         outputImageUrl: imageUrl,
         status: "success",
@@ -438,7 +485,7 @@ exports.generateBackground = async (req, res) => {
       success: true,
       historyId: history?._id || null,
       model: "google/nano-banana",
-      backgroundType: type,
+      backgroundType: "generated",
       prompt: backgroundPrompt,
       imageUrl,
       localPath: cloudinaryOutputUrl,

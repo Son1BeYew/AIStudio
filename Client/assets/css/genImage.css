@@ -20,16 +20,16 @@
   --color-warning: #f59e0b;
   --color-gray: #64748b;
   --color-gray-light: #e2e8f0;
-  
+
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
   --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.12);
   --shadow-lg: 0 10px 24px rgba(15, 23, 42, 0.15);
   --shadow-xl: 0 20px 40px rgba(15, 23, 42, 0.2);
-  
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  
+
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -42,7 +42,7 @@
 }
 
 body {
-  font-family: 'Inter', 'Poppins', 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", "Poppins", "Segoe UI", Roboto, sans-serif;
   background: var(--color-bg-secondary);
   color: var(--color-text);
   margin: 0;
@@ -54,7 +54,7 @@ body {
 
 /* ========== TITLE & SUBTITLE ========== */
 .title {
-  font-family: 'Inter', 'Poppins', 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", "Poppins", "Segoe UI", Roboto, sans-serif;
   font-size: 32px;
   font-weight: 700;
   margin-top: 30px;
@@ -91,7 +91,6 @@ body {
   transition: var(--transition);
 }
 
-
 .upload-box h3,
 .settings-box h3,
 .output-box h3 {
@@ -106,7 +105,12 @@ body {
 /* ========== FORM SECTION DIVIDER ========== */
 .form-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-border),
+    transparent
+  );
   margin: 32px 0;
 }
 
@@ -118,7 +122,11 @@ body {
   cursor: pointer;
   transition: var(--transition);
   text-align: center;
-  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-tertiary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg-tertiary) 100%
+  );
   position: relative;
   min-height: 200px;
   display: flex;
@@ -128,7 +136,6 @@ body {
 
 .upload-area:hover {
   border-color: rgb(115, 0, 150);
- 
 }
 
 .upload-content {
@@ -198,7 +205,7 @@ body {
 }
 
 .settings-box select {
-  font-family: 'Inter', 'Poppins', 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", "Poppins", "Segoe UI", Roboto, sans-serif;
   width: 100%;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
@@ -224,7 +231,11 @@ body {
   border: none;
   border-radius: var(--radius-sm);
   height: 6px;
-  background: linear-gradient(90deg, var(--color-border) 0%, var(--color-border) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 0%,
+    var(--color-border) 100%
+  );
   outline: none;
   transition: var(--transition-fast);
   -webkit-appearance: none;
@@ -237,7 +248,11 @@ body {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(91, 33, 182, 0.3);
   transition: all 0.2s ease;
@@ -247,7 +262,11 @@ body {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
   cursor: pointer;
   border: none;
   box-shadow: 0 2px 8px rgba(91, 33, 182, 0.3);
@@ -268,13 +287,18 @@ body {
 }
 
 .settings-box input[type="range"]:hover {
-  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary) 100%
+  );
 }
 
 .settings-box select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light), 0 2px 8px rgba(91, 33, 182, 0.12);
+  box-shadow: 0 0 0 3px var(--color-primary-light),
+    0 2px 8px rgba(91, 33, 182, 0.12);
 }
 
 .settings-box input[type="range"]:focus {
@@ -370,12 +394,16 @@ body {
 .output-area {
   border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 32px;
+  padding: 10px;
   min-height: 350px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-tertiary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg-tertiary) 100%
+  );
   margin-bottom: 20px;
   overflow: hidden;
   transition: var(--transition);
@@ -408,7 +436,11 @@ body {
 }
 
 .output-info {
-  background: linear-gradient(135deg, var(--color-primary-lighter) 0%, var(--color-accent-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-lighter) 0%,
+    var(--color-accent-light) 100%
+  );
   padding: 20px 24px;
   border-radius: var(--radius-md);
   margin-bottom: 20px;
@@ -443,8 +475,12 @@ body {
 
 /* ========== BUTTON ========== */
 .download-btn {
-  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif !important;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif !important;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
   color: #fff;
   border: none;
   width: 100%;
@@ -471,7 +507,11 @@ body {
 }
 
 .download-btn:disabled {
-  background: linear-gradient(135deg, var(--color-text-light) 0%, var(--color-gray) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-text-light) 0%,
+    var(--color-gray) 100%
+  );
   cursor: not-allowed;
   opacity: 0.6;
   box-shadow: none;
@@ -483,7 +523,11 @@ body {
 }
 
 .download-result:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--color-success-dark) 0%, #059669 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-success-dark) 0%,
+    #059669 100%
+  );
   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
 }
 
@@ -918,7 +962,11 @@ body {
   align-items: center;
   gap: 16px;
   padding: 20px;
-  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg) 100%
+  );
   background-size: 100%;
   background-repeat: no-repeat;
   background-position: center;
@@ -926,7 +974,6 @@ body {
   flex-wrap: wrap;
   box-shadow: var(--shadow-sm);
 }
-
 
 .tab-navigation::-webkit-scrollbar {
   height: 6px;
@@ -942,7 +989,7 @@ body {
 }
 
 .tab-button {
-  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif !important;
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif !important;
   padding: 12px 24px;
   border: none;
   background-color: transparent;
@@ -967,7 +1014,6 @@ body {
   background-color: #ac00d7;
   box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
 }
-
 
 .tab-icon {
   margin-right: 8px;
@@ -1090,7 +1136,8 @@ body {
 .settings-box textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light), 0 2px 8px rgba(91, 33, 182, 0.12);
+  box-shadow: 0 0 0 3px var(--color-primary-light),
+    0 2px 8px rgba(91, 33, 182, 0.12);
 }
 
 /* ========== HOT TREND SECTION ========== */
@@ -1105,13 +1152,16 @@ body {
   margin-bottom: 20px;
   font-weight: bold;
   text-align: center;
-  
+
   /* Gradient cho chữ */
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 
 .trend-creator-section .content-wrapper {
   display: grid;
@@ -1182,6 +1232,9 @@ body {
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease, filter 0.5s ease;
+    background-size: cover; /* ảnh phủ toàn bộ container, giữ tỉ lệ */
+  background-position: 30% center; /* lệch 30% theo ngang, căn giữa theo dọc */
+  background-repeat: no-repeat;
 }
 
 .trend-card:hover .trend-image {
@@ -1213,11 +1266,10 @@ body {
   opacity: 1;
 }
 
-
 .trend-overlay p {
   color: white;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
   text-align: center;
   padding: 10px;
 }
@@ -1313,26 +1365,72 @@ body {
   }
 }
 
+/* From Uiverse.io by terenceodonoghue */
+.output-area {
+  position: relative; /* tạo khung tham chiếu */
+}
 .output-area .loading-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  animation: rotate_3922 1.2s linear infinite;
+  background-color: #9b59b6;
+  background-image: linear-gradient(#9b59b6, #84cdfa, #5ad1cd);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  color: #666;
 }
 
-.output-area .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 136, 204, 0.2);
-  border-top-color: #0088cc;
+.output-area .loading-container span {
+  position: absolute;
+  border-radius: 50%;
+  height: 100%;
+  width: 100%;
+  background-color: #9b59b6;
+  background-image: linear-gradient(#9b59b6, #84cdfa, #5ad1cd);
 }
 
-.output-area .loading-text {
-  font-size: 16px;
-  font-weight: 500;
+.output-area .loading-container span:nth-of-type(1) {
+  filter: blur(5px);
 }
+
+.output-area .loading-container span:nth-of-type(2) {
+  filter: blur(10px);
+}
+
+.output-area .loading-container span:nth-of-type(3) {
+  filter: blur(25px);
+}
+
+.output-area .loading-container span:nth-of-type(4) {
+  filter: blur(50px);
+}
+
+.output-area .loading-container::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  background-color: #fff;
+  border: solid 5px #ffffff;
+  border-radius: 50%;
+}
+
+@keyframes rotate_3922 {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
 
 /* ========== QUICK GUIDE SECTION ========== */
 .quick-guide {
@@ -1571,7 +1669,11 @@ body {
 }
 
 .btn-confirm {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
   color: white;
   flex: 1;
   font-weight: 700;
@@ -1592,7 +1694,11 @@ body {
 /* ========== INFO BOX ========== */
 .info-box {
   padding: 16px 18px;
-  background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-primary-lighter) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-light) 0%,
+    var(--color-primary-lighter) 100%
+  );
   border: 1px solid var(--color-primary);
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -1784,13 +1890,18 @@ body > .container {
 
 .modal-btn-login {
   display: inline-block;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
   color: white;
   padding: 13px 36px;
   border-radius: var(--radius-md);
   text-decoration: none;
   font-weight: 700;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3);
 }
 

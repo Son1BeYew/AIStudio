@@ -5,9 +5,7 @@ exports.getAllPrompts = async (req, res) => {
   try {
     const { gender } = req.query;
     let filter = {};
-
-    // Nếu có gender parameter, lọc theo gender
-    if (gender && ['male', 'female', 'unisex'].includes(gender)) {
+    if (gender && ["male", "female", "unisex"].includes(gender)) {
       filter.gender = gender;
     }
 
@@ -23,9 +21,13 @@ exports.createPrompt = async (req, res) => {
   try {
     const { name, title, description, prompt, gender } = req.body;
 
-    // Validate gender
-    if (gender && !['male', 'female', 'unisex'].includes(gender)) {
-      return res.status(400).json({ message: "Giới tính không hợp lệ. Chỉ chấp nhận: male, female, unisex" });
+    if (gender && !["male", "female", "unisex"].includes(gender)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Giới tính không hợp lệ. Chỉ chấp nhận: male, female, unisex",
+        });
     }
 
     const newPrompt = await Prompt.create({
@@ -33,7 +35,7 @@ exports.createPrompt = async (req, res) => {
       title,
       description,
       prompt,
-      gender: gender || 'unisex' // Mặc định là unisex nếu không có gender
+      gender: gender || "unisex",
     });
     res.status(201).json(newPrompt);
   } catch (error) {
@@ -41,7 +43,6 @@ exports.createPrompt = async (req, res) => {
   }
 };
 
-// Cập nhật prompt
 exports.updatePrompt = async (req, res) => {
   try {
     const { id } = req.params;

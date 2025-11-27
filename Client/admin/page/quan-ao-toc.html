@@ -545,6 +545,11 @@
                         <input type="text" id="typeValue" placeholder="VD: casual_outfit" required>
                     </div>
 
+                    <div class="form-group">
+                        <label for="promptFee" class="required">Giá (VND)</label>
+                        <input type="number" id="promptFee" value="1000" min="0" placeholder="VD: 1000" required>
+                    </div>
+
                     <div class="form-group form-group-full">
                         <label for="typeDescription">Mô Tả Loại Trang Phục</label>
                         <textarea id="typeDescription" placeholder="Mô tả chi tiết về loại trang phục này..."></textarea>
@@ -598,12 +603,13 @@
                             <th>Value</th>
                             <th style="width: 100px;">Giới Tính</th>
                             <th style="width: 100px;">Kiểu Tóc</th>
+                            <th style="width: 120px;">Giá</th>
                             <th style="width: 150px;">Hành Động</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">
                                 <div style="font-size: 18px; margin-bottom: 10px;">
                                     <i class="fas fa-spinner-third" style="animation: spin 1s linear infinite;"></i>
                                 </div>
@@ -678,6 +684,9 @@
                     <td>${genderLabels[outfit.gender] || outfit.gender}</td>
                     <td><span class="order-badge">${outfit.hairstyles ? outfit.hairstyles.length : 0} kiểu</span></td>
                     <td>
+                        <strong style="color: #10b981;">${outfit.fee ? new Intl.NumberFormat('vi-VN').format(outfit.fee) : '0'}đ</strong>
+                    </td>
+                    <td>
                         <div class="action-buttons">
                             <button class="btn-edit" onclick="editPrompt('${outfit._id}')">
                                 <i class="fas fa-edit"></i> Sửa
@@ -703,6 +712,9 @@
                             ${genderLabels[outfit.gender] || outfit.gender}<br>
                             ${outfit.hairstyles ? outfit.hairstyles.length : 0} kiểu tóc
                         </small>
+                        <div style="margin: 8px 0;">
+                            <strong style="color: #10b981; font-size: 14px;">${outfit.fee ? new Intl.NumberFormat('vi-VN').format(outfit.fee) : '0'}đ</strong>
+                        </div>
                         <div class="card-actions" style="margin-top: 10px;">
                             <button class="btn btn-edit" onclick="editPrompt('${outfit._id}')">Sửa</button>
                             <button class="btn btn-delete" onclick="deletePrompt('${outfit._id}')">Xóa</button>
@@ -735,6 +747,7 @@
             document.getElementById('typeName').value = outfit.type?.name || '';
             document.getElementById('typeValue').value = outfit.type?.value || '';
             document.getElementById('typeDescription').value = outfit.type?.description || '';
+            document.getElementById('promptFee').value = outfit.fee || 1000;
             
             // Format hairstyles for textarea
             const hairstylesText = (outfit.hairstyles || [])
@@ -772,6 +785,21 @@
             const typeValue = document.getElementById('typeValue').value;
             const typeDescription = document.getElementById('typeDescription').value;
             const hairstylesText = document.getElementById('hairstylesText').value;
+            const promptFee = parseInt(document.getElementById('promptFee').value) || 1000;
+
+            // Validation
+            if (!gender) {
+                showAlert('Vui lòng chọn giới tính', 'error');
+                return;
+            }
+            if (!typeName.trim()) {
+                showAlert('Vui lòng nhập tên loại trang phục', 'error');
+                return;
+            }
+            if (!typeValue.trim()) {
+                showAlert('Vui lòng nhập giá trị loại trang phục', 'error');
+                return;
+            }
 
             showLoading(true);
 
@@ -794,30 +822,38 @@
                     .split('\n')
                     .filter(line => line.trim())
                     .map(line => {
-                        const [name, value] = line.split('|').map(s => s.trim());
-                        return { name, value, isActive: true };
-                    });
+                        const parts = line.split('|').map(s => s.trim());
+                        if (parts.length >= 2) {
+                            return { name: parts[0], value: parts[1], isActive: true };
+                        }
+                        return null;
+                    })
+                    .filter(h => h !== null);
 
                 const body = {
                     gender,
+                    fee: promptFee,
                     type: {
-                        name: typeName,
-                        value: typeValue,
-                        description: typeDescription,
+                        name: typeName.trim(),
+                        value: typeValue.trim(),
+                        description: typeDescription.trim(),
                         isActive: true
                     },
                     hairstyles
                 };
 
-                const response = await fetch(url, { 
-                    method, 
+                console.log('Sending data:', body);
+
+                const response = await fetch(url, {
+                    method,
                     body: JSON.stringify(body),
                     headers
                 });
 
+                const responseData = await response.json();
+
                 if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || 'Lỗi khi lưu');
+                    throw new Error(responseData.error || responseData.message || 'Lỗi khi lưu');
                 }
 
                 showAlert(promptId ? 'Cập nhật thành công!' : 'Thêm mới thành công!', 'success');

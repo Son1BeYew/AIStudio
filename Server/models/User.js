@@ -11,6 +11,11 @@ const userSchema = new mongoose.Schema(
     googleId: { type: String, default: null, index: true },
     avatar: { type: String, default: null },
     refreshToken: { type: String, default: null },
+    // Premium related fields
+    hasPremium: { type: Boolean, default: false },
+    premiumType: { type: String, enum: ["free", "monthly", "yearly", "pro", "max"], default: "free" },
+    premiumExpiry: { type: Date, default: null },
+    premiumAutoRenew: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -14,9 +14,12 @@ const announcementRoutes = require("./routes/announcementRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const topupRoutes = require("./routes/topup");
 const historyRoutes = require("./routes/history");
+const premiumRoutes = require("./routes/premium");
 const adminRoutes = require("./routes/admin");
 const outfitStyleRoutes = require("./routes/outfitStyles");
 const chatRoutes = require("./routes/chat");
+const trendsRoutes = require("./routes/trends");
+const collectionsRoutes = require("./routes/collections");
 const app = express();
 
 // CORS configuration
@@ -52,9 +55,12 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/topup", topupRoutes);
 app.use("/api/history", historyRoutes);
+app.use("/api/premium", premiumRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/outfit-styles", outfitStyleRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/trends", trendsRoutes);
+app.use("/api/collections", collectionsRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {

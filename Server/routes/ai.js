@@ -74,14 +74,6 @@ router.post(
 router.post(
   "/generate-background",
   checkAuth,
-  (req, res, next) => {
-    console.log("📬 POST /generate-background request received");
-    upload.single("image")(req, res, (err) => {
-      handleMulterError(err, req, res, () => {
-        attachCloudinaryFile(req, res, next);
-      });
-    });
-  },
   generateBackground
 );
 

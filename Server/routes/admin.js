@@ -618,4 +618,349 @@ router.get("/dashboard-feed", verifyAdmin, async (req, res) => {
   }
 });
 
+// Get wallet statistics and transactions
+router.get("/wallet-stats", verifyAdmin, async (req, res) => {
+  try {
+    const filter = req.query.filter || "today";
+    let startDate, endDate;
+    const now = new Date();
+
+    // Calculate date range based on filter
+    const today = new Date();
+
+    if (filter === "today") {
+      startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
+    } else if (filter === "week") {
+      // Get Monday of current week
+      const dayOfWeek = today.getDay();
+      const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      startDate = new Date(today.getFullYear(), today.getMonth(), diff);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 7);
+    } else if (filter === "month") {
+      startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      endDate.setHours(23, 59, 59, 999);
+    } else { // all
+      startDate = new Date(0); // Beginning of time
+      endDate = new Date();
+    }
+
+    // Get total deposits (dynamically based on filter)
+    let totalDeposit;
+    if (filter === "all") {
+      // Get all successful topups for "all" filter
+      const totalDepositData = await TopUp.aggregate([
+        { $match: { status: "success" } },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]);
+      totalDeposit = totalDepositData.length > 0 ? totalDepositData[0].total : 0;
+    } else {
+      // Get deposits within date range for other filters
+      const totalDepositData = await TopUp.aggregate([
+        {
+          $match: {
+            status: "success",
+            createdAt: { $gte: startDate, $lt: endDate }
+          }
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]);
+      totalDeposit = totalDepositData.length > 0 ? totalDepositData[0].total : 0;
+    }
+
+    // Calculate spent amounts based on filter
+    let monthSpent, weekSpent, todaySpent;
+
+    if (filter === "all") {
+      // For "all" filter, calculate all periods
+      // Month spent (current month)
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const monthSpentData = await History.aggregate([
+        {
+          $match: {
+            status: "success",
+            createdAt: { $gte: monthStart, $lte: monthEnd }
+          }
+        },
+        {
+          $lookup: {
+            from: "prompts",
+            localField: "promptId",
+            foreignField: "_id",
+            as: "prompt"
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $arrayElemAt: ["$prompt.fee", 0] } }
+          }
+        }
+      ]);
+      monthSpent = monthSpentData.length > 0 ? monthSpentData[0].total : 0;
+
+      // Week spent (current week)
+      const todayForWeek = new Date();
+      const dayOfWeek = todayForWeek.getDay();
+      const weekStart = new Date(todayForWeek.getFullYear(), todayForWeek.getMonth(), todayForWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+      weekStart.setHours(0, 0, 0, 0);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      const weekSpentData = await History.aggregate([
+        {
+          $match: {
+            status: "success",
+            createdAt: { $gte: weekStart, $lt: weekEnd }
+          }
+        },
+        {
+          $lookup: {
+            from: "prompts",
+            localField: "promptId",
+            foreignField: "_id",
+            as: "prompt"
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $arrayElemAt: ["$prompt.fee", 0] } }
+          }
+        }
+      ]);
+      weekSpent = weekSpentData.length > 0 ? weekSpentData[0].total : 0;
+
+      // Today spent
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date(todayStart);
+      todayEnd.setDate(todayEnd.getDate() + 1);
+      const todaySpentData = await History.aggregate([
+        {
+          $match: {
+            status: "success",
+            createdAt: { $gte: todayStart, $lt: todayEnd }
+          }
+        },
+        {
+          $lookup: {
+            from: "prompts",
+            localField: "promptId",
+            foreignField: "_id",
+            as: "prompt"
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $arrayElemAt: ["$prompt.fee", 0] } }
+          }
+        }
+      ]);
+      todaySpent = todaySpentData.length > 0 ? todaySpentData[0].total : 0;
+
+    } else {
+      // For specific filters, always calculate spent amounts for their respective periods
+      // Calculate month spent (current month)
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const monthSpentData = await History.aggregate([
+        {
+          $match: {
+            status: "success",
+            createdAt: { $gte: monthStart, $lte: monthEnd }
+          }
+        },
+        {
+          $lookup: {
+            from: "prompts",
+            localField: "promptId",
+            foreignField: "_id",
+            as: "prompt"
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $arrayElemAt: ["$prompt.fee", 0] } }
+          }
+        }
+      ]);
+      monthSpent = monthSpentData.length > 0 ? monthSpentData[0].total : 0;
+
+      // Calculate week spent (current week)
+      const todayForWeek = new Date();
+      const dayOfWeek = todayForWeek.getDay();
+      const weekStart = new Date(todayForWeek.getFullYear(), todayForWeek.getMonth(), todayForWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+      weekStart.setHours(0, 0, 0, 0);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      const weekSpentData = await History.aggregate([
+        {
+          $match: {
+            status: "success",
+            createdAt: { $gte: weekStart, $lt: weekEnd }
+          }
+        },
+        {
+          $lookup: {
+            from: "prompts",
+            localField: "promptId",
+            foreignField: "_id",
+            as: "prompt"
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $arrayElemAt: ["$prompt.fee", 0] } }
+          }
+        }
+      ]);
+      weekSpent = weekSpentData.length > 0 ? weekSpentData[0].total : 0;
+
+      // Calculate today spent
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date(todayStart);
+      todayEnd.setDate(todayEnd.getDate() + 1);
+      const todaySpentData = await History.aggregate([
+        {
+          $match: {
+            status: "success",
+            createdAt: { $gte: todayStart, $lt: todayEnd }
+          }
+        },
+        {
+          $lookup: {
+            from: "prompts",
+            localField: "promptId",
+            foreignField: "_id",
+            as: "prompt"
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $arrayElemAt: ["$prompt.fee", 0] } }
+          }
+        }
+      ]);
+      todaySpent = todaySpentData.length > 0 ? todaySpentData[0].total : 0;
+    }
+
+    // Get transactions based on filter
+    const transactions = [];
+
+    // Get topup transactions (nạp tiền)
+    const topupTransactions = await TopUp.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lt: endDate }
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $project: {
+          timestamp: "$createdAt",
+          userName: { $arrayElemAt: ["$user.fullname", 0] },
+          userEmail: { $arrayElemAt: ["$user.email", 0] },
+          type: "nap",
+          amount: "$amount",
+          description: { $concat: ["Nạp tiền qua ", "$method"] }
+        }
+      },
+      { $sort: { timestamp: -1 } }
+    ]);
+
+    // Get history transactions (tạo ảnh và hoàn tiền)
+    const historyTransactions = await History.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lt: endDate }
+        }
+      },
+      {
+        $lookup: {
+          from: "prompts",
+          localField: "promptId",
+          foreignField: "_id",
+          as: "prompt"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $project: {
+          timestamp: "$createdAt",
+          userName: { $arrayElemAt: ["$user.fullname", 0] },
+          userEmail: { $arrayElemAt: ["$user.email", 0] },
+          promptName: "$promptName",
+          status: "$status",
+          fee: { $arrayElemAt: ["$prompt.fee", 0] },
+          type: {
+            $cond: {
+              if: { $eq: ["$status", "failed"] },
+              then: "hoan-tien",
+              else: "tao-anh"
+            }
+          },
+          amount: {
+            $cond: {
+              if: { $eq: ["$status", "failed"] },
+              then: { $ifNull: [{ $arrayElemAt: ["$prompt.fee", 0] }, 0] },
+              else: { $multiply: [{ $arrayElemAt: ["$prompt.fee", 0] }, -1] }
+            }
+          },
+          description: {
+            $cond: {
+              if: { $eq: ["$status", "failed"] },
+              then: "Hoàn tiền do tạo ảnh thất bại",
+              else: { $concat: ["Tạo ảnh với prompt '", "$promptName", "'"] }
+            }
+          }
+        }
+      },
+      { $sort: { timestamp: -1 } }
+    ]);
+
+    // Combine all transactions
+    const allTransactions = [...topupTransactions, ...historyTransactions]
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      .slice(0, 50); // Limit to 50 transactions
+
+    res.json({
+      totalDeposit,
+      monthSpent,
+      weekSpent,
+      todaySpent,
+      transactions: allTransactions
+    });
+
+  } catch (error) {
+    console.error("❌ Wallet stats error:", error.message);
+    res.status(500).json({ error: "Lỗi lấy thống kê ví" });
+  }
+});
+
 module.exports = router;

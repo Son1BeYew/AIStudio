@@ -7,6 +7,10 @@ const outfitStyleSchema = new mongoose.Schema(
       enum: ["male", "female"],
       required: true,
     },
+    fee: {
+      type: Number,
+      default: 1000,
+    },
     type: {
       name: { type: String, required: true },
       value: { type: String, required: true },
