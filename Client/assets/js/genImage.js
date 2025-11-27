@@ -812,7 +812,6 @@ async function proceedGenerateFaceImage() {
     outputArea.innerHTML = `
           <div class="loading-container">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Đang tạo ảnh...</div>
           </div>
         `;
 
@@ -850,7 +849,7 @@ async function proceedGenerateFaceImage() {
   } finally {
     const generateBtn = document.getElementById("generate-btn");
     generateBtn.disabled = false;
-    generateBtn.innerHTML = "<span>✨</span>Tạo ảnh";
+    generateBtn.innerHTML = "<span></span>Tạo ảnh";
   }
 }
 
@@ -876,7 +875,6 @@ async function proceedGenerateBackground() {
     bgOutputArea.innerHTML = `
           <div class="loading-container">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Đang tạo bối cảnh...</div>
           </div>
         `;
 
@@ -954,7 +952,6 @@ async function proceedGenerateOutfit() {
     outfitOutputArea.innerHTML = `
           <div class="loading-container">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Đang thay đổi trang phục...</div>
           </div>
         `;
 
@@ -1025,7 +1022,6 @@ async function proceedGenerateTrending() {
     trendOutputArea.innerHTML = `
           <div class="loading-container">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Đang tạo ảnh...</div>
           </div>
         `;
 

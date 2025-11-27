@@ -1,8 +1,16 @@
 .trends-hero {
-  text-align: center;
-  padding: 80px 20px;
-  margin-bottom: 60px;
+    text-align: center;
+    padding: 20px 20px;
+    margin-bottom: 60px;
+    margin-top: 20px;
+    background-color: #b7b7b7ca; /* Xám nhạt nhẹ */
+    max-width: 1200px;          /* Giới hạn chiều ngang để nổi bật */
+    margin-left: auto;          /* Canh giữa */
+    margin-right: auto;
+    border-radius: 10px;        /* Bo góc nhẹ để nổi bật */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Tạo cảm giác nổi */
 }
+
 
 .trends-hero h1 {
   font-size: 48px;
@@ -15,6 +23,7 @@
   font-size: 20px;
   font-weight: 300;
   opacity: 0.9;
+  font-style: italic;
 }
 
 .section-header {
@@ -32,6 +41,7 @@
 .section-header p {
   font-size: 16px;
   color: #666;
+    font-style: italic;
 }
 
 /* Popular Trends Section */
@@ -80,9 +90,9 @@
 
 .trend-image {
   width: 100%;
-  height: 200px;
-  background-size: cover;
-  background-position: center;
+  height: 300px;
+  background-size: cover;       
+  background-position: center 30%;
 }
 
 .trend-card h3 {
@@ -97,6 +107,7 @@
   color: #666;
   margin: 0 20px 20px;
   line-height: 1.5;
+  font-style: italic;
 }
 
 .trend-stats {
@@ -218,6 +229,7 @@
   margin: 0 0 15px 0;
   line-height: 1.5;
   flex-grow: 1;
+  font-style: italic;
 }
 
 .highlight-meta {
@@ -275,6 +287,7 @@
   font-size: 14px;
   color: #666;
   margin-bottom: 15px;
+  font-style: italic;
 }
 
 .category-count {
@@ -289,7 +302,7 @@
 
 /* CTA Section */
 .trends-cta {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #764ba2 0%, #c300c3 100%);
   color: white;
   text-align: center;
   padding: 80px 20px;
@@ -312,12 +325,13 @@
   font-size: 18px;
   margin-bottom: 30px;
   opacity: 0.9;
+  font-style: italic;
 }
 
 .btn-primary {
   padding: 14px 40px;
   background: white;
-  color: #667eea;
+  color: #000000;
   border: none;
   border-radius: 10px;
   font-size: 16px;
