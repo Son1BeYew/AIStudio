@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((res) => res.text())
       .then((data) => {
         const el = document.getElementById(id);
-        if (!el) return console.warn("⚠️ Không tìm thấy phần tử #" + id);
+        if (!el) return console.warn("Errol Data #" + id);
         el.innerHTML = data;
 
         if (componentCSS[id]) loadCSS(componentCSS[id]);

@@ -1324,8 +1324,6 @@
             const mainPlanDisplay = document.getElementById("current-plan-display");
             const mainPlanText = mainPlanDisplay ? mainPlanDisplay.textContent : '';
 
-            console.log("🔄 Tab switch detected - Immediate update from:", mainPlanText);
-
             let planType = 'free';
             if (mainPlanText.includes('PRO')) {
               planType = 'pro';
@@ -1335,7 +1333,6 @@
               planType = 'basic';
             }
 
-            console.log("⚡ IMMEDIATE tab switch update to:", planType);
             updatePlanButtons(planType);
           }, 50); // Very small delay to ensure DOM is ready
         }
@@ -1448,8 +1445,6 @@
           const premiumPlanBadge = document.getElementById("current-plan-badge");
           const premiumPlanText = premiumPlanBadge ? premiumPlanBadge.textContent : '';
 
-          console.log("🎯 Plan sources - Main display:", mainPlanText, "Premium badge:", premiumPlanText);
-
           // Prioritize main display since it shows PRO correctly
           let planType = 'free';
           const sourceText = mainPlanText || premiumPlanText;
@@ -1462,15 +1457,7 @@
             planType = 'basic';
           }
 
-          console.log("🚀 IMMEDIATE updatePlanButtons with:", planType, "from source:", sourceText);
           updatePlanButtons(planType);
-
-          // Additional debug: check data attributes
-          const allCards = document.querySelectorAll('.premium-card');
-          console.log("🔍 All cards data attributes:");
-          allCards.forEach((card, index) => {
-            console.log(`  Card ${index}: data-plan="${card.dataset.plan}", data attributes:`, card.dataset);
-          });
         };
 
         // Update immediately after HTML is set
@@ -1490,23 +1477,23 @@
 
           if (!response.ok) {
             console.error("API Error:", response.status, response.statusText);
-            // Show error state
-            document.getElementById("current-plan-badge").textContent =
-              "Không thể tải";
-            document.getElementById("images-count").textContent = "-";
-            document.getElementById("credits-left").textContent = "-";
-            document.getElementById("next-reset").textContent = "-";
+            // Show error state with null checks
+            const badgeEl = document.getElementById("current-plan-badge");
+            const imagesEl = document.getElementById("images-count");
+            const creditsEl = document.getElementById("credits-left");
+            const resetEl = document.getElementById("next-reset");
+
+            if (badgeEl) badgeEl.textContent = "Không thể tải";
+            if (imagesEl) imagesEl.textContent = "-";
+            if (creditsEl) creditsEl.textContent = "-";
+            if (resetEl) resetEl.textContent = "-";
+
             updatePlanButtons("free");
             return;
           }
 
           const data = await response.json();
 
-          // Debug logging
-          console.log("🔍 Premium API Response:", data);
-          console.log("📋 Current plan type:", data?.plan);
-          console.log("✅ Has premium:", data?.hasPremium);
-          console.log("📝 Plan name:", data?.planName);
 
           let planBadge = "Miễn phí";
           let imagesCount = 0;
@@ -1530,64 +1517,65 @@
             }
           }
 
-          document.getElementById("current-plan-badge").textContent = planBadge;
-          document.getElementById("images-count").textContent = imagesCount;
-          document.getElementById("credits-left").textContent = creditsLeft;
-          document.getElementById("next-reset").textContent = nextReset;
+          // Update elements with null checks
+          const badgeEl = document.getElementById("current-plan-badge");
+          const imagesEl = document.getElementById("images-count");
+          const creditsEl = document.getElementById("credits-left");
+          const resetEl = document.getElementById("next-reset");
+
+          if (badgeEl) badgeEl.textContent = planBadge;
+          if (imagesEl) imagesEl.textContent = imagesCount;
+          if (creditsEl) creditsEl.textContent = creditsLeft;
+          if (resetEl) resetEl.textContent = nextReset;
 
           // Update plan buttons state with a small delay to ensure DOM is ready
           let currentPlanType = data?.plan || "free";
-          console.log("🎯 Updating buttons for plan:", currentPlanType);
 
           // Check if API data conflicts with main display (which is more reliable)
           const mainPlanDisplay = document.getElementById("current-plan-display");
           const mainPlanText = mainPlanDisplay ? mainPlanDisplay.textContent : '';
 
           if (mainPlanText.includes('PRO') && currentPlanType !== 'pro') {
-            console.log("⚠️ API inconsistency detected! Main display shows PRO but API says:", currentPlanType);
-            console.log("🔧 Overriding API data with main display data");
             currentPlanType = 'pro';
           } else if (mainPlanText.includes('MAX') && currentPlanType !== 'max') {
-            console.log("⚠️ API inconsistency detected! Main display shows MAX but API says:", currentPlanType);
-            console.log("🔧 Overriding API data with main display data");
             currentPlanType = 'max';
           }
 
           // Use setTimeout to ensure DOM is fully updated before updating buttons
           setTimeout(() => {
-            console.log("🚀 About to call updatePlanButtons with corrected plan:", currentPlanType);
             updatePlanButtons(currentPlanType);
           }, 200);
         } catch (error) {
           console.error("Error loading current premium:", error);
-          // Show error state
-          document.getElementById("current-plan-badge").textContent = "Lỗi tải";
-          document.getElementById("images-count").textContent = "-";
-          document.getElementById("credits-left").textContent = "-";
-          document.getElementById("next-reset").textContent = "-";
+          // Show error state with null checks
+          const badgeEl = document.getElementById("current-plan-badge");
+          const imagesEl = document.getElementById("images-count");
+          const creditsEl = document.getElementById("credits-left");
+          const resetEl = document.getElementById("next-reset");
+
+          if (badgeEl) badgeEl.textContent = "Lỗi tải";
+          if (imagesEl) imagesEl.textContent = "-";
+          if (creditsEl) creditsEl.textContent = "-";
+          if (resetEl) resetEl.textContent = "-";
+
           updatePlanButtons("free");
         }
       }
 
       // Update plan buttons state
       function updatePlanButtons(currentPlan) {
-        console.log("🔄 updatePlanButtons called with:", currentPlan);
         const planCards = document.querySelectorAll(".premium-card");
-        console.log("📦 Found plan cards:", planCards.length);
 
         if (planCards.length === 0) {
-          console.error("❌ No plan cards found! Check if DOM is loaded.");
           return;
         }
 
         // Try multiple approaches to find the current plan card
-        planCards.forEach((card, index) => {
+        planCards.forEach((card) => {
           const planType = card.dataset.plan;
           const button = card.querySelector(".premium-btn");
-          console.log(`🎯 Card ${index}: plan="${planType}", button found: ${!!button}, current text: "${button?.textContent}"`);
 
           if (!button) {
-            console.warn(`⚠️ Button not found for plan: ${planType}`);
             return;
           }
 
@@ -1599,24 +1587,18 @@
             (currentPlan === 'free' && card.textContent.includes('FREE'))
           );
 
-          console.log(`🤔 Matching check: planType="${planType}" vs currentPlan="${currentPlan}" = ${isCurrentPlan}`);
-
           if (isCurrentPlan) {
-            console.log(`MATCH! Setting "${planType}" as current plan`);
             button.textContent = "Đang sử dụng";
             button.classList.add("current-plan");
             button.disabled = true;
             button.style.background = "#666";
             button.style.color = "white";
-            console.log(`Updated button text to: "${button.textContent}"`);
           } else {
-            console.log(`Setting "${planType}" as upgrade plan (not current: ${currentPlan})`);
             button.textContent = planType === 'free' ? 'Gói miễn phí' : 'Nâng cấp gói';
             button.classList.remove("current-plan");
             button.disabled = false;
             button.style.background = "";
             button.style.color = "";
-            console.log(`📝 Updated button text to: "${button.textContent}"`);
 
             // Re-add event listener for non-current plans
             if (planType !== 'free') {
@@ -2336,7 +2318,6 @@
           });
 
           if (!response.ok) {
-            console.error("❌ Account Summary API error:", response.status);
             resetAccountDisplay();
             return;
           }
@@ -2371,25 +2352,7 @@
           // Update plan badge colors based on plan type
           updatePlanBadgeStyle(currentPlan);
 
-          console.log("✅ Account summary loaded from database:", {
-            balance,
-            totalDeposited,
-            totalDepositsCount,
-            todayDepositsAmount,
-            todayDepositsCount,
-            currentPlan,
-            planBadge,
-            accountAge,
-            recentTopupsCount: recentTopups.length
-          });
-
-          // Log database statistics for debugging
-          if (totalDepositsCount > 0) {
-            console.log(`📊 Database Stats: ${totalDepositsCount} total deposits, ${todayDepositsCount} today, ${recentTopups.length} recent topups`);
-          }
-
         } catch (error) {
-          console.error("❌ Error loading account summary from database:", error);
           resetAccountDisplay();
         }
       }
@@ -2529,14 +2492,7 @@
         // Also start auto-refresh on page load (in case user just returned)
         startAutoRefresh();
 
-        // Add global function for debugging
-        window.debugPlanButtons = () => {
-          console.log("🔧 Manual debug: forcing updatePlanButtons with 'pro'");
-          updatePlanButtons('pro');
-        };
-
-        console.log("💡 Debug: Type debugPlanButtons() in console to manually update plan buttons");
-
+        
         // View All button
         document
           .getElementById("view-all-btn")
