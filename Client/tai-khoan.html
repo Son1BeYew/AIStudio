@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tài Khoản | EternaPicSHT AI</title>
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/header.css" />
+    <link rel="stylesheet" href="/assets/css/footer.css" />
+    <link rel="stylesheet" href="/assets/css/profile.css" />
+    <style>
+      .account-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        min-height: 100vh;
+      }
+
+      .account-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .account-header h1 {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .account-header p {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+      }
+
+      .account-grid {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      .account-sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+      }
+
+      .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .sidebar-menu li {
+        margin-bottom: 10px;
+      }
+
+      .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 20px;
+        color: #4a5568;
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .sidebar-menu a:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transform: translateX(5px);
+      }
+
+      .sidebar-menu a.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .sidebar-menu i {
+        font-size: 1.2rem;
+        width: 20px;
+      }
+
+      .account-content {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .content-section {
+        display: none;
+      }
+
+      .content-section.active {
+        display: block;
+        animation: fadeInUp 0.5s ease;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        font-weight: 600;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 1rem;
+      }
+
+      .info-value {
+        color: #2d3748;
+        font-size: 1rem;
+      }
+
+      .account-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .status-active {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .status-premium {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+      }
+
+      .btn-account {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-secondary {
+        background: #e2e8f0;
+        color: #4a5568;
+      }
+
+      .btn-secondary:hover {
+        background: #cbd5e0;
+      }
+
+      .btn-danger {
+        background: #f56565;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #e53e3e;
+      }
+
+      .security-item {
+        background: #f7fafc;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .security-info h4 {
+        margin: 0 0 5px 0;
+        color: #2d3748;
+      }
+
+      .security-info p {
+        margin: 0;
+        color: #718096;
+        font-size: 0.9rem;
+      }
+
+      .billing-card {
+        background: #f7fafc;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+      }
+
+      .billing-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .billing-date {
+        color: #718096;
+        font-size: 0.9rem;
+      }
+
+      .billing-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #667eea;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .account-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .account-sidebar {
+          position: static;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .account-header h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="header"></div>
+
+    <div class="account-container">
+      <div class="account-header">
+        <h1>Quản Lý Tài Khoản</h1>
+        <p>Quản lý thông tin, cài đặt và hoạt động tài khoản của bạn</p>
+      </div>
+
+      <div class="account-grid">
+        <div class="account-sidebar">
+          <ul class="sidebar-menu">
+            <li>
+              <a href="#" class="menu-item active" data-section="overview">
+                <i>📊</i>
+                <span>Tổng Quan</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="menu-item" data-section="profile">
+                <i>👤</i>
+                <span>Hồ Sơ</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="menu-item" data-section="security">
+                <i>🔒</i>
+                <span>Bảo Mật</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="menu-item" data-section="billing">
+                <i>💳</i>
+                <span>Thanh Toán</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="menu-item" data-section="usage">
+                <i>📈</i>
+                <span>Sử Dụng</span>
+              </a>
+            </li>
+            <li>
+              <a href="/history.html">
+                <i>📜</i>
+                <span>Lịch Sử</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="account-content">
+          <!-- Tổng Quan Section -->
+          <div class="content-section active" id="overview">
+            <h2 class="section-title">Tổng Quan Tài Khoản</h2>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" id="total-images">0</div>
+                <div class="stat-label">Ảnh Đã Tạo</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="total-prompts">0</div>
+                <div class="stat-label">Prompt Đã Dùng</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="account-balance">0</div>
+                <div class="stat-label">Số Dư (VNĐ)</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="days-active">0</div>
+                <div class="stat-label">Ngày Hoạt Động</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Tình Trạng Tài Khoản</span>
+              <span class="account-status status-active" id="account-status">Đang Hoạt Động</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Loại Tài Khoản</span>
+              <span class="info-value" id="account-type">Cơ Bản</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Ngày Tham Gia</span>
+              <span class="info-value" id="join-date">-</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Lần Đăng Nhập Cuối</span>
+              <span class="info-value" id="last-login">-</span>
+            </div>
+
+            <div class="action-buttons">
+              <a href="/topup.html" class="btn-account btn-primary">
+                <i>💰</i>
+                Nạp Tiền
+              </a>
+              <a href="/tao-anh.html" class="btn-account btn-secondary">
+                <i>🎨</i>
+                Tạo Ảnh Mới
+              </a>
+            </div>
+          </div>
+
+          <!-- Hồ Sơ Section -->
+          <div class="content-section" id="profile">
+            <h2 class="section-title">Thông Tin Hồ Sơ</h2>
+
+            <div class="info-row">
+              <span class="info-label">Họ và Tên</span>
+              <span class="info-value" id="profile-fullname">-</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value" id="profile-email">-</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Số Điện Thoại</span>
+              <span class="info-value" id="profile-phone">-</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Giới Tính</span>
+              <span class="info-value" id="profile-gender">-</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Biệt Danh</span>
+              <span class="info-value" id="profile-nickname">-</span>
+            </div>
+
+            <div class="action-buttons">
+              <a href="/profile.html" class="btn-account btn-primary">
+                <i>✏️</i>
+                Chỉnh Sửa Hồ Sơ
+              </a>
+            </div>
+          </div>
+
+          <!-- Bảo Mật Section -->
+          <div class="content-section" id="security">
+            <h2 class="section-title">Cài Đặt Bảo Mật</h2>
+
+            <div class="security-item">
+              <div class="security-info">
+                <h4>Mật Khẩu</h4>
+                <p>Thay đổi mật khẩu đăng nhập của bạn</p>
+              </div>
+              <button class="btn-account btn-secondary" onclick="showChangePasswordModal()">
+                Đổi Mật Khẩu
+              </button>
+            </div>
+
+            <div class="security-item">
+              <div class="security-info">
+                <h4>Xác Thực Hai Yếu Tố</h4>
+                <p>Bảo vệ tài khoản của bạn với lớp bảo vệ bổ sung</p>
+              </div>
+              <button class="btn-account btn-secondary" id="2fa-toggle">
+                Bật 2FA
+              </button>
+            </div>
+
+            <div class="security-item">
+              <div class="security-info">
+                <h4>Đăng Nhập Tự Động</h4>
+                <p>Giữ phiên đăng nhập trên thiết bị này</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="auto-login" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="security-item">
+              <div class="security-info">
+                <h4>Thông Báo Đăng Nhập</h4>
+                <p>Nhận thông báo khi có đăng nhập mới</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="login-notifications" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Thanh Toán Section -->
+          <div class="content-section" id="billing">
+            <h2 class="section-title">Lịch Sử Thanh Toán</h2>
+
+            <div id="billing-history">
+              <p style="text-align: center; color: #718096; padding: 40px;">
+                Chưa có lịch sử thanh toán nào
+              </p>
+            </div>
+
+            <div class="action-buttons">
+              <a href="/topup.html" class="btn-account btn-primary">
+                <i>💳</i>
+                Nạp Tiền Ngay
+              </a>
+            </div>
+          </div>
+
+          <!-- Sử Dụng Section -->
+          <div class="content-section" id="usage">
+            <h2 class="section-title">Thống Kê Sử Dụng</h2>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" id="usage-this-month">0</div>
+                <div class="stat-label">Ảnh Tháng Này</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="usage-today">0</div>
+                <div class="stat-label">Ảnh Hôm Nay</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="avg-cost">0</div>
+                <div class="stat-label">Chi Phí TB (VNĐ)</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="success-rate">100%</div>
+                <div class="stat-label">Tỷ Lệ Thành Công</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Dung Lượng Đã Dùng</span>
+              <span class="info-value" id="storage-used">0 MB</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Số Lượng API Call</span>
+              <span class="info-value" id="api-calls">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+      }
+
+      input:checked + .slider {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+
+      .slider.round {
+        border-radius: 24px;
+      }
+
+      .slider.round:before {
+        border-radius: 50%;
+      }
+    </style>
+
+    <script src="/assets/js/main.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Load user data
+        loadAccountData();
+
+        // Menu navigation
+        const menuItems = document.querySelectorAll('.menu-item');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        menuItems.forEach(item => {
+          item.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const targetSection = this.dataset.section;
+
+            // Update active menu
+            menuItems.forEach(mi => mi.classList.remove('active'));
+            this.classList.add('active');
+
+            // Show corresponding content
+            contentSections.forEach(section => {
+              section.classList.remove('active');
+              if (section.id === targetSection) {
+                section.classList.add('active');
+              }
+            });
+          });
+        });
+      });
+
+      async function loadAccountData() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        try {
+          // Load user profile data
+          const profileRes = await fetch('/protected', {
+            headers: { Authorization: 'Bearer ' + token }
+          });
+
+          if (profileRes.ok) {
+            const data = await profileRes.json();
+            if (data.user) {
+              // Update profile information
+              document.getElementById('profile-fullname').textContent = data.user.fullname || '-';
+              document.getElementById('profile-email').textContent = data.user.email || '-';
+              document.getElementById('profile-phone').textContent = data.user.phone || 'Chưa cập nhật';
+              document.getElementById('profile-gender').textContent = data.user.gender || 'Chưa cập nhật';
+              document.getElementById('profile-nickname').textContent = data.user.nickname || 'Chưa cập nhật';
+
+              // Update account type and status
+              const accountType = data.user.isPremium ? 'Premium' : 'Cơ Bản';
+              document.getElementById('account-type').textContent = accountType;
+
+              const statusEl = document.getElementById('account-status');
+              if (data.user.isPremium) {
+                statusEl.className = 'account-status status-premium';
+                statusEl.textContent = 'Premium';
+              } else if (data.user.isActive !== false) {
+                statusEl.className = 'account-status status-active';
+                statusEl.textContent = 'Đang Hoạt Động';
+              } else {
+                statusEl.className = 'account-status status-inactive';
+                statusEl.textContent = 'Đã Khóa';
+              }
+
+              // Update dates
+              if (data.user.createdAt) {
+                const joinDate = new Date(data.user.createdAt).toLocaleDateString('vi-VN');
+                document.getElementById('join-date').textContent = joinDate;
+
+                const daysActive = Math.floor((Date.now() - new Date(data.user.createdAt)) / (1000 * 60 * 60 * 24));
+                document.getElementById('days-active').textContent = daysActive;
+              }
+
+              if (data.user.lastLogin) {
+                const lastLogin = new Date(data.user.lastLogin).toLocaleDateString('vi-VN');
+                document.getElementById('last-login').textContent = lastLogin;
+              }
+
+              // Update balance
+              if (data.user.balance !== undefined) {
+                document.getElementById('account-balance').textContent = formatCurrency(data.user.balance);
+              }
+            }
+          }
+
+          // Load usage statistics
+          await loadUsageStats();
+
+        } catch (error) {
+          console.error('Error loading account data:', error);
+        }
+      }
+
+      async function loadUsageStats() {
+        const token = localStorage.getItem('token');
+
+        try {
+          // Load history for statistics
+          const historyRes = await fetch('/api/history', {
+            headers: { Authorization: 'Bearer ' + token }
+          });
+
+          if (historyRes.ok) {
+            const historyData = await historyRes.json();
+            if (historyData.history) {
+              const history = historyData.history;
+
+              // Update statistics
+              document.getElementById('total-images').textContent = history.length || 0;
+              document.getElementById('total-prompts').textContent = history.length || 0;
+
+              // Calculate this month's usage
+              const thisMonth = new Date().getMonth();
+              const thisYear = new Date().getFullYear();
+              const thisMonthImages = history.filter(item => {
+                const itemDate = new Date(item.createdAt);
+                return itemDate.getMonth() === thisMonth && itemDate.getFullYear() === thisYear;
+              });
+              document.getElementById('usage-this-month').textContent = thisMonthImages.length;
+
+              // Calculate today's usage
+              const today = new Date().toDateString();
+              const todayImages = history.filter(item => {
+                return new Date(item.createdAt).toDateString() === today;
+              });
+              document.getElementById('usage-today').textContent = todayImages.length;
+
+              // Calculate average cost
+              if (history.length > 0) {
+                const totalCost = history.reduce((sum, item) => sum + (item.cost || 0), 0);
+                const avgCost = Math.round(totalCost / history.length);
+                document.getElementById('avg-cost').textContent = formatCurrency(avgCost);
+              }
+
+              // Calculate storage used
+              const storageUsed = history.reduce((sum, item) => sum + (item.fileSize || 0), 0);
+              document.getElementById('storage-used').textContent = formatFileSize(storageUsed);
+
+              // Update API calls
+              document.getElementById('api-calls').textContent = history.length;
+            }
+          }
+
+          // Load billing history
+          await loadBillingHistory();
+
+        } catch (error) {
+          console.error('Error loading usage stats:', error);
+        }
+      }
+
+      async function loadBillingHistory() {
+        const token = localStorage.getItem('token');
+
+        try {
+          const billingRes = await fetch('/api/topup/history', {
+            headers: { Authorization: 'Bearer ' + token }
+          });
+
+          if (billingRes.ok) {
+            const billingData = await billingRes.json();
+            if (billingData.history && billingData.history.length > 0) {
+              const billingHistory = document.getElementById('billing-history');
+              billingHistory.innerHTML = billingData.history.map(item => `
+                <div class="billing-card">
+                  <div class="billing-header">
+                    <div>
+                      <h4>${item.method || 'Chuyển khoản'}</h4>
+                      <div class="billing-date">${new Date(item.createdAt).toLocaleDateString('vi-VN')}</div>
+                    </div>
+                    <div class="billing-amount">+${formatCurrency(item.amount)}</div>
+                  </div>
+                  <div style="color: ${item.status === 'completed' ? '#10b981' : '#f59e0b'}; font-weight: 600;">
+                    ${item.status === 'completed' ? 'Thành công' : 'Đang xử lý'}
+                  </div>
+                </div>
+              `).join('');
+            }
+          }
+        } catch (error) {
+          console.error('Error loading billing history:', error);
+        }
+      }
+
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN').format(amount);
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 MB';
+        const mb = bytes / (1024 * 1024);
+        return Math.round(mb * 100) / 100 + ' MB';
+      }
+
+      function showChangePasswordModal() {
+        // Create modal for changing password
+        const modal = document.createElement('div');
+        modal.className = 'login-modal-home';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+          <div class="modal-overlay-home" onclick="this.parentElement.remove()"></div>
+          <div class="modal-content-home">
+            <button class="modal-close-home" onclick="this.parentElement.parentElement.remove()">×</button>
+            <div class="modal-icon-home">🔒</div>
+            <h2>Đổi Mật Khẩu</h2>
+            <form id="changePasswordForm" style="margin-top: 20px;">
+              <input type="password" id="currentPassword" placeholder="Mật khẩu hiện tại" required
+                     style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px;">
+              <input type="password" id="newPassword" placeholder="Mật khẩu mới" required
+                     style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px;">
+              <input type="password" id="confirmPassword" placeholder="Xác nhận mật khẩu mới" required
+                     style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px;">
+              <button type="submit" class="modal-btn-login-home">Đổi Mật Khẩu</button>
+            </form>
+          </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Handle form submission
+        document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const currentPassword = document.getElementById('currentPassword').value;
+          const newPassword = document.getElementById('newPassword').value;
+          const confirmPassword = document.getElementById('confirmPassword').value;
+
+          if (newPassword !== confirmPassword) {
+            alert('Mật khẩu mới và xác nhận không khớp!');
+            return;
+          }
+
+          const token = localStorage.getItem('token');
+          try {
+            const res = await fetch('/api/profile/change-password', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+              },
+              body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            if (res.ok) {
+              alert('Đổi mật khẩu thành công!');
+              modal.remove();
+            } else {
+              const data = await res.json();
+              alert(data.error || 'Đổi mật khẩu thất bại!');
+            }
+          } catch (error) {
+            alert('Lỗi: ' + error.message);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

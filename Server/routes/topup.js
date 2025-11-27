@@ -11,6 +11,8 @@ const {
   markTopupSuccess,
   getBalance,
   getAllUserBalances,
+  getAccountSummary,
+  getPremiumPlans,
 } = require("../controllers/topupController");
 
 const checkAuth = (req, res, next) => {
@@ -39,6 +41,8 @@ router.get("/check-momo-status/:id", checkPaymentStatusFromMomo); // For product
 router.get("/history", checkAuth, getTopupHistory);
 router.get("/status/:id", getTopupStatus);
 router.get("/balance", checkAuth, getBalance); // Get user's current balance
+router.get("/account-summary", checkAuth, getAccountSummary); // Get full account summary
+router.get("/premium-plans", getPremiumPlans); // Get premium plans for display
 router.get("/debug-all-balances", getAllUserBalances); // Debug: Show all users with balances
 router.get("/debug-token", checkAuth, (req, res) => {
   // Debug endpoint to check token

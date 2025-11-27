@@ -261,6 +261,116 @@
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/floating-chat-loader.js"></script>
     <script>
+      // Check user's current plan and update UI accordingly
+      async function checkUserPlanAndUpdateUI() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.log("User not logged in - showing default pricing buttons");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/topup/account-summary", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!response.ok) {
+            console.log("Failed to fetch user plan - showing default buttons");
+            return;
+          }
+
+          const data = await response.json();
+          const currentPlan = data.currentPlan || "FREE";
+
+          console.log("User current plan:", currentPlan);
+          updatePricingButtons(currentPlan);
+
+        } catch (error) {
+          console.error("Error checking user plan:", error);
+        }
+      }
+
+      // Update pricing buttons based on user's current plan
+      function updatePricingButtons(currentPlan) {
+        // Map plan names to card classes
+        const planToCardMap = {
+          'FREE': 'subscription-card--starter',
+          'BASIC+': 'subscription-card--starter', // No BASIC+ card exists, map to starter
+          'PRO': 'subscription-card--professional',
+          'MAX': 'subscription-card--enterprise'
+        };
+
+        // Get all subscription cards
+        const cards = document.querySelectorAll('.subscription-card');
+
+        cards.forEach(card => {
+          const button = card.querySelector('.subscription-btn');
+          const cardClass = Array.from(card.classList).find(cls => cls.startsWith('subscription-card--'));
+
+          // Check if this card matches user's current plan
+          const isActivePlan = Object.values(planToCardMap).includes(cardClass) &&
+                             Object.keys(planToCardMap).find(plan => planToCardMap[plan] === cardClass) === currentPlan;
+
+          if (isActivePlan) {
+            // Update button for current plan
+            button.textContent = 'Đang Sử Dụng';
+            button.classList.add('subscription-btn--active');
+            button.disabled = true;
+            button.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            button.style.cursor = 'not-allowed';
+            button.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.3)';
+
+            // Add "Current Plan" badge
+            if (!card.querySelector('.current-plan-badge')) {
+              const badge = document.createElement('div');
+              badge.className = 'current-plan-badge';
+              badge.textContent = '🎉 Đang Dùng';
+              badge.style.cssText = `
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                padding: 5px 15px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+                z-index: 10;
+              `;
+              card.style.position = 'relative';
+              card.appendChild(badge);
+            }
+          } else {
+            // Ensure other buttons are enabled and have correct text
+            const cardTitle = card.querySelector('h3')?.textContent;
+
+            if (cardTitle?.includes('Miễn Phí')) {
+              button.textContent = 'Sử Dụng Ngay';
+            } else {
+              button.textContent = 'Nâng Cấp Ngay';
+            }
+
+            button.disabled = false;
+            button.classList.remove('subscription-btn--active');
+            button.style.background = '';
+            button.style.cursor = '';
+            button.style.boxShadow = '';
+
+            // Remove current plan badge if exists
+            const existingBadge = card.querySelector('.current-plan-badge');
+            if (existingBadge) {
+              existingBadge.remove();
+            }
+          }
+        });
+      }
+
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        // Check user plan and update UI
+        checkUserPlanAndUpdateUI();
+      });
       // Initialize chart
       const ctx = document.getElementById("pricingChart").getContext("2d");
 

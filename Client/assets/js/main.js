@@ -102,7 +102,7 @@ function checkAuth() {
 
           <div class="dropdown" id="dropdownMenu">
             <a href="/profile.html">Hồ sơ</a>
-            <a href="/account.html">Tài khoản</a>
+            <a href="/tai-khoan.html">Tài khoản</a>
             <a href="/history.html">Lịch sử</a>
             <a href="/topup.html">Nạp tiền</a>
             <hr />

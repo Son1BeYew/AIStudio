@@ -1,6 +1,7 @@
 const TopUp = require("../models/TopUp");
 const User = require("../models/User");
 const Profile = require("../models/Profile");
+const PremiumPlan = require("../models/PremiumPlan");
 const axios = require("axios");
 const mongoose = require("mongoose");
 require("dotenv").config();
@@ -456,5 +457,212 @@ exports.getBalance = async (req, res) => {
   } catch (error) {
     console.error("❌ Lỗi lấy số dư:", error.message, error.stack);
     res.status(500).json({ error: "Lỗi lấy số dư", details: error.message });
+  }
+};
+
+// Get full account summary including total deposited and current plan
+exports.getAccountSummary = async (req, res) => {
+  try {
+    console.log("\n📊 [getAccountSummary] Getting account summary for user");
+
+    let userId = req.user?.id || req.user?._id;
+
+    if (!userId) {
+      console.error("❌ No userId found in token");
+      return res.status(401).json({ error: "Bạn chưa đăng nhập" });
+    }
+
+    // Convert to ObjectId nếu là string
+    if (typeof userId === "string") {
+      userId = new mongoose.Types.ObjectId(userId);
+    }
+
+    // Get user profile and balance from database
+    const profile = await Profile.findOne({ userId });
+    const user = await User.findOne({ _id: userId });
+    const currentBalance = profile ? (profile.balance || 0) : 0;
+
+    // Calculate total deposited amount from successful topups
+    const totalDepositedResult = await TopUp.aggregate([
+      { $match: { userId: userId, status: "success" } },
+      { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } }
+    ]);
+
+    const totalDepositedAmount = totalDepositedResult.length > 0 ? totalDepositedResult[0].total : 0;
+    const totalDepositsCount = totalDepositedResult.length > 0 ? totalDepositedResult[0].count : 0;
+
+    // Get recent successful topups for display
+    const recentTopups = await TopUp.find({
+      userId: userId,
+      status: "success"
+    })
+    .sort({ createdAt: -1 })
+    .limit(3)
+    .select('amount createdAt method');
+
+    // Get today's deposits
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todayDepositsResult = await TopUp.aggregate([
+      {
+        $match: {
+          userId: userId,
+          status: "success",
+          createdAt: { $gte: today, $lt: tomorrow }
+        }
+      },
+      { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } }
+    ]);
+
+    const todayDepositsAmount = todayDepositsResult.length > 0 ? todayDepositsResult[0].total : 0;
+    const todayDepositsCount = todayDepositsResult.length > 0 ? todayDepositsResult[0].count : 0;
+
+    // Determine current plan based on user premium status or total deposited
+    let currentPlan = "FREE";
+    let planBadge = "BASIC";
+
+    // Check user premium status first
+    if (user && user.hasPremium) {
+      if (user.premiumType === "max") {
+        currentPlan = "MAX";
+        planBadge = "MAX";
+      } else if (user.premiumType === "pro") {
+        currentPlan = "PRO";
+        planBadge = "PRO";
+      } else if (user.premiumType === "yearly") {
+        currentPlan = "PRO";
+        planBadge = "PRO";
+      } else if (user.premiumType === "monthly") {
+        currentPlan = "BASIC+";
+        planBadge = "BASIC+";
+      }
+    } else {
+      // Fallback to total deposited amount logic
+      if (totalDepositedAmount >= 2000000) { // 2M VND for MAX
+        currentPlan = "MAX";
+        planBadge = "MAX";
+      } else if (totalDepositedAmount >= 1000000) { // 1M VND for PRO
+        currentPlan = "PRO";
+        planBadge = "PRO";
+      } else if (totalDepositedAmount >= 500000) { // 500K VND for BASIC+
+        currentPlan = "BASIC+";
+        planBadge = "BASIC+";
+      }
+    }
+
+    // Check if premium has expired
+    if (user && user.hasPremium && user.premiumExpiry) {
+      const now = new Date();
+      if (new Date(user.premiumExpiry) < now) {
+        console.log("⚠️ Premium expired for user:", user.email);
+        // Update user status in database
+        await User.findByIdAndUpdate(user._id, {
+          hasPremium: false,
+          premiumType: "free"
+        });
+        currentPlan = "FREE";
+        planBadge = "BASIC";
+      }
+    }
+
+    // Calculate account age
+    const accountAge = user?.createdAt ? Math.floor((Date.now() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24)) : 0;
+
+    // Enhanced logging for debugging
+    console.log("📊 Database Query Results:");
+    console.log("  - User ID:", userId.toString());
+    console.log("  - User found:", !!user);
+    console.log("  - Profile found:", !!profile);
+    console.log("  - User hasPremium:", user?.hasPremium);
+    console.log("  - User premiumType:", user?.premiumType);
+    console.log("  - User premiumExpiry:", user?.premiumExpiry);
+    console.log("  - Profile balance:", currentBalance);
+    console.log("  - Total Deposited:", totalDepositedAmount);
+    console.log("  - Total Deposits Count:", totalDepositsCount);
+    console.log("  - Today Deposits:", todayDepositsAmount);
+    console.log("  - Calculated Plan:", currentPlan);
+    console.log("  - Plan Badge:", planBadge);
+
+    console.log("💰 Final Account summary - Balance:", currentBalance,
+                "Total Deposited:", totalDepositedAmount,
+                "Today Deposits:", todayDepositsAmount,
+                "Plan:", currentPlan,
+                "Account Age:", accountAge, "days");
+
+    res.json({
+      balance: currentBalance,
+      totalDeposited: totalDepositedAmount,
+      totalDepositsCount,
+      todayDepositsAmount,
+      todayDepositsCount,
+      currentPlan,
+      planBadge,
+      accountAge,
+      recentTopups: recentTopups.map(topup => ({
+        amount: topup.amount,
+        date: topup.createdAt,
+        method: topup.method || 'Chuyển khoản'
+      }))
+    });
+
+  } catch (error) {
+    console.error("❌ Lỗi lấy account summary:", error.message, error.stack);
+    res.status(500).json({ error: "Lỗi lấy thông tin tài khoản", details: error.message });
+  }
+};
+
+// Get premium plans for display
+exports.getPremiumPlans = async (req, res) => {
+  try {
+    console.log("📦 [getPremiumPlans] Getting premium plans for display");
+
+    let userId = null;
+    let currentPlan = "FREE";
+
+    // Get user plan if logged in
+    if (req.headers.authorization) {
+      const token = req.headers.authorization?.split(" ")[1];
+      if (token) {
+        try {
+          const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
+          userId = decoded.id || decoded._id;
+
+          // Get user's current plan
+          if (userId) {
+            const user = await User.findById(userId);
+            if (user && user.hasPremium) {
+              if (user.premiumType === "max") {
+                currentPlan = "MAX";
+              } else if (user.premiumType === "pro" || user.premiumType === "yearly") {
+                currentPlan = "PRO";
+              } else if (user.premiumType === "monthly") {
+                currentPlan = "PRO"; // Map monthly to PRO
+              }
+            }
+          }
+        } catch (error) {
+          console.log("⚠️ Could not verify user token, showing as guest");
+        }
+      }
+    }
+
+    // Get all active premium plans
+    const plans = await PremiumPlan.find({ isActive: true }).sort({ price: 1 });
+
+    console.log("📋 Found", plans.length, "active premium plans");
+    console.log("👤 User plan:", currentPlan);
+
+    res.json({
+      plans,
+      currentPlan,
+      isLoggedIn: !!userId
+    });
+
+  } catch (error) {
+    console.error("❌ Lỗi lấy premium plans:", error.message, error.stack);
+    res.status(500).json({ error: "Lỗi lấy danh sách gói premium", details: error.message });
   }
 };
