@@ -1,6 +1,6 @@
 #slider {
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 20px auto;
   display: flex;
   flex-direction: column;
@@ -81,7 +81,7 @@ background: linear-gradient(90deg, #333333, #2e2e2e, #4a4a4a);
   padding: 10px;
   box-shadow: 0 15px 50px rgba(0,0,0,0.1);
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   height: 550px;
   overflow: hidden;
 }
