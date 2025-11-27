@@ -657,10 +657,6 @@
       function viewItem(id) {
         const item = collections.find((item) => item.id === id);
         if (item) {
-          // Mở ảnh trong tab mới
-          const imageWindow = window.open(item.image, "_blank");
-
-          // Log thông tin
           console.log(`Viewing collection item: ${item.title}`);
         }
       }
