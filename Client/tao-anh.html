@@ -60,22 +60,18 @@
             </select>
 
             <label>Model AI</label>
-
-            <div class="model-selection" id="model-selection">
-              <label class="model-card">
-                <input
-                  type="radio"
-                  name="ai-model"
-                  value="nano-banana"
-                  checked
-                />
-
-                <div class="model-info">
+            <div class="model-dropdown" id="model-selection">
+              <div class="model-dropdown-trigger" id="model-dropdown-trigger">
+                <div class="selected-model-info">
                   <div class="model-name">Basic AI</div>
                   <div class="model-desc">Miễn phí</div>
-                  <span class="model-badge free">FREE</span>
+                  <div class="model-badge free">FREE</div>
                 </div>
-              </label>
+                <div class="dropdown-arrow">▼</div>
+              </div>
+              <div class="model-dropdown-menu" id="model-dropdown-menu">
+                <!-- Models will be populated by JavaScript based on user's plan -->
+              </div>
             </div>
 
             <label>Chế độ ảnh</label>
@@ -119,23 +115,17 @@
             <h3>Tạo Bối Cảnh Từ Prompt</h3>
 
             <label>Model AI</label>
-            <div class="model-selection" id="bg-model-selection">
-              <!-- Models will be populated by JavaScript based on user's plan -->
-              <div class="model-option" data-model="nano-banana">
-                <input
-                  type="radio"
-                  name="bg-ai-model"
-                  value="nano-banana"
-                  id="bg-model-basic"
-                  checked
-                />
-                <label for="bg-model-basic" class="model-card">
-                  <div class="model-info">
-                    <div class="model-name">Basic AI</div>
-                    <div class="model-desc">Miễn phí</div>
-                    <div class="model-badge free">FREE</div>
-                  </div>
-                </label>
+            <div class="model-dropdown" id="bg-model-selection">
+              <div class="model-dropdown-trigger" id="bg-model-dropdown-trigger">
+                <div class="selected-model-info">
+                  <div class="model-name">Basic AI</div>
+                  <div class="model-desc">Miễn phí</div>
+                  <div class="model-badge free">FREE</div>
+                </div>
+                <div class="dropdown-arrow">▼</div>
+              </div>
+              <div class="model-dropdown-menu" id="bg-model-dropdown-menu">
+                <!-- Models will be populated by JavaScript based on user's plan -->
               </div>
             </div>
 
@@ -221,23 +211,17 @@
             <h3>Cài đặt</h3>
 
             <label>Model AI</label>
-            <div class="model-selection" id="outfit-model-selection">
-              <!-- Models will be populated by JavaScript based on user's plan -->
-              <div class="model-option" data-model="nano-banana">
-                <input
-                  type="radio"
-                  name="outfit-ai-model"
-                  value="nano-banana"
-                  id="outfit-model-basic"
-                  checked
-                />
-                <label for="outfit-model-basic" class="model-card">
-                  <div class="model-info">
-                    <div class="model-name">Basic AI</div>
-                    <div class="model-desc">Miễn phí</div>
-                    <div class="model-badge free">FREE</div>
-                  </div>
-                </label>
+            <div class="model-dropdown" id="outfit-model-selection">
+              <div class="model-dropdown-trigger" id="outfit-model-dropdown-trigger">
+                <div class="selected-model-info">
+                  <div class="model-name">Basic AI</div>
+                  <div class="model-desc">Miễn phí</div>
+                  <div class="model-badge free">FREE</div>
+                </div>
+                <div class="dropdown-arrow">▼</div>
+              </div>
+              <div class="model-dropdown-menu" id="outfit-model-dropdown-menu">
+                <!-- Models will be populated by JavaScript based on user's plan -->
               </div>
             </div>
 

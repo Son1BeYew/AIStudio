@@ -46,12 +46,27 @@ async function loadUserPremiumStatus() {
   }
 }
 
-// Populate model selection UI based on available models
+// Populate model dropdown UI based on available models
 function populateModelSelections() {
-  const modelSelections = [
-    { id: 'model-selection', name: 'ai-model' },
-    { id: 'bg-model-selection', name: 'bg-ai-model' },
-    { id: 'outfit-model-selection', name: 'outfit-ai-model' }
+  const modelDropdowns = [
+    {
+      id: 'model-selection',
+      triggerId: 'model-dropdown-trigger',
+      menuId: 'model-dropdown-menu',
+      name: 'ai-model'
+    },
+    {
+      id: 'bg-model-selection',
+      triggerId: 'bg-model-dropdown-trigger',
+      menuId: 'bg-model-dropdown-menu',
+      name: 'bg-ai-model'
+    },
+    {
+      id: 'outfit-model-selection',
+      triggerId: 'outfit-model-dropdown-trigger',
+      menuId: 'outfit-model-dropdown-menu',
+      name: 'outfit-ai-model'
+    }
   ];
 
   const allModelConfigs = {
@@ -75,11 +90,15 @@ function populateModelSelections() {
     }
   };
 
-  modelSelections.forEach(({ id, name }) => {
+  modelDropdowns.forEach(({ id, triggerId, menuId, name }) => {
     const container = document.getElementById(id);
-    if (!container) return;
+    const trigger = document.getElementById(triggerId);
+    const menu = document.getElementById(menuId);
 
-    let html = '';
+    if (!container || !trigger || !menu) return;
+
+    let menuHtml = '';
+    let selectedModel = null;
 
     // Show all models, but lock ones not available to user
     const allModels = ['nano-banana', 'gemini-2.0-flash', 'gemini-3-pro'];
@@ -87,33 +106,93 @@ function populateModelSelections() {
     allModels.forEach((model) => {
       const config = allModelConfigs[model];
       const isAvailable = availableModels.includes(model);
-      const isChecked = isAvailable && model === availableModels[availableModels.length - 1]; // Select best available model
 
-      html += `
-        <div class="model-option" data-model="${model}">
-          <input type="radio" name="${name}" value="${model}" id="${name}-${model}" ${isChecked ? 'checked' : ''} ${!isAvailable ? 'disabled' : ''}>
-          <label for="${name}-${model}" class="model-card ${!isAvailable ? 'locked' : ''}">
-            <div class="model-info">
-              <div class="model-name">${config.name}</div>
-              <div class="model-desc">${config.desc}</div>
-              <div class="model-badge ${!isAvailable ? 'locked' : config.badgeClass}">${!isAvailable ? '🔒 ' + config.badge : config.badge}</div>
-            </div>
-          </label>
+      // Select best available model by default
+      if (isAvailable && model === availableModels[availableModels.length - 1]) {
+        selectedModel = model;
+      }
+
+      menuHtml += `
+        <div class="model-dropdown-option ${!isAvailable ? 'locked' : ''}" data-model="${model}" data-available="${isAvailable}">
+          <div class="model-info">
+            <div class="model-name">${config.name}</div>
+            <div class="model-desc">${config.desc}</div>
+            <div class="model-badge ${!isAvailable ? 'locked' : config.badgeClass}">${!isAvailable ? '🔒 ' + config.badge : config.badge}</div>
+          </div>
         </div>
       `;
-
-      // Add upgrade prompt for locked models
-      if (!isAvailable) {
-        html += `
-          <div class="model-upgrade-prompt">
-            <small>🔒 Yêu cầu gói ${config.badge} - <a href="/pricing.html" style="color: var(--color-primary); text-decoration: none;">Nâng cấp ngay</a></small>
-          </div>
-        `;
-      }
     });
 
-    container.innerHTML = html;
+    menu.innerHTML = menuHtml;
+
+    // Update trigger to show selected model
+    if (selectedModel) {
+      updateDropdownTrigger(trigger, selectedModel, allModelConfigs[selectedModel]);
+    }
+
+    // Add click event to trigger
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      container.classList.toggle('open');
+
+      // Close other dropdowns
+      document.querySelectorAll('.model-dropdown').forEach(dropdown => {
+        if (dropdown !== container) {
+          dropdown.classList.remove('open');
+        }
+      });
+    });
+
+    // Add click events to dropdown options
+    menu.querySelectorAll('.model-dropdown-option').forEach(option => {
+      option.addEventListener('click', (e) => {
+        const model = option.dataset.model;
+        const isAvailable = option.dataset.available === 'true';
+
+        if (!isAvailable) {
+          e.stopPropagation();
+          // Redirect to pricing page for locked models
+          window.location.href = '/pricing.html';
+          return;
+        }
+
+        updateDropdownTrigger(trigger, model, allModelConfigs[model]);
+
+        // Update selected state
+        menu.querySelectorAll('.model-dropdown-option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+        option.classList.add('selected');
+
+        // Close dropdown
+        container.classList.remove('open');
+      });
+    });
   });
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.model-dropdown').forEach(dropdown => {
+      dropdown.classList.remove('open');
+    });
+  });
+}
+
+// Update dropdown trigger with selected model info
+function updateDropdownTrigger(trigger, model, config) {
+  const selectedInfo = trigger.querySelector('.selected-model-info');
+  if (selectedInfo) {
+    selectedInfo.innerHTML = `
+      <div class="model-info">
+        <div class="model-name">${config.name}</div>
+        <div class="model-desc">${config.desc}</div>
+        <div class="model-badge ${config.badgeClass}">${config.badge}</div>
+      </div>
+    `;
+  }
+
+  // Store selected model value
+  trigger.dataset.selectedModel = model;
 }
 
 // Load trending prompts từ API
@@ -924,9 +1003,9 @@ async function proceedGenerateFaceImage() {
 
   const token = localStorage.getItem("token");
 
-  // Get selected model
-  const selectedModel = document.querySelector('input[name="ai-model"]:checked');
-  const modelName = selectedModel ? selectedModel.value : 'nano-banana';
+  // Get selected model from dropdown
+  const modelTrigger = document.getElementById('model-dropdown-trigger');
+  const modelName = modelTrigger ? modelTrigger.dataset.selectedModel || 'nano-banana' : 'nano-banana';
 
   const formData = new FormData();
   formData.append("promptName", promptName);
@@ -1002,9 +1081,9 @@ async function proceedGenerateBackground() {
 
   const token = localStorage.getItem("token");
 
-  // Get selected model
-  const selectedBgModel = document.querySelector('input[name="bg-ai-model"]:checked');
-  const bgModelName = selectedBgModel ? selectedBgModel.value : 'nano-banana';
+  // Get selected model from dropdown
+  const bgModelTrigger = document.getElementById('bg-model-dropdown-trigger');
+  const bgModelName = bgModelTrigger ? bgModelTrigger.dataset.selectedModel || 'nano-banana' : 'nano-banana';
 
   try {
     const bgGenerateBtn = document.getElementById("bg-generate-btn");
@@ -1081,9 +1160,9 @@ async function proceedGenerateOutfit() {
 
   const token = localStorage.getItem("token");
 
-  // Get selected model
-  const selectedOutfitModel = document.querySelector('input[name="outfit-ai-model"]:checked');
-  const outfitModelName = selectedOutfitModel ? selectedOutfitModel.value : 'nano-banana';
+  // Get selected model from dropdown
+  const outfitModelTrigger = document.getElementById('outfit-model-dropdown-trigger');
+  const outfitModelName = outfitModelTrigger ? outfitModelTrigger.dataset.selectedModel || 'nano-banana' : 'nano-banana';
 
   const formData = new FormData();
   formData.append("type", outfitType);
