@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+        }
+
+        .page-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 26, 26, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #1e293b;
+            border-bottom-color: #1e293b;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #1e293b;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .stat-icon.blue { background: #dbeafe; color: #3b82f6; }
+        .stat-icon.green { background: #d1fae5; color: #10b981; }
+        .stat-icon.purple { background: #ede9fe; color: #8b5cf6; }
+        .stat-icon.red { background: #fee2e2; color: #ef4444; }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-change.positive { color: #10b981; }
+        .stat-change.negative { color: #ef4444; }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input, .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .filter-input {
+            width: 250px;
+        }
+
+        .filter-select {
+            min-width: 150px;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .image-preview:hover {
+            transform: scale(1.1);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.pending {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .status-badge.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-flagged {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn.approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.flag {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .page-btn.active {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: auto;
+            margin: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .modal-body {
+            text-align: center;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .info-item {
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-photo-video"></i>
+                Content Management
+            </h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="refreshContent()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+                <button class="btn btn-primary" onclick="exportContent()">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Tổng Ảnh Đã Tạo</div>
+                    <div class="stat-icon blue">
+                        <i class="fas fa-images"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalImages">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-chart-line"></i>
+                    <span id="imagesChange">+0 hôm nay</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Ảnh Thành Công</div>
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="successImages">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i>
+                    <span>Tạo thành công</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Ảnh Lỗi</div>
+                    <div class="stat-icon red">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="failedImages">0</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-times"></i>
+                    <span>Thất bại</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Người Dùng</div>
+                    <div class="stat-icon purple">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Đã tạo ảnh</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Gallery -->
+        <div id="image-gallery" class="tab-content active">
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <input type="text" class="filter-input" placeholder="Tìm kiếm theo user, prompt..." id="searchInput">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="success">Thành công</option>
+                    <option value="failed">Thất bại</option>
+                </select>
+                <select class="filter-select" id="modelFilter">
+                    <option value="">Tất cả models</option>
+                    <option value="nano-banana">Basic AI</option>
+                    <option value="gemini-2.0-flash">Pro AI</option>
+                    <option value="gemini-3-pro">Ultra AI</option>
+                </select>
+                <select class="filter-select" id="dateFilter">
+                    <option value="">Tất cả thời gian</option>
+                    <option value="today">Hôm nay</option>
+                    <option value="7days">7 ngày qua</option>
+                    <option value="30days">30 ngày qua</option>
+                </select>
+                <button class="btn btn-secondary" onclick="refreshImages()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+            </div>
+
+            <!-- Content Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Thư viện Media (<span id="totalRecords">0</span> ảnh)</div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="selectAll()">
+                            <i class="fas fa-check-square"></i> Chọn tất cả
+                        </button>
+                        <button class="btn btn-danger" onclick="bulkDelete()">
+                            <i class="fas fa-trash"></i> Xóa hàng loạt
+                        </button>
+                    </div>
+                </div>
+
+                <div id="mediaTableContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Đang tải dữ liệu...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Moderation Tab -->
+        <div id="content-moderation" class="tab-content">
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Kiểm duyệt nội dung</div>
+                </div>
+
+                <div id="moderationTableContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Đang tải nội dung cần kiểm duyệt...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Báo cáo vi phạm</div>
+                </div>
+
+                <div id="reportsTableContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Đang tải báo cáo...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Chi tiết Ảnh</h2>
+                <button class="close-btn" onclick="closeImageModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" class="modal-image" src="" alt="Generated Image">
+
+                <div class="modal-info">
+                    <div class="info-item">
+                        <div class="info-label">User</div>
+                        <div class="info-value" id="modalUser">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Prompt</div>
+                        <div class="info-value" id="modalPrompt">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Model</div>
+                        <div class="info-value" id="modalModel">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Ngày tạo</div>
+                        <div class="info-value" id="modalDate">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Trạng thái</div>
+                        <div class="info-value">
+                            <span class="status-badge" id="modalStatus">-</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Số report</div>
+                        <div class="info-value" id="modalReports">0</div>
+                    </div>
+                </div>
+
+                <div class="modal-actions" id="modalActions">
+                    <button class="btn btn-success" onclick="approveImage()">
+                        <i class="fas fa-check"></i> Duyệt
+                    </button>
+                    <button class="btn btn-danger" onclick="rejectImage()">
+                        <i class="fas fa-times"></i> Từ chối
+                    </button>
+                    <button class="btn btn-warning" onclick="flagImage()">
+                        <i class="fas fa-flag"></i> Báo cáo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("token");
+        let currentTab = 'media-library';
+        let currentPage = 1;
+        let selectedImages = new Set();
+        let currentImageData = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStatistics();
+            loadImages();
+
+            // Event listeners for filters
+            document.getElementById('searchInput').addEventListener('input', debounce(loadImages, 500));
+            document.getElementById('statusFilter').addEventListener('change', loadImages);
+            document.getElementById('modelFilter').addEventListener('change', loadImages);
+            document.getElementById('dateFilter').addEventListener('change', loadImages);
+        });
+
+        // Load statistics - using existing history API as fallback
+        async function loadStatistics() {
+            try {
+                // Try the new content statistics endpoint first
+                try {
+                    const response = await fetch('/api/admin/content-management/content-statistics', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const stats = await response.json();
+                        updateStatisticsDisplay(stats);
+                        return;
+                    }
+                } catch (e) {
+                    console.log('New content stats endpoint not available, using fallback');
+                }
+
+                // Fallback 1: Try existing admin statistics endpoint
+                try {
+                    const response = await fetch('/api/admin/statistics/today', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const fallbackStats = {
+                            totalImages: data.imagesCreated || 0,
+                            pendingImages: 0,
+                            reportedImages: 0,
+                            approvedImages: data.imagesCreated || 0,
+                            imagesChange: `+${data.imagesCreated || 0} hôm nay`
+                        };
+                        updateStatisticsDisplay(fallbackStats);
+                        return;
+                    }
+                } catch (e) {
+                    console.log('Admin statistics endpoint not available');
+                }
+
+                // Fallback 2: Try history API
+                try {
+                    const response = await fetch('/api/history', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const imageCount = Array.isArray(data) ? data.length : (data.images || data.history?.length || 0);
+
+                        const fallbackStats = {
+                            totalImages: imageCount,
+                            pendingImages: Math.floor(imageCount * 0.05), // Assume 5% pending
+                            reportedImages: 0,
+                            approvedImages: Math.floor(imageCount * 0.95), // Assume 95% approved
+                            imagesChange: `+${Math.min(imageCount, 50)} hôm nay`
+                        };
+                        updateStatisticsDisplay(fallbackStats);
+                        return;
+                    }
+                } catch (e) {
+                    console.log('History API endpoint not available');
+                }
+
+                // If all endpoints fail, show placeholder data
+                updateStatisticsDisplay({
+                    totalImages: '📊',
+                    pendingImages: '⏳',
+                    reportedImages: '🚩',
+                    approvedImages: '✅',
+                    imagesChange: 'Loading...'
+                });
+
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                updateStatisticsDisplay({
+                    totalImages: '❌',
+                    pendingImages: '❌',
+                    reportedImages: '❌',
+                    approvedImages: '❌',
+                    imagesChange: 'Error'
+                });
+            }
+        }
+
+        function updateStatisticsDisplay(stats) {
+            document.getElementById('totalImages').textContent = stats.totalImages || 0;
+            document.getElementById('successImages').textContent = stats.successImages || 0;
+            document.getElementById('failedImages').textContent = stats.failedImages || 0;
+            document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+            document.getElementById('imagesChange').textContent = stats.imagesChange || '+0 hôm nay';
+        }
+
+        // Load Images - Simple version
+        async function loadImages() {
+            const container = document.getElementById('imageGalleryContainer');
+            if (!container) {
+                // Create container if it doesn't exist
+                const tableContainer = document.getElementById('imageTableContainer');
+                if (tableContainer) {
+                    tableContainer.id = 'imageGalleryContainer';
+                    container = tableContainer;
+                } else {
+                    console.error('Image container not found');
+                    return;
+                }
+            }
+
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Đang tải dữ liệu...</div>';
+
+            try {
+                // Use existing admin history endpoint
+                const response = await fetch('/api/admin/history', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const historyItems = data.historyTransactions || [];
+
+                    // Transform data for display
+                    const transformedImages = historyItems.map(item => ({
+                        _id: item._id,
+                        localPath: item.localPath || `/outputs/${item.outputImagePath?.split('/').pop()}`,
+                        promptName: item.promptName || 'Unknown',
+                        userEmail: item.email || 'Unknown',
+                        model: item.model || 'nano-banana',
+                        createdAt: item.createdAt,
+                        status: item.status || 'success',
+                        errorMessage: item.errorMessage || ''
+                    }));
+
+                    renderSimpleImageTable(transformedImages, transformedImages.length);
+
+                    // Update statistics
+                    const successCount = transformedImages.filter(img => img.status === 'success').length;
+                    const failedCount = transformedImages.filter(img => img.status === 'failed').length;
+                    const uniqueUsers = [...new Set(transformedImages.map(img => img.userEmail))].length;
+
+                    updateStatisticsDisplay({
+                        totalImages: transformedImages.length,
+                        successImages: successCount,
+                        failedImages: failedCount,
+                        totalUsers: uniqueUsers,
+                        imagesChange: `+${successCount} hôm nay`
+                    });
+
+                } else {
+                    throw new Error('Failed to load data');
+                }
+
+            } catch (error) {
+                console.error('Error loading images:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Lỗi tải dữ liệu</h3>
+                        <p>Không thể tải danh sách ảnh. Vui lòng thử lại sau.</p>
+                        <button class="btn btn-primary" onclick="loadImages()" style="margin-top: 15px;">
+                            <i class="fas fa-redo"></i> Thử lại
+                        </button>
+                    </div>
+                `;
+
+                // Show zero stats on error
+                updateStatisticsDisplay({
+                    totalImages: 0,
+                    successImages: 0,
+                    failedImages: 0,
+                    totalUsers: 0,
+                    imagesChange: '+0 hôm nay'
+                });
+            }
+        }
+
+        function refreshImages() {
+            currentPage = 1;
+            loadImages();
+        }
+
+        // Render Simple Image Table
+        function renderSimpleImageTable(images, total) {
+            const container = document.getElementById('imageGalleryContainer');
+
+            if (!images || images.length === 0) {
+                container.innerHTML = `
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Danh sách ảnh (${total} ảnh)</div>
+                        </div>
+                        <div class="empty-state" style="margin: 20px;">
+                            <i class="fas fa-images"></i>
+                            <h3>Chưa có ảnh nào</h3>
+                            <p>Chưa có ảnh nào được tạo hoặc không tìm thấy kết quả phù hợp.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">Danh sách ảnh (${total} ảnh)</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                            ${images.map(image => `
+                                <div class="image-card" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <div style="position: relative;">
+                                        <img src="${image.localPath}"
+                                             alt="Generated image"
+                                             style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;"
+                                             onclick="window.open('${image.localPath}', '_blank')"
+                                             onerror="this.src='/assets/images/logo.png'">
+                                        <div style="position: absolute; top: 10px; right: 10px;">
+                                            <span class="status-badge ${image.status === 'success' ? 'approved' : 'rejected'}">
+                                                ${image.status === 'success' ? 'Thành công' : 'Lỗi'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style="padding: 15px;">
+                                        <div style="font-weight: 600; margin-bottom: 8px; color: #1e293b;">${image.promptName}</div>
+                                        <div style="font-size: 14px; color: #64748b; margin-bottom: 5px;">
+                                            <i class="fas fa-user"></i> ${image.userEmail}
+                                        </div>
+                                        <div style="font-size: 13px; color: #64748b; margin-bottom: 5px;">
+                                            <i class="fas fa-robot"></i> ${getModelDisplayName(image.model)}
+                                        </div>
+                                        <div style="font-size: 13px; color: #64748b;">
+                                            <i class="fas fa-calendar"></i> ${formatDate(image.createdAt)}
+                                        </div>
+                                        ${image.status === 'failed' && image.errorMessage ? `
+                                            <div style="margin-top: 10px; padding: 8px; background: #fee2e2; border-radius: 6px; font-size: 12px; color: #991b1b;">
+                                                <i class="fas fa-exclamation-triangle"></i> ${image.errorMessage}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        // Load Content Moderation
+        async function loadContentModeration() {
+            const container = document.getElementById('moderationTableContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Đang tải nội dung cần kiểm duyệt...</div>';
+
+            try {
+                const response = await fetch('/api/admin/content-moderation', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load content moderation');
+
+                const data = await response.json();
+                renderModerationTable(data.images);
+
+            } catch (error) {
+                console.error('Error loading content moderation:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Lỗi tải dữ liệu</h3><p>Không thể tải nội dung cần kiểm duyệt. Vui lòng thử lại sau.</p></div>';
+            }
+        }
+
+        // Render Moderation Table
+        function renderModerationTable(images) {
+            const container = document.getElementById('moderationTableContainer');
+
+            if (!images || images.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-shield-alt"></i><h3>Không có nội dung cần kiểm duyệt</h3><p>Tất cả nội dung đã được duyệt.</p></div>';
+                return;
+            }
+
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ảnh</th>
+                            <th>User</th>
+                            <th>Prompt</th>
+                            <th>Model</th>
+                            <th>Ngày tạo</th>
+                            <th>AI Score</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${images.map(image => `
+                            <tr>
+                                <td>
+                                    <img src="${image.localPath}" alt="Generated image" class="image-preview" onclick="showImageModal('${image._id}')">
+                                </td>
+                                <td>${image.userEmail || 'Unknown'}</td>
+                                <td title="${image.promptName}">${image.promptName?.substring(0, 30) || '-'}${image.promptName?.length > 30 ? '...' : ''}</td>
+                                <td>${getModelDisplayName(image.model)}</td>
+                                <td>${formatDate(image.createdAt)}</td>
+                                <td>
+                                    <span class="status-badge ${getAIScoreClass(image.aiSafetyScore)}">
+                                        ${image.aiSafetyScore || 'N/A'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn approve" onclick="approveImageById('${image._id}')" title="Duyệt">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="action-btn reject" onclick="rejectImageById('${image._id}')" title="Từ chối">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        // Load Reports
+        async function loadReports() {
+            const container = document.getElementById('reportsTableContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Đang tải báo cáo...</div>';
+
+            try {
+                const response = await fetch('/api/admin/reports', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load reports');
+
+                const data = await response.json();
+                renderReportsTable(data.reports);
+
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Lỗi tải dữ liệu</h3><p>Không thể tải báo cáo. Vui lòng thử lại sau.</p></div>';
+            }
+        }
+
+        // Render Reports Table
+        function renderReportsTable(reports) {
+            const container = document.getElementById('reportsTableContainer');
+
+            if (!reports || reports.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-flag"></i><h3>Không có báo cáo nào</h3><p>Chưa có báo cáo vi phạm nào.</p></div>';
+                return;
+            }
+
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ảnh</th>
+                            <th>Người báo cáo</th>
+                            <th>Lý do</th>
+                            <th>Ngày báo cáo</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${reports.map(report => `
+                            <tr>
+                                <td>
+                                    <img src="${report.image?.localPath}" alt="Reported image" class="image-preview" onclick="showImageModal('${report.imageId}')">
+                                </td>
+                                <td>${report.reporterEmail || 'Anonymous'}</td>
+                                <td>${report.reason}</td>
+                                <td>${formatDate(report.createdAt)}</td>
+                                <td><span class="status-badge ${report.status}">${getReportStatusText(report.status)}</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn approve" onclick="resolveReport('${report._id}', 'approved')" title="Giải quyết">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="action-btn reject" onclick="resolveReport('${report._id}', 'dismissed')" title="Bỏ qua">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        // Helper functions
+        function getModelDisplayName(model) {
+            const modelNames = {
+                'nano-banana': 'Basic AI',
+                'gemini-2.0-flash': 'Pro AI',
+                'gemini-3-pro': 'Ultra AI'
+            };
+            return modelNames[model] || model;
+        }
+
+        function getStatusText(status) {
+            const statusTexts = {
+                'approved': 'Đã duyệt',
+                'pending': 'Chờ duyệt',
+                'rejected': 'Đã từ chối',
+                'flagged': 'Đã báo cáo'
+            };
+            return statusTexts[status] || 'Đã duyệt';
+        }
+
+        function getReportStatusText(status) {
+            const statusTexts = {
+                'pending': 'Chờ xử lý',
+                'approved': 'Đã giải quyết',
+                'dismissed': 'Đã bỏ qua'
+            };
+            return statusTexts[status] || status;
+        }
+
+        function getAIScoreClass(score) {
+            if (score >= 80) return 'approved';
+            if (score >= 50) return 'pending';
+            return 'rejected';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderPagination(total) {
+            const totalPages = Math.ceil(total / 20);
+            if (totalPages <= 1) return '';
+
+            let paginationHTML = '<div class="pagination">';
+
+            // Previous button
+            paginationHTML += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </button>`;
+
+            // Page numbers
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+
+            // Next button
+            paginationHTML += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </button>`;
+
+            paginationHTML += '</div>';
+            return paginationHTML;
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Image Modal
+        async function showImageModal(imageId) {
+            try {
+                const response = await fetch(`/api/admin/image/${imageId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load image details');
+
+                const image = await response.json();
+                currentImageData = image;
+
+                document.getElementById('modalImage').src = image.localPath;
+                document.getElementById('modalUser').textContent = image.userEmail || 'Unknown';
+                document.getElementById('modalPrompt').textContent = image.promptName || '-';
+                document.getElementById('modalModel').textContent = getModelDisplayName(image.model);
+                document.getElementById('modalDate').textContent = formatDate(image.createdAt);
+                document.getElementById('modalStatus').textContent = getStatusText(image.status);
+                document.getElementById('modalStatus').className = `status-badge ${image.status || 'approved'}`;
+                document.getElementById('modalReports').textContent = image.reportCount || 0;
+
+                document.getElementById('imageModal').style.display = 'flex';
+
+            } catch (error) {
+                console.error('Error loading image details:', error);
+                alert('Không thể tải chi tiết ảnh. Vui lòng thử lại sau.');
+            }
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            currentImageData = null;
+        }
+
+        // Action functions
+        async function approveImage() {
+            if (!currentImageData) return;
+            await updateImageStatus(currentImageData._id, 'approved');
+            closeImageModal();
+        }
+
+        async function rejectImage() {
+            if (!currentImageData) return;
+            await updateImageStatus(currentImageData._id, 'rejected');
+            closeImageModal();
+        }
+
+        async function flagImage() {
+            if (!currentImageData) return;
+            await updateImageStatus(currentImageData._id, 'flagged');
+            closeImageModal();
+        }
+
+        async function approveImageById(imageId) {
+            await updateImageStatus(imageId, 'approved');
+        }
+
+        async function rejectImageById(imageId) {
+            if (confirm('Bạn có chắc muốn từ chối ảnh này?')) {
+                await updateImageStatus(imageId, 'rejected');
+            }
+        }
+
+        async function flagImageById(imageId) {
+            if (confirm('Bạn có chắc muốn báo cáo ảnh này?')) {
+                await updateImageStatus(imageId, 'flagged');
+            }
+        }
+
+        async function deleteImageById(imageId) {
+            if (confirm('Bạn có chắc muốn xóa ảnh này? Hành động này không thể hoàn tác!')) {
+                try {
+                    const response = await fetch(`/api/admin/image/${imageId}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        alert('Đã xóa ảnh thành công!');
+                        loadMediaLibrary();
+                        loadStatistics();
+                    } else {
+                        alert('Không thể xóa ảnh. Vui lòng thử lại sau.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting image:', error);
+                    alert('Lỗi khi xóa ảnh. Vui lòng thử lại sau.');
+                }
+            }
+        }
+
+        async function updateImageStatus(imageId, status) {
+            try {
+                const response = await fetch(`/api/admin/image/${imageId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (response.ok) {
+                    // Reload current tab
+                    switch(currentTab) {
+                        case 'media-library':
+                            loadMediaLibrary();
+                            break;
+                        case 'content-moderation':
+                            loadContentModeration();
+                            break;
+                    }
+                    loadStatistics();
+                } else {
+                    alert('Không thể cập nhật trạng thái ảnh. Vui lòng thử lại sau.');
+                }
+            } catch (error) {
+                console.error('Error updating image status:', error);
+                alert('Lỗi khi cập nhật trạng thái ảnh. Vui lòng thử lại sau.');
+            }
+        }
+
+        async function resolveReport(reportId, status) {
+            try {
+                const response = await fetch(`/api/admin/report/${reportId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (response.ok) {
+                    alert('Đã xử lý báo cáo thành công!');
+                    loadReports();
+                    loadStatistics();
+                } else {
+                    alert('Không thể xử lý báo cáo. Vui lòng thử lại sau.');
+                }
+            } catch (error) {
+                console.error('Error resolving report:', error);
+                alert('Lỗi khi xử lý báo cáo. Vui lòng thử lại sau.');
+            }
+        }
+
+        // Bulk actions
+        function toggleSelectAll() {
+            const checkbox = document.getElementById('selectAllCheckbox');
+            const checkboxes = document.querySelectorAll('.image-checkbox');
+
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                if (checkbox.checked) {
+                    selectedImages.add(cb.value);
+                } else {
+                    selectedImages.delete(cb.value);
+                }
+            });
+        }
+
+        function toggleImageSelection(imageId) {
+            if (selectedImages.has(imageId)) {
+                selectedImages.delete(imageId);
+            } else {
+                selectedImages.add(imageId);
+            }
+        }
+
+        function selectAll() {
+            document.getElementById('selectAllCheckbox').checked = true;
+            toggleSelectAll();
+        }
+
+        async function bulkDelete() {
+            if (selectedImages.size === 0) {
+                alert('Vui lòng chọn ít nhất một ảnh để xóa!');
+                return;
+            }
+
+            if (confirm(`Bạn có chắc muốn xóa ${selectedImages.size} ảnh đã chọn? Hành động này không thể hoàn tác!`)) {
+                try {
+                    const response = await fetch('/api/admin/images/bulk-delete', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ imageIds: Array.from(selectedImages) })
+                    });
+
+                    if (response.ok) {
+                        alert(`Đã xóa ${selectedImages.size} ảnh thành công!`);
+                        selectedImages.clear();
+                        loadMediaLibrary();
+                        loadStatistics();
+                    } else {
+                        alert('Không thể xóa ảnh. Vui lòng thử lại sau.');
+                    }
+                } catch (error) {
+                    console.error('Error bulk deleting images:', error);
+                    alert('Lỗi khi xóa ảnh. Vui lòng thử lại sau.');
+                }
+            }
+        }
+
+        // Utility functions
+        function refreshContent() {
+            switch(currentTab) {
+                case 'media-library':
+                    loadMediaLibrary();
+                    break;
+                case 'content-moderation':
+                    loadContentModeration();
+                    break;
+                case 'reports':
+                    loadReports();
+                    break;
+            }
+            loadStatistics();
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            loadMediaLibrary();
+        }
+
+        function exportContent() {
+            // TODO: Implement export functionality
+            alert('Tính năng export sẽ được phát triển trong phiên bản tiếp theo!');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                closeImageModal();
+            }
+        }
+    </script>
+</body>
+</html>

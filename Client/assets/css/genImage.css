@@ -1234,7 +1234,7 @@ body {
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease, filter 0.5s ease;
-    background-size: cover; /* ảnh phủ toàn bộ container, giữ tỉ lệ */
+  background-size: cover; /* ảnh phủ toàn bộ container, giữ tỉ lệ */
   background-position: 30% center; /* lệch 30% theo ngang, căn giữa theo dọc */
   background-repeat: no-repeat;
 }
@@ -1432,7 +1432,6 @@ body {
     transform: translate(-50%, -50%) rotate(360deg);
   }
 }
-
 
 /* ========== QUICK GUIDE SECTION ========== */
 .quick-guide {
@@ -2088,7 +2087,11 @@ body > .container {
 }
 
 .model-badge.max {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-accent) 100%
+  );
   color: white;
 }
 
@@ -2099,7 +2102,6 @@ body > .container {
 }
 
 .model-badge.locked::before {
-  content: "🔒";
   margin-right: 4px;
 }
 

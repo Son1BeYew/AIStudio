@@ -53,10 +53,14 @@
               <span>Tổng quan</span>
             </div>
           </a>
-          <a href="#" class="nav-item">
+          <a
+            href="#"
+            class="nav-item"
+            onclick="loadPage(event, 'page/content-simple.html')"
+          >
             <div class="nav-item-content">
-              <i class="nav-icon fas fa-shopping-cart"></i>
-              <span>eCommerce</span>
+              <i class="nav-icon fas fa-photo-video"></i>
+              <span>Content Management</span>
             </div>
           </a>
           <a
@@ -109,13 +113,6 @@
               onclick="loadPage(event, 'page/prompt-trendding.html')"
             >
               <i class="fas fa-fire"></i> Prompt Xu hướng
-            </a>
-            <a
-              href="#"
-              class="sub-item"
-              onclick="loadPage(event, 'page/canh-quan.html')"
-            >
-              <i class="fas fa-mountain"></i> Cảnh quan
             </a>
           </div>
 
@@ -687,11 +684,15 @@
           "page/tong-quan.html": "Tổng Quan",
           "page/prompt-co-ban.html": "Prompt Cơ Bản",
           "page/quan-ao-toc.html": "Quần Áo & Tóc",
-          "page/canh-quan.html": "Cảnh Quan",
           "page/wallet.html": "Wallet",
+          "page/content-simple.html": "Content Management",
         };
         const displayName = pageNames[page] || page.split("/").pop();
-        breadcrumb.innerHTML = `Quản Lý / <strong>${displayName}</strong>`;
+        if (page.includes("content-management")) {
+          breadcrumb.innerHTML = `Content Management / <strong>${displayName}</strong>`;
+        } else {
+          breadcrumb.innerHTML = `Quản Lý / <strong>${displayName}</strong>`;
+        }
 
         // Remove active from all nav items and sub items
         document.querySelectorAll(".nav-item.active").forEach((item) => {

@@ -20,6 +20,9 @@ const outfitStyleRoutes = require("./routes/outfitStyles");
 const chatRoutes = require("./routes/chat");
 const trendsRoutes = require("./routes/trends");
 const collectionsRoutes = require("./routes/collections");
+const contentManagementRoutes = require("./routes/contentManagement");
+const debugContentRoutes = require("./routes/debugContent");
+console.log("Content management routes loaded:", typeof contentManagementRoutes);
 const app = express();
 
 // CORS configuration
@@ -61,19 +64,38 @@ app.use("/api/outfit-styles", outfitStyleRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/trends", trendsRoutes);
 app.use("/api/collections", collectionsRoutes);
+app.use("/api/admin/content-management", contentManagementRoutes);
+app.use("/api/debug/content", debugContentRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../Client/index.html"));
 });
 
+// Debug route for testing content management
+app.get("/api/admin/content-management/debug-check", async (req, res) => {
+  console.log("DEBUG: Debug route called!");
+  try {
+    const History = require("./models/History");
+    const totalCount = await History.countDocuments();
+    const successCount = await History.countDocuments({ status: "success" });
+
+    console.log("DEBUG: Found", totalCount, "total records,", successCount, "success records");
+    res.json({
+      totalCount,
+      successCount,
+      message: "Debug route working"
+    });
+  } catch (error) {
+    console.error("DEBUG: Error in debug route:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get("*", (req, res) => {
-  if (
-    req.path.startsWith("/auth") ||
-    req.path.startsWith("/protected") ||
-    req.path.startsWith("/api")
-  ) {
-    return res.status(404).json({ error: "Not found" });
+  // Don't interfere with API routes
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ error: "API endpoint not found" });
   }
 
   if (req.path.startsWith("/admin")) {
