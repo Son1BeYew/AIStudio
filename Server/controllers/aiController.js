@@ -5,6 +5,7 @@ const Prompt = require("../models/Prompt");
 const PromptTrending = require("../models/PromptTrending");
 const History = require("../models/History");
 const Profile = require("../models/Profile");
+const Premium = require("../models/Premium");
 const ServiceConfig = require("../models/ServiceConfig");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
@@ -20,13 +21,132 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
+// Note: Google Generative AI initialization removed since all models use Replicate API
+console.log("✅ Replicate API initialized for all AI models");
+
+// Model execution function
+async function executeModel(modelName, prompt, imageInputs) {
+  try {
+    console.log(`🚀 Executing model: ${modelName}`);
+
+    // All models use Replicate API
+    let replicateModel;
+
+    switch (modelName) {
+      case "nano-banana":
+        replicateModel = "google/nano-banana";
+        break;
+      case "gemini-2.0-flash":
+        // Use a Replicate model for "gemini-2.0-flash"
+        // You can replace this with the actual Replicate model identifier
+        replicateModel = "google/nano-banana"; // Using same model for now
+        break;
+      case "gemini-3-pro":
+        // Use a Replicate model for "gemini-3-pro"
+        // You can replace this with the actual Replicate model identifier
+        replicateModel = "google/nano-banana"; // Using same model for now
+        break;
+      default:
+        throw new Error(`Unknown model: ${modelName}`);
+    }
+
+    const output = await replicate.run(replicateModel, {
+      input: {
+        prompt: prompt,
+        image_input: imageInputs,
+      },
+    });
+
+    return Array.isArray(output) ? output[0] : output;
+  } catch (error) {
+    console.error(`❌ Model execution error for ${modelName}:`, error);
+    throw error;
+  }
+}
+
+// Helper function to check user's premium plan and allowed models
+async function getUserAllowedModel(userId, requestedModel) {
+  try {
+    const userObjectId = mongoose.Types.ObjectId.isValid(userId)
+      ? userId
+      : new mongoose.Types.ObjectId(userId);
+
+    // First check Premium collection for active plans
+    const premium = await Premium.findOne({
+      userId: userObjectId,
+      status: "active",
+      endDate: { $gt: new Date() },
+    }).sort({ createdAt: -1 });
+
+    let userPlan = "free";
+
+    if (premium) {
+      // Use Premium collection record
+      userPlan = premium.plan.toLowerCase();
+    } else {
+      // Fallback: Check User model for premiumType
+      const User = mongoose.model("User");
+      const user = await User.findById(userObjectId);
+
+      if (user && user.premiumType && user.premiumType !== "free") {
+        userPlan = user.premiumType.toLowerCase();
+        console.log(`👤 Using premiumType from User model: ${userPlan}`);
+      }
+    }
+
+    console.log(
+      `👤 User plan: ${userPlan}, Requested model: ${requestedModel}`
+    );
+
+    // Define available models by plan
+    const availableModels = {
+      free: ["nano-banana"],
+      pro: ["nano-banana", "gemini-2.0-flash"],
+      max: ["nano-banana", "gemini-2.0-flash", "gemini-3-pro"],
+    };
+
+    const allowedModels = availableModels[userPlan] || availableModels.free;
+
+    // Check if requested model is allowed
+    if (requestedModel && !allowedModels.includes(requestedModel)) {
+      return {
+        allowed: false,
+        model: "nano-banana", // fallback to free model
+        userPlan,
+        message: `Model ${requestedModel} yêu cầu gói ${
+          userPlan === "free" ? "PRO" : "MAX"
+        } trở lên`,
+      };
+    }
+
+    // If no specific model requested, use the best available model for their plan
+    const selectedModel =
+      requestedModel || allowedModels[allowedModels.length - 1];
+
+    return {
+      allowed: true,
+      model: selectedModel,
+      userPlan,
+      availableModels,
+    };
+  } catch (error) {
+    console.error("Error checking user plan:", error);
+    return {
+      allowed: true,
+      model: "nano-banana",
+      userPlan: "free",
+      availableModels: ["nano-banana"],
+    };
+  }
+}
+
 exports.generateFaceImage = async (req, res) => {
   try {
-    const { promptName } = req.body;
+    const { promptName, model } = req.body;
     const userId = req.user?.id || req.user?._id;
     const cloudinaryFile = req.cloudinaryFile;
 
-    console.log("📝 Request body:", { promptName, userId });
+    console.log("📝 Request body:", { promptName, model, userId });
     console.log("📤 Cloudinary file:", cloudinaryFile);
     console.log("📦 req.file:", req.file);
 
@@ -59,6 +179,21 @@ exports.generateFaceImage = async (req, res) => {
     if (!isTrendingPrompt && !promptData.isActive) {
       return res.status(400).json({ error: "Prompt này không có sẵn" });
     }
+
+    // Check user's allowed models based on premium plan
+    const modelCheck = await getUserAllowedModel(userId, model);
+
+    if (!modelCheck.allowed) {
+      return res.status(403).json({
+        error: modelCheck.message,
+        currentPlan: modelCheck.userPlan,
+        availableModels: modelCheck.availableModels,
+      });
+    }
+
+    console.log(
+      `🤖 Selected model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
+    );
 
     // Kiểm tra và trừ phí từ balance
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
@@ -98,18 +233,13 @@ exports.generateFaceImage = async (req, res) => {
     const imageBase64 = Buffer.from(buffer).toString("base64");
     console.log("Image fetched and converted to base64");
 
-    console.log("Running Replicate model với prompt:", promptData.name);
-    const output = await replicate.run("google/nano-banana", {
-      input: {
-        prompt: finalPrompt,
-        image_input: [`data:image/jpeg;base64,${imageBase64}`],
-      },
-    });
+    // Execute the selected model
+    const imageUrl = await executeModel(modelCheck.model, finalPrompt, [
+      `data:image/jpeg;base64,${imageBase64}`,
+    ]);
 
-    let imageUrl = Array.isArray(output) ? output[0] : output;
-
-    if (typeof imageUrl !== "string") {
-      imageUrl = String(imageUrl);
+    if (!imageUrl) {
+      throw new Error("Model execution returned no result");
     }
 
     console.log("Output URL:", imageUrl);
@@ -161,7 +291,9 @@ exports.generateFaceImage = async (req, res) => {
     res.json({
       success: true,
       historyId: history?._id || null,
-      model: "google/nano-banana",
+      model: modelCheck.model,
+      userPlan: modelCheck.userPlan,
+      availableModels: modelCheck.availableModels,
       promptName: promptData.name,
       promptTitle: promptData.title,
       prompt: finalPrompt,
@@ -185,7 +317,7 @@ exports.generateFaceImage = async (req, res) => {
 
 exports.generateOutfit = async (req, res) => {
   try {
-    const { type, hairstyle, description } = req.body;
+    const { type, hairstyle, description, model } = req.body;
     const userId = req.user?.id || req.user?._id;
     const cloudinaryFiles = req.cloudinaryFiles || {};
     console.log(
@@ -209,6 +341,21 @@ exports.generateOutfit = async (req, res) => {
     }
 
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
+
+    // Check user's allowed models based on premium plan
+    const modelCheck = await getUserAllowedModel(userId, model);
+
+    if (!modelCheck.allowed) {
+      return res.status(403).json({
+        error: modelCheck.message,
+        currentPlan: modelCheck.userPlan,
+        availableModels: modelCheck.availableModels,
+      });
+    }
+
+    console.log(
+      `🤖 Selected outfit model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
+    );
 
     // Kiểm tra và trừ phí outfit
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
@@ -280,17 +427,15 @@ exports.generateOutfit = async (req, res) => {
       imageInputs.push(`data:image/jpeg;base64,${clothingBase64}`);
     }
 
-    console.log(" Running Replicate model for outfit generation");
-    const output = await replicate.run("google/nano-banana", {
-      input: {
-        prompt: outfitPrompt,
-        image_input: imageInputs,
-      },
-    });
+    console.log("🚀 Running model for outfit generation");
+    const imageUrl = await executeModel(
+      modelCheck.model,
+      outfitPrompt,
+      imageInputs
+    );
 
-    let imageUrl = Array.isArray(output) ? output[0] : output;
-    if (typeof imageUrl !== "string") {
-      imageUrl = String(imageUrl);
+    if (!imageUrl) {
+      throw new Error("Model execution returned no result");
     }
 
     console.log("Output URL:", imageUrl);
@@ -341,7 +486,9 @@ exports.generateOutfit = async (req, res) => {
     res.json({
       success: true,
       historyId: history?._id || null,
-      model: "google/nano-banana",
+      model: modelCheck.model,
+      userPlan: modelCheck.userPlan,
+      availableModels: modelCheck.availableModels,
       outfitType: type,
       hairstyle: hairstyle,
       prompt: outfitPrompt,
@@ -364,7 +511,7 @@ exports.generateOutfit = async (req, res) => {
 
 exports.generateBackground = async (req, res) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, model } = req.body;
     const userId = req.user?.id || req.user?._id;
 
     console.log("Request body:", { prompt, userId });
@@ -374,6 +521,21 @@ exports.generateBackground = async (req, res) => {
         .status(400)
         .json({ error: "Prompt mô tả bối cảnh là bắt buộc" });
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
+
+    // Check user's allowed models based on premium plan
+    const modelCheck = await getUserAllowedModel(userId, model);
+
+    if (!modelCheck.allowed) {
+      return res.status(403).json({
+        error: modelCheck.message,
+        currentPlan: modelCheck.userPlan,
+        availableModels: modelCheck.availableModels,
+      });
+    }
+
+    console.log(
+      `🤖 Selected background model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
+    );
 
     // Kiểm tra và trừ phí background
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
@@ -426,21 +588,29 @@ Composition: centered subject, balanced framing, professional layout`;
 
     console.log("🔄 Generating background with prompt:", backgroundPrompt);
 
-    // Sử dụng model text-to-image để tạo bối cảnh từ prompt
-    const output = await replicate.run("google/nano-banana", {
-      input: {
-        prompt: backgroundPrompt,
-        width: 1024,
-        height: 768,
-        num_inference_steps: 30,
-        guidance_scale: 7.5,
-        scheduler: "DPMSolverMultistep",
-      },
-    });
+    // Generate background using the selected model (all use Replicate)
+    let imageUrl;
 
-    let imageUrl = Array.isArray(output) ? output[0] : output;
-    if (typeof imageUrl !== "string") {
-      imageUrl = String(imageUrl);
+    if (modelCheck.model === "nano-banana") {
+      // Use Replicate with specific parameters
+      const output = await replicate.run("google/nano-banana", {
+        input: {
+          prompt: backgroundPrompt,
+          width: 1024,
+          height: 768,
+          num_inference_steps: 30,
+          guidance_scale: 7.5,
+          scheduler: "DPMSolverMultistep",
+        },
+      });
+      imageUrl = Array.isArray(output) ? output[0] : output;
+    } else {
+      // Use Replicate for other models as well
+      imageUrl = await executeModel(modelCheck.model, backgroundPrompt, []);
+    }
+
+    if (!imageUrl) {
+      throw new Error("Model execution returned no result");
     }
 
     console.log("✅ Output URL:", imageUrl);
@@ -484,7 +654,9 @@ Composition: centered subject, balanced framing, professional layout`;
     res.json({
       success: true,
       historyId: history?._id || null,
-      model: "google/nano-banana",
+      model: modelCheck.model,
+      userPlan: modelCheck.userPlan,
+      availableModels: modelCheck.availableModels,
       backgroundType: "generated",
       prompt: backgroundPrompt,
       imageUrl,

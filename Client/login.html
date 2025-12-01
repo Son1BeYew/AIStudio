@@ -324,8 +324,6 @@
               data.role ||
               JSON.parse(atob(data.accessToken.split(".")[1])).role;
 
-            alert(`Đăng nhập thành công (${userRole}) 🎉`);
-
             const destination =
               userRole && userRole.toLowerCase() === "admin"
                 ? "/admin/index.html"
@@ -333,7 +331,7 @@
 
             window.location.href = destination;
           } else {
-            alert(data.error || "Đăng nhập thất bại");
+            // alert("Đăng nhập thất bại: " + (data.message || "Vui lòng thử lại."));
           }
         } catch (err) {
           alert("Có lỗi xảy ra: " + err.message);

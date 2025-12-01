@@ -1,4 +1,120 @@
 let trendData = [];
+let currentUserPlan = 'free';
+let availableModels = ['nano-banana'];
+
+// Load user premium status and available models
+async function loadUserPremiumStatus() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      currentUserPlan = 'free';
+      availableModels = ['nano-banana'];
+      return;
+    }
+
+    const response = await fetch("/api/premium/current", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const premiumData = await response.json();
+      currentUserPlan = premiumData.plan?.toLowerCase() || 'free';
+
+      // Determine available models based on plan
+      switch (currentUserPlan) {
+        case 'max':
+          availableModels = ['nano-banana', 'gemini-2.0-flash', 'gemini-3-pro'];
+          break;
+        case 'pro':
+        case 'monthly':
+        case 'yearly':
+          availableModels = ['nano-banana', 'gemini-2.0-flash'];
+          break;
+        default:
+          availableModels = ['nano-banana'];
+      }
+    } else {
+      currentUserPlan = 'free';
+      availableModels = ['nano-banana'];
+    }
+  } catch (error) {
+    console.error("Error loading user premium status:", error);
+    currentUserPlan = 'free';
+    availableModels = ['nano-banana'];
+  }
+}
+
+// Populate model selection UI based on available models
+function populateModelSelections() {
+  const modelSelections = [
+    { id: 'model-selection', name: 'ai-model' },
+    { id: 'bg-model-selection', name: 'bg-ai-model' },
+    { id: 'outfit-model-selection', name: 'outfit-ai-model' }
+  ];
+
+  const allModelConfigs = {
+    'nano-banana': {
+      name: 'Basic AI',
+      desc: 'Miễn phí',
+      badge: 'FREE',
+      badgeClass: 'free'
+    },
+    'gemini-2.0-flash': {
+      name: 'Pro AI',
+      desc: 'Nhanh & Chất lượng cao',
+      badge: 'PRO',
+      badgeClass: 'pro'
+    },
+    'gemini-3-pro': {
+      name: 'Ultra AI',
+      desc: 'Chất lượng cao nhất',
+      badge: 'MAX',
+      badgeClass: 'max'
+    }
+  };
+
+  modelSelections.forEach(({ id, name }) => {
+    const container = document.getElementById(id);
+    if (!container) return;
+
+    let html = '';
+
+    // Show all models, but lock ones not available to user
+    const allModels = ['nano-banana', 'gemini-2.0-flash', 'gemini-3-pro'];
+
+    allModels.forEach((model) => {
+      const config = allModelConfigs[model];
+      const isAvailable = availableModels.includes(model);
+      const isChecked = isAvailable && model === availableModels[availableModels.length - 1]; // Select best available model
+
+      html += `
+        <div class="model-option" data-model="${model}">
+          <input type="radio" name="${name}" value="${model}" id="${name}-${model}" ${isChecked ? 'checked' : ''} ${!isAvailable ? 'disabled' : ''}>
+          <label for="${name}-${model}" class="model-card ${!isAvailable ? 'locked' : ''}">
+            <div class="model-info">
+              <div class="model-name">${config.name}</div>
+              <div class="model-desc">${config.desc}</div>
+              <div class="model-badge ${!isAvailable ? 'locked' : config.badgeClass}">${!isAvailable ? '🔒 ' + config.badge : config.badge}</div>
+            </div>
+          </label>
+        </div>
+      `;
+
+      // Add upgrade prompt for locked models
+      if (!isAvailable) {
+        html += `
+          <div class="model-upgrade-prompt">
+            <small>🔒 Yêu cầu gói ${config.badge} - <a href="/pricing.html" style="color: var(--color-primary); text-decoration: none;">Nâng cấp ngay</a></small>
+          </div>
+        `;
+      }
+    });
+
+    container.innerHTML = html;
+  });
+}
 
 // Load trending prompts từ API
 async function loadTrendingPrompts() {
@@ -410,6 +526,15 @@ document.addEventListener("DOMContentLoaded", () => {
   loadTrendingPrompts();
   loadPrompts();
 
+  // Load user premium status and populate model selections
+  loadUserPremiumStatus().then(() => {
+    populateModelSelections();
+  }).catch(error => {
+    console.error("Error initializing model selections:", error);
+    // Fallback to basic model selection
+    populateModelSelections();
+  });
+
   // Add event listener for gender filter
   genderSelect.addEventListener("change", () => {
     const selectedGender = genderSelect.value;
@@ -798,9 +923,15 @@ async function proceedGenerateFaceImage() {
   closeConfirmDialog();
 
   const token = localStorage.getItem("token");
+
+  // Get selected model
+  const selectedModel = document.querySelector('input[name="ai-model"]:checked');
+  const modelName = selectedModel ? selectedModel.value : 'nano-banana';
+
   const formData = new FormData();
   formData.append("promptName", promptName);
   formData.append("image", selectedFile);
+  formData.append("model", modelName);
 
   try {
     const generateBtn = document.getElementById("generate-btn");
@@ -827,6 +958,12 @@ async function proceedGenerateFaceImage() {
 
     if (result.success) {
       currentImageUrl = result.localPath;
+
+      // Display model info in the result
+      if (result.model && result.userPlan) {
+        console.log(`✅ Generated with ${result.model} for ${result.userPlan} user`);
+      }
+
       displayOutput(result);
     } else {
       const outputArea = document.getElementById("output-area");
@@ -865,6 +1002,10 @@ async function proceedGenerateBackground() {
 
   const token = localStorage.getItem("token");
 
+  // Get selected model
+  const selectedBgModel = document.querySelector('input[name="bg-ai-model"]:checked');
+  const bgModelName = selectedBgModel ? selectedBgModel.value : 'nano-banana';
+
   try {
     const bgGenerateBtn = document.getElementById("bg-generate-btn");
     bgGenerateBtn.disabled = true;
@@ -886,12 +1027,18 @@ async function proceedGenerateBackground() {
       },
       body: JSON.stringify({
         prompt: bgPrompt,
+        model: bgModelName,
       }),
     });
 
     const result = await response.json();
 
     if (result.success) {
+      // Display model info in the result
+      if (result.model && result.userPlan) {
+        console.log(`✅ Background generated with ${result.model} for ${result.userPlan} user`);
+      }
+
       displayBgOutput(result);
     } else {
       const bgOutputArea = document.getElementById("bg-output-area");
@@ -933,11 +1080,17 @@ async function proceedGenerateOutfit() {
   closeConfirmDialog();
 
   const token = localStorage.getItem("token");
+
+  // Get selected model
+  const selectedOutfitModel = document.querySelector('input[name="outfit-ai-model"]:checked');
+  const outfitModelName = selectedOutfitModel ? selectedOutfitModel.value : 'nano-banana';
+
   const formData = new FormData();
   formData.append("type", outfitType);
   formData.append("hairstyle", outfitHairstyle);
   formData.append("description", outfitDescription);
   formData.append("image", selectedFile);
+  formData.append("model", outfitModelName);
   if (clothingFile) {
     formData.append("clothing", clothingFile);
   }
@@ -966,6 +1119,11 @@ async function proceedGenerateOutfit() {
     const result = await response.json();
 
     if (result.success) {
+      // Display model info in the result
+      if (result.model && result.userPlan) {
+        console.log(`✅ Outfit generated with ${result.model} for ${result.userPlan} user`);
+      }
+
       displayOutfitOutput(result);
     } else {
       const outfitOutputArea = document.getElementById("outfit-output-area");

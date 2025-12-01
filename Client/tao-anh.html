@@ -59,6 +59,25 @@
               <option value="unisex">Unisex</option>
             </select>
 
+            <label>Model AI</label>
+
+            <div class="model-selection" id="model-selection">
+              <label class="model-card">
+                <input
+                  type="radio"
+                  name="ai-model"
+                  value="nano-banana"
+                  checked
+                />
+
+                <div class="model-info">
+                  <div class="model-name">Basic AI</div>
+                  <div class="model-desc">Miễn phí</div>
+                  <span class="model-badge free">FREE</span>
+                </div>
+              </label>
+            </div>
+
             <label>Chế độ ảnh</label>
             <select id="prompt-select">
               <option value="" disabled selected hidden>Chọn chế độ ảnh</option>
@@ -98,6 +117,27 @@
         <div class="content-wrapper">
           <div class="settings-box" style="margin-left: 200px">
             <h3>Tạo Bối Cảnh Từ Prompt</h3>
+
+            <label>Model AI</label>
+            <div class="model-selection" id="bg-model-selection">
+              <!-- Models will be populated by JavaScript based on user's plan -->
+              <div class="model-option" data-model="nano-banana">
+                <input
+                  type="radio"
+                  name="bg-ai-model"
+                  value="nano-banana"
+                  id="bg-model-basic"
+                  checked
+                />
+                <label for="bg-model-basic" class="model-card">
+                  <div class="model-info">
+                    <div class="model-name">Basic AI</div>
+                    <div class="model-desc">Miễn phí</div>
+                    <div class="model-badge free">FREE</div>
+                  </div>
+                </label>
+              </div>
+            </div>
 
             <label>Mô tả bối cảnh bạn muốn tạo</label>
             <textarea
@@ -179,6 +219,27 @@
 
           <div class="settings-box">
             <h3>Cài đặt</h3>
+
+            <label>Model AI</label>
+            <div class="model-selection" id="outfit-model-selection">
+              <!-- Models will be populated by JavaScript based on user's plan -->
+              <div class="model-option" data-model="nano-banana">
+                <input
+                  type="radio"
+                  name="outfit-ai-model"
+                  value="nano-banana"
+                  id="outfit-model-basic"
+                  checked
+                />
+                <label for="outfit-model-basic" class="model-card">
+                  <div class="model-info">
+                    <div class="model-name">Basic AI</div>
+                    <div class="model-desc">Miễn phí</div>
+                    <div class="model-badge free">FREE</div>
+                  </div>
+                </label>
+              </div>
+            </div>
 
             <label>Giới tính</label>
             <select id="outfit-gender-select">
