@@ -392,7 +392,9 @@
 
             <div class="info-row">
               <span class="info-label">Tình Trạng Tài Khoản</span>
-              <span class="account-status status-active" id="account-status">Đang Hoạt Động</span>
+              <span class="account-status status-active" id="account-status"
+                >Đang Hoạt Động</span
+              >
             </div>
 
             <div class="info-row">
@@ -468,7 +470,10 @@
                 <h4>Mật Khẩu</h4>
                 <p>Thay đổi mật khẩu đăng nhập của bạn</p>
               </div>
-              <button class="btn-account btn-secondary" onclick="showChangePasswordModal()">
+              <button
+                class="btn-account btn-secondary"
+                onclick="showChangePasswordModal()"
+              >
                 Đổi Mật Khẩu
               </button>
             </div>
@@ -489,7 +494,7 @@
                 <p>Giữ phiên đăng nhập trên thiết bị này</p>
               </div>
               <label class="switch">
-                <input type="checkbox" id="auto-login" checked>
+                <input type="checkbox" id="auto-login" checked />
                 <span class="slider round"></span>
               </label>
             </div>
@@ -500,7 +505,7 @@
                 <p>Nhận thông báo khi có đăng nhập mới</p>
               </div>
               <label class="switch">
-                <input type="checkbox" id="login-notifications" checked>
+                <input type="checkbox" id="login-notifications" checked />
                 <span class="slider round"></span>
               </label>
             </div>
@@ -511,7 +516,7 @@
             <h2 class="section-title">Lịch Sử Thanh Toán</h2>
 
             <div id="billing-history">
-              <p style="text-align: center; color: #718096; padding: 40px;">
+              <p style="text-align: center; color: #718096; padding: 40px">
                 Chưa có lịch sử thanh toán nào
               </p>
             </div>
@@ -583,7 +588,7 @@
         right: 0;
         bottom: 0;
         background-color: #ccc;
-        transition: .4s;
+        transition: 0.4s;
       }
 
       .slider:before {
@@ -594,7 +599,7 @@
         left: 3px;
         bottom: 3px;
         background-color: white;
-        transition: .4s;
+        transition: 0.4s;
       }
 
       input:checked + .slider {
@@ -616,29 +621,29 @@
 
     <script src="/assets/js/main.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         // Load user data
         loadAccountData();
 
         // Menu navigation
-        const menuItems = document.querySelectorAll('.menu-item');
-        const contentSections = document.querySelectorAll('.content-section');
+        const menuItems = document.querySelectorAll(".menu-item");
+        const contentSections = document.querySelectorAll(".content-section");
 
-        menuItems.forEach(item => {
-          item.addEventListener('click', function(e) {
+        menuItems.forEach((item) => {
+          item.addEventListener("click", function (e) {
             e.preventDefault();
 
             const targetSection = this.dataset.section;
 
             // Update active menu
-            menuItems.forEach(mi => mi.classList.remove('active'));
-            this.classList.add('active');
+            menuItems.forEach((mi) => mi.classList.remove("active"));
+            this.classList.add("active");
 
             // Show corresponding content
-            contentSections.forEach(section => {
-              section.classList.remove('active');
+            contentSections.forEach((section) => {
+              section.classList.remove("active");
               if (section.id === targetSection) {
-                section.classList.add('active');
+                section.classList.add("active");
               }
             });
           });
@@ -646,80 +651,92 @@
       });
 
       async function loadAccountData() {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (!token) {
-          window.location.href = '/login.html';
+          window.location.href = "/login.html";
           return;
         }
 
         try {
           // Load user profile data
-          const profileRes = await fetch('/protected', {
-            headers: { Authorization: 'Bearer ' + token }
+          const profileRes = await fetch("/protected", {
+            headers: { Authorization: "Bearer " + token },
           });
 
           if (profileRes.ok) {
             const data = await profileRes.json();
             if (data.user) {
               // Update profile information
-              document.getElementById('profile-fullname').textContent = data.user.fullname || '-';
-              document.getElementById('profile-email').textContent = data.user.email || '-';
-              document.getElementById('profile-phone').textContent = data.user.phone || 'Chưa cập nhật';
-              document.getElementById('profile-gender').textContent = data.user.gender || 'Chưa cập nhật';
-              document.getElementById('profile-nickname').textContent = data.user.nickname || 'Chưa cập nhật';
+              document.getElementById("profile-fullname").textContent =
+                data.user.fullname || "-";
+              document.getElementById("profile-email").textContent =
+                data.user.email || "-";
+              document.getElementById("profile-phone").textContent =
+                data.user.phone || "Chưa cập nhật";
+              document.getElementById("profile-gender").textContent =
+                data.user.gender || "Chưa cập nhật";
+              document.getElementById("profile-nickname").textContent =
+                data.user.nickname || "Chưa cập nhật";
 
               // Update account type and status
-              const accountType = data.user.isPremium ? 'Premium' : 'Cơ Bản';
-              document.getElementById('account-type').textContent = accountType;
+              const accountType = data.user.isPremium ? "Premium" : "Cơ Bản";
+              document.getElementById("account-type").textContent = accountType;
 
-              const statusEl = document.getElementById('account-status');
+              const statusEl = document.getElementById("account-status");
               if (data.user.isPremium) {
-                statusEl.className = 'account-status status-premium';
-                statusEl.textContent = 'Premium';
+                statusEl.className = "account-status status-premium";
+                statusEl.textContent = "Premium";
               } else if (data.user.isActive !== false) {
-                statusEl.className = 'account-status status-active';
-                statusEl.textContent = 'Đang Hoạt Động';
+                statusEl.className = "account-status status-active";
+                statusEl.textContent = "Đang Hoạt Động";
               } else {
-                statusEl.className = 'account-status status-inactive';
-                statusEl.textContent = 'Đã Khóa';
+                statusEl.className = "account-status status-inactive";
+                statusEl.textContent = "Đã Khóa";
               }
 
               // Update dates
               if (data.user.createdAt) {
-                const joinDate = new Date(data.user.createdAt).toLocaleDateString('vi-VN');
-                document.getElementById('join-date').textContent = joinDate;
+                const joinDate = new Date(
+                  data.user.createdAt
+                ).toLocaleDateString("vi-VN");
+                document.getElementById("join-date").textContent = joinDate;
 
-                const daysActive = Math.floor((Date.now() - new Date(data.user.createdAt)) / (1000 * 60 * 60 * 24));
-                document.getElementById('days-active').textContent = daysActive;
+                const daysActive = Math.floor(
+                  (Date.now() - new Date(data.user.createdAt)) /
+                    (1000 * 60 * 60 * 24)
+                );
+                document.getElementById("days-active").textContent = daysActive;
               }
 
               if (data.user.lastLogin) {
-                const lastLogin = new Date(data.user.lastLogin).toLocaleDateString('vi-VN');
-                document.getElementById('last-login').textContent = lastLogin;
+                const lastLogin = new Date(
+                  data.user.lastLogin
+                ).toLocaleDateString("vi-VN");
+                document.getElementById("last-login").textContent = lastLogin;
               }
 
               // Update balance
               if (data.user.balance !== undefined) {
-                document.getElementById('account-balance').textContent = formatCurrency(data.user.balance);
+                document.getElementById("account-balance").textContent =
+                  formatCurrency(data.user.balance);
               }
             }
           }
 
           // Load usage statistics
           await loadUsageStats();
-
         } catch (error) {
-          console.error('Error loading account data:', error);
+          console.error("Error loading account data:", error);
         }
       }
 
       async function loadUsageStats() {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
 
         try {
           // Load history for statistics
-          const historyRes = await fetch('/api/history', {
-            headers: { Authorization: 'Bearer ' + token }
+          const historyRes = await fetch("/api/history", {
+            headers: { Authorization: "Bearer " + token },
           });
 
           if (historyRes.ok) {
@@ -728,97 +745,137 @@
               const history = historyData.history;
 
               // Update statistics
-              document.getElementById('total-images').textContent = history.length || 0;
-              document.getElementById('total-prompts').textContent = history.length || 0;
+              document.getElementById("total-images").textContent =
+                history.length || 0;
+              document.getElementById("total-prompts").textContent =
+                history.length || 0;
 
               // Calculate this month's usage
               const thisMonth = new Date().getMonth();
               const thisYear = new Date().getFullYear();
-              const thisMonthImages = history.filter(item => {
+              const thisMonthImages = history.filter((item) => {
                 const itemDate = new Date(item.createdAt);
-                return itemDate.getMonth() === thisMonth && itemDate.getFullYear() === thisYear;
+                return (
+                  itemDate.getMonth() === thisMonth &&
+                  itemDate.getFullYear() === thisYear
+                );
               });
-              document.getElementById('usage-this-month').textContent = thisMonthImages.length;
+              document.getElementById("usage-this-month").textContent =
+                thisMonthImages.length;
 
               // Calculate today's usage
               const today = new Date().toDateString();
-              const todayImages = history.filter(item => {
+              const todayImages = history.filter((item) => {
                 return new Date(item.createdAt).toDateString() === today;
               });
-              document.getElementById('usage-today').textContent = todayImages.length;
+              document.getElementById("usage-today").textContent =
+                todayImages.length;
 
               // Calculate average cost
               if (history.length > 0) {
-                const totalCost = history.reduce((sum, item) => sum + (item.cost || 0), 0);
+                const totalCost = history.reduce(
+                  (sum, item) => sum + (item.cost || 0),
+                  0
+                );
                 const avgCost = Math.round(totalCost / history.length);
-                document.getElementById('avg-cost').textContent = formatCurrency(avgCost);
+                document.getElementById("avg-cost").textContent =
+                  formatCurrency(avgCost);
               }
 
               // Calculate storage used
-              const storageUsed = history.reduce((sum, item) => sum + (item.fileSize || 0), 0);
-              document.getElementById('storage-used').textContent = formatFileSize(storageUsed);
+              const storageUsed = history.reduce(
+                (sum, item) => sum + (item.fileSize || 0),
+                0
+              );
+              document.getElementById("storage-used").textContent =
+                formatFileSize(storageUsed);
 
               // Update API calls
-              document.getElementById('api-calls').textContent = history.length;
+              document.getElementById("api-calls").textContent = history.length;
             }
           }
 
           // Load billing history
           await loadBillingHistory();
-
         } catch (error) {
-          console.error('Error loading usage stats:', error);
+          console.error("Error loading usage stats:", error);
         }
       }
 
       async function loadBillingHistory() {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
 
         try {
-          const billingRes = await fetch('/api/topup/history', {
-            headers: { Authorization: 'Bearer ' + token }
+          const billingRes = await fetch("/api/topup/history", {
+            headers: { Authorization: "Bearer " + token },
           });
 
           if (billingRes.ok) {
             const billingData = await billingRes.json();
             if (billingData.history && billingData.history.length > 0) {
-              const billingHistory = document.getElementById('billing-history');
-              billingHistory.innerHTML = billingData.history.map(item => `
+              const billingHistory = document.getElementById("billing-history");
+              billingHistory.innerHTML = billingData.history
+                .map(
+                  (item) => `
                 <div class="billing-card">
                   <div class="billing-header">
                     <div>
-                      <h4>${item.method || 'Chuyển khoản'}</h4>
-                      <div class="billing-date">${new Date(item.createdAt).toLocaleDateString('vi-VN')}</div>
+                      <h4>${item.method || "Chuyển khoản"}</h4>
+                      <div class="billing-date">${new Date(
+                        item.createdAt
+                      ).toLocaleDateString("vi-VN")}</div>
                     </div>
-                    <div class="billing-amount">+${formatCurrency(item.amount)}</div>
+                    <div class="billing-amount">+${formatCurrency(
+                      item.amount
+                    )}</div>
                   </div>
-                  <div style="color: ${item.status === 'completed' ? '#10b981' : '#f59e0b'}; font-weight: 600;">
-                    ${item.status === 'completed' ? 'Thành công' : 'Đang xử lý'}
+                  <div style="color: ${
+                    item.status === "completed"
+                      ? "#10b981"
+                      : item.status === "pending"
+                      ? "#f59e0b"
+                      : item.status === "failed" || item.status === "cancelled"
+                      ? "#ef4444"
+                      : "#6b7280"
+                  }; font-weight: 600;">
+                    ${
+                      item.status === "completed"
+                        ? "Thành công"
+                        : item.status === "pending"
+                        ? "Đang xử lý"
+                        : item.status === "failed"
+                        ? "Thất bại"
+                        : item.status === "cancelled"
+                        ? "Đã hủy"
+                        : "Chưa thanh toán"
+                    }
                   </div>
                 </div>
-              `).join('');
+              `
+                )
+                .join("");
             }
           }
         } catch (error) {
-          console.error('Error loading billing history:', error);
+          console.error("Error loading billing history:", error);
         }
       }
 
       function formatCurrency(amount) {
-        return new Intl.NumberFormat('vi-VN').format(amount);
+        return new Intl.NumberFormat("vi-VN").format(amount);
       }
 
       function formatFileSize(bytes) {
-        if (bytes === 0) return '0 MB';
+        if (bytes === 0) return "0 MB";
         const mb = bytes / (1024 * 1024);
-        return Math.round(mb * 100) / 100 + ' MB';
+        return Math.round(mb * 100) / 100 + " MB";
       }
 
       function showChangePasswordModal() {
         // Create modal for changing password
-        const modal = document.createElement('div');
-        modal.className = 'login-modal-home';
-        modal.style.display = 'flex';
+        const modal = document.createElement("div");
+        modal.className = "login-modal-home";
+        modal.style.display = "flex";
         modal.innerHTML = `
           <div class="modal-overlay-home" onclick="this.parentElement.remove()"></div>
           <div class="modal-content-home">
@@ -838,40 +895,43 @@
         `;
         document.body.appendChild(modal);
 
-        // Handle form submission
-        document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          const currentPassword = document.getElementById('currentPassword').value;
-          const newPassword = document.getElementById('newPassword').value;
-          const confirmPassword = document.getElementById('confirmPassword').value;
+        document
+          .getElementById("changePasswordForm")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const currentPassword =
+              document.getElementById("currentPassword").value;
+            const newPassword = document.getElementById("newPassword").value;
+            const confirmPassword =
+              document.getElementById("confirmPassword").value;
 
-          if (newPassword !== confirmPassword) {
-            alert('Mật khẩu mới và xác nhận không khớp!');
-            return;
-          }
-
-          const token = localStorage.getItem('token');
-          try {
-            const res = await fetch('/api/profile/change-password', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-              },
-              body: JSON.stringify({ currentPassword, newPassword })
-            });
-
-            if (res.ok) {
-              alert('Đổi mật khẩu thành công!');
-              modal.remove();
-            } else {
-              const data = await res.json();
-              alert(data.error || 'Đổi mật khẩu thất bại!');
+            if (newPassword !== confirmPassword) {
+              alert("Mật khẩu mới và xác nhận không khớp!");
+              return;
             }
-          } catch (error) {
-            alert('Lỗi: ' + error.message);
-          }
-        });
+
+            const token = localStorage.getItem("token");
+            try {
+              const res = await fetch("/api/profile/change-password", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({ currentPassword, newPassword }),
+              });
+
+              if (res.ok) {
+                alert("Đổi mật khẩu thành công!");
+                modal.remove();
+              } else {
+                const data = await res.json();
+                alert(data.error || "Đổi mật khẩu thất bại!");
+              }
+            } catch (error) {
+              alert("Lỗi: " + error.message);
+            }
+          });
       }
     </script>
   </body>

@@ -107,6 +107,15 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+
+  // Start cleanup job for old transactions
+  const { cleanupOldTransactions } = require('./controllers/topupController');
+
+  // Run cleanup every 5 minutes
+  setInterval(cleanupOldTransactions, 5 * 60 * 1000);
+
+  // Run cleanup once immediately after server starts
+  setTimeout(cleanupOldTransactions, 30000); // Wait 30 seconds for DB to fully initialize
+});

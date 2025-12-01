@@ -285,6 +285,26 @@
         color: #721c24;
       }
 
+      .status-cancelled {
+        background: #e2e8f0;
+        color: #64748b;
+      }
+
+      .cancel-btn {
+        padding: 4px 12px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .cancel-btn:hover {
+        background: #dc2626;
+      }
+
       .view-all-btn {
         width: 100%;
         padding: 10px;
@@ -2130,22 +2150,30 @@
               minute: "2-digit",
             });
 
-            const statusClass = item.status || "pending";
+            const statusClass =
+              item.status === "active" || item.status === "success" || item.status === "completed" ? "success" :
+              item.status === "pending" ? "pending" :
+              item.status === "failed" || item.status === "cancelled" ? "failed" : "pending";
+
             const statusText =
-              item.status === "active" || item.status === "success"
-                ? "✓ Thành công"
+              item.status === "active" || item.status === "success" || item.status === "completed"
+                ? "Thành công"
                 : item.status === "pending"
-                ? "⏳ Đang xử lý"
+                ? "Đang xử lý"
                 : item.status === "failed"
-                ? "✗ Thất bại"
-                : "⏳ Đang xử lý";
+                ? "Thất bại"
+                : item.status === "cancelled"
+                ? "Đã hủy"
+                : "Chưa thanh toán";
 
             const statusIcon =
-              item.status === "active" || item.status === "success"
+              item.status === "active" || item.status === "success" || item.status === "completed"
                 ? "✓"
                 : item.status === "pending"
                 ? "⏳"
                 : item.status === "failed"
+                ? "✗"
+                : item.status === "cancelled"
                 ? "✗"
                 : "⏳";
 
@@ -2286,13 +2314,22 @@
         return itemsToShow
           .map((item) => {
             const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
-            const statusClass = `status-${item.status}`;
+            const statusClass =
+              item.status === "success" || item.status === "completed" ? "status-success" :
+              item.status === "pending" ? "status-pending" :
+              item.status === "failed" ? "status-failed" :
+              item.status === "cancelled" ? "status-cancelled" : "status-pending";
+
             const statusText =
-              item.status === "success"
-                ? "✓ Thành công"
+              item.status === "success" || item.status === "completed"
+                ? "Thành công"
                 : item.status === "pending"
-                ? " Chờ xử lý"
-                : "✗ Thất bại";
+                ? "Đang xử lý"
+                : item.status === "failed"
+                ? "Thất bại"
+                : item.status === "cancelled"
+                ? "Đã hủy"
+                : "Chưa thanh toán";
 
             return `
               <div class="history-item">
@@ -2576,6 +2613,42 @@
         document
           .getElementById("premium-history-modal")
           .classList.remove("active");
+      }
+
+      // Cancel transaction function
+      async function cancelTransaction(transactionId) {
+        if (!confirm('Bạn có chắc muốn hủy giao dịch này?')) {
+          return;
+        }
+
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert('Vui lòng đăng nhập lại!');
+            return;
+          }
+
+          const response = await fetch(`/api/topup/cancel/${transactionId}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            alert('Đã hủy giao dịch thành công!');
+            // Reload history to update the display
+            loadHistory();
+          } else {
+            alert('Lỗi: ' + (result.error || 'Không thể hủy giao dịch'));
+          }
+        } catch (error) {
+          console.error('Error cancelling transaction:', error);
+          alert('Lỗi khi hủy giao dịch. Vui lòng thử lại!');
+        }
       }
     </script>
 

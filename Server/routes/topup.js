@@ -9,6 +9,7 @@ const {
   getTopupHistory,
   getTopupStatus,
   markTopupSuccess,
+  markTopupCancelled,
   getBalance,
   getAllUserBalances,
   getAccountSummary,
@@ -53,5 +54,6 @@ router.get("/debug-token", checkAuth, (req, res) => {
   });
 });
 router.put("/mark-success/:id", markTopupSuccess); // For development testing
+router.put("/cancel/:id", checkAuth, markTopupCancelled); // For users to cancel pending transactions
 
 module.exports = router;
