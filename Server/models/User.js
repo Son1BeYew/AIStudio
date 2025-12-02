@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema(
     premiumType: { type: String, enum: ["free", "monthly", "yearly", "pro", "max"], default: "free" },
     premiumExpiry: { type: Date, default: null },
     premiumAutoRenew: { type: Boolean, default: false },
+    // Daily free images for premium users
+    dailyFreeImagesUsed: { type: Number, default: 0 },
+    lastFreeImageReset: { type: Date, default: null },
   },
   { timestamps: true }
 );

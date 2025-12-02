@@ -1631,6 +1631,56 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
+/* Daily free quota styles */
+.free-quota-section {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.quota-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: #166534;
+}
+
+.quota-icon {
+  font-size: 20px;
+}
+
+.quota-badge strong {
+  color: #15803d;
+  font-size: 18px;
+}
+
+.quota-note {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #16a34a;
+  padding-left: 30px;
+}
+
+.quota-note.warning {
+  color: #ea580c;
+}
+
+.free-quota-section.exhausted {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fbbf24;
+}
+
+.free-quota-section.exhausted .quota-badge {
+  color: #92400e;
+}
+
+.free-quota-section.exhausted .quota-badge strong {
+  color: #b45309;
+}
+
 .price-row strong {
   color: #1f2937;
   font-weight: 600;

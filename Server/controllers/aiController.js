@@ -7,9 +7,105 @@ const History = require("../models/History");
 const Profile = require("../models/Profile");
 const Premium = require("../models/Premium");
 const ServiceConfig = require("../models/ServiceConfig");
+const User = require("../models/User");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
+
+// Daily free images configuration per premium type
+const DAILY_FREE_IMAGES = {
+  pro: 10,
+  max: 15,
+  yearly: 5,
+  monthly: 3,
+  free: 0
+};
+
+// Helper function to check and use daily free quota
+async function checkAndUseDailyFreeQuota(userId) {
+  const user = await User.findById(userId);
+  if (!user) {
+    return { hasFreeQuota: false, remainingFree: 0, usedFree: 0 };
+  }
+
+  const premiumType = user.premiumType || "free";
+  const maxFreeImages = DAILY_FREE_IMAGES[premiumType] || 0;
+
+  // Check if user has premium with free quota
+  if (maxFreeImages === 0) {
+    return { hasFreeQuota: false, remainingFree: 0, usedFree: 0, maxFree: 0 };
+  }
+
+  // Check if we need to reset (new day - reset at midnight)
+  const now = new Date();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  if (!user.lastFreeImageReset || user.lastFreeImageReset < todayMidnight) {
+    // Reset quota for new day
+    user.dailyFreeImagesUsed = 0;
+    user.lastFreeImageReset = now;
+    await user.save();
+    console.log(`🔄 Reset daily free quota for user ${userId}, plan: ${premiumType}`);
+  }
+
+  const usedFree = user.dailyFreeImagesUsed || 0;
+  const remainingFree = maxFreeImages - usedFree;
+
+  if (remainingFree > 0) {
+    // Use free quota
+    user.dailyFreeImagesUsed = usedFree + 1;
+    await user.save();
+    console.log(`🎁 Used free quota: ${usedFree + 1}/${maxFreeImages} for user ${userId}`);
+    return {
+      hasFreeQuota: true,
+      remainingFree: remainingFree - 1,
+      usedFree: usedFree + 1,
+      maxFree: maxFreeImages,
+      isFreeImage: true
+    };
+  }
+
+  return {
+    hasFreeQuota: false,
+    remainingFree: 0,
+    usedFree: usedFree,
+    maxFree: maxFreeImages,
+    isFreeImage: false
+  };
+}
+
+// Helper function to get remaining daily free quota (without using it)
+async function getDailyFreeQuotaInfo(userId) {
+  const user = await User.findById(userId);
+  if (!user) {
+    return { remainingFree: 0, usedFree: 0, maxFree: 0, premiumType: "free" };
+  }
+
+  const premiumType = user.premiumType || "free";
+  const maxFreeImages = DAILY_FREE_IMAGES[premiumType] || 0;
+
+  if (maxFreeImages === 0) {
+    return { remainingFree: 0, usedFree: 0, maxFree: 0, premiumType };
+  }
+
+  // Check if we need to reset
+  const now = new Date();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  let usedFree = user.dailyFreeImagesUsed || 0;
+
+  if (!user.lastFreeImageReset || user.lastFreeImageReset < todayMidnight) {
+    usedFree = 0; // Would be reset
+  }
+
+  return {
+    remainingFree: maxFreeImages - usedFree,
+    usedFree,
+    maxFree: maxFreeImages,
+    premiumType,
+    nextReset: new Date(todayMidnight.getTime() + 24 * 60 * 60 * 1000) // Tomorrow midnight
+  };
+}
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -195,29 +291,44 @@ exports.generateFaceImage = async (req, res) => {
       `🤖 Selected model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
     );
 
-    // Kiểm tra và trừ phí từ balance
+    // Kiểm tra và trừ phí từ balance (với daily free quota)
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
 
     const profile = await Profile.findOne({ userId: userObjectId });
     const fee = promptData.fee || 0;
+    let isFreeImage = false;
+    let freeQuotaInfo = null;
 
     if (fee > 0) {
-      if (!profile || profile.balance < fee) {
-        return res
-          .status(400)
-          .json({ error: "Số dư không đủ để tạo ảnh. Vui lòng nạp tiền" });
-      }
+      // Check if user has daily free quota
+      freeQuotaInfo = await checkAndUseDailyFreeQuota(userObjectId);
 
-      profile.balance -= fee;
-      await profile.save();
-      console.log(
-        "💰 Fee deducted:",
-        fee,
-        "Remaining balance:",
-        profile.balance
-      );
+      if (freeQuotaInfo.isFreeImage) {
+        // Use free quota, no charge
+        isFreeImage = true;
+        console.log(`🎁 Free image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`);
+      } else {
+        // No free quota, charge from balance
+        if (!profile || profile.balance < fee) {
+          return res.status(400).json({
+            error: "Số dư không đủ để tạo ảnh. Vui lòng nạp tiền",
+            freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
+            dailyFreeUsed: freeQuotaInfo.usedFree,
+            dailyFreeMax: freeQuotaInfo.maxFree
+          });
+        }
+
+        profile.balance -= fee;
+        await profile.save();
+        console.log(
+          "💰 Fee deducted:",
+          fee,
+          "Remaining balance:",
+          profile.balance
+        );
+      }
     }
 
     const finalPrompt = promptData.prompt;
@@ -357,13 +468,15 @@ exports.generateOutfit = async (req, res) => {
       `🤖 Selected outfit model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
     );
 
-    // Kiểm tra và trừ phí outfit
+    // Kiểm tra và trừ phí outfit (với daily free quota)
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
 
     const profile = await Profile.findOne({ userId: userObjectId });
     let outfitFee = 0;
+    let isFreeImage = false;
+    let freeQuotaInfo = null;
 
     try {
       const configOutfit = await ServiceConfig.findOne({ service: "outfit" });
@@ -373,20 +486,33 @@ exports.generateOutfit = async (req, res) => {
     }
 
     if (outfitFee > 0) {
-      if (!profile || profile.balance < outfitFee) {
-        return res.status(400).json({
-          error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền",
-        });
-      }
+      // Check if user has daily free quota
+      freeQuotaInfo = await checkAndUseDailyFreeQuota(userObjectId);
 
-      profile.balance -= outfitFee;
-      await profile.save();
-      console.log(
-        "Outfit fee deducted:",
-        outfitFee,
-        "Remaining balance:",
-        profile.balance
-      );
+      if (freeQuotaInfo.isFreeImage) {
+        // Use free quota, no charge
+        isFreeImage = true;
+        console.log(`🎁 Free outfit image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`);
+      } else {
+        // No free quota, charge from balance
+        if (!profile || profile.balance < outfitFee) {
+          return res.status(400).json({
+            error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền",
+            freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
+            dailyFreeUsed: freeQuotaInfo.usedFree,
+            dailyFreeMax: freeQuotaInfo.maxFree
+          });
+        }
+
+        profile.balance -= outfitFee;
+        await profile.save();
+        console.log(
+          "Outfit fee deducted:",
+          outfitFee,
+          "Remaining balance:",
+          profile.balance
+        );
+      }
     }
 
     let outfitPrompt;
@@ -537,13 +663,15 @@ exports.generateBackground = async (req, res) => {
       `🤖 Selected background model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
     );
 
-    // Kiểm tra và trừ phí background
+    // Kiểm tra và trừ phí background (với daily free quota)
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
 
     const profile = await Profile.findOne({ userId: userObjectId });
     let backgroundFee = 0;
+    let isFreeImage = false;
+    let freeQuotaInfo = null;
 
     try {
       const configBg = await ServiceConfig.findOne({ service: "background" });
@@ -553,20 +681,33 @@ exports.generateBackground = async (req, res) => {
     }
 
     if (backgroundFee > 0) {
-      if (!profile || profile.balance < backgroundFee) {
-        return res
-          .status(400)
-          .json({ error: "Số dư không đủ để tạo bối cảnh. Vui lòng nạp tiền" });
-      }
+      // Check if user has daily free quota
+      freeQuotaInfo = await checkAndUseDailyFreeQuota(userObjectId);
 
-      profile.balance -= backgroundFee;
-      await profile.save();
-      console.log(
-        "💰 Background fee deducted:",
-        backgroundFee,
-        "Remaining balance:",
-        profile.balance
-      );
+      if (freeQuotaInfo.isFreeImage) {
+        // Use free quota, no charge
+        isFreeImage = true;
+        console.log(`🎁 Free background image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`);
+      } else {
+        // No free quota, charge from balance
+        if (!profile || profile.balance < backgroundFee) {
+          return res.status(400).json({
+            error: "Số dư không đủ để tạo bối cảnh. Vui lòng nạp tiền",
+            freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
+            dailyFreeUsed: freeQuotaInfo.usedFree,
+            dailyFreeMax: freeQuotaInfo.maxFree
+          });
+        }
+
+        profile.balance -= backgroundFee;
+        await profile.save();
+        console.log(
+          "💰 Background fee deducted:",
+          backgroundFee,
+          "Remaining balance:",
+          profile.balance
+        );
+      }
     }
 
     // Tạo prompt hoàn chỉnh để sinh bối cảnh
@@ -673,5 +814,29 @@ Composition: centered subject, balanced framing, professional layout`;
         error: error.message || String(error),
       });
     }
+  }
+};
+
+// API to get daily free quota info
+exports.getDailyQuota = async (req, res) => {
+  try {
+    const userId = req.body.userId || req.user?.id;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Thiếu userId" });
+    }
+
+    const quotaInfo = await getDailyFreeQuotaInfo(userId);
+
+    res.json({
+      success: true,
+      ...quotaInfo
+    });
+  } catch (error) {
+    console.error("❌ Lỗi lấy quota info:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 };

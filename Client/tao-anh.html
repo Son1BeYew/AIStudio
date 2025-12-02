@@ -413,6 +413,22 @@
         <div class="confirm-body">
           <p id="confirmMessage">Bạn chắc chắn muốn tạo ảnh?</p>
           <div class="price-section">
+            <!-- Daily free quota section -->
+            <div
+              id="freeQuotaSection"
+              class="free-quota-section"
+              style="display: none"
+            >
+              <div class="quota-badge">
+                <span id="quotaText"
+                  >Còn <strong id="remainingFree">0</strong>/<span id="maxFree"
+                    >0</span
+                  >
+                  lượt miễn phí hôm nay</span
+                >
+              </div>
+              <div class="quota-note" id="quotaNote"></div>
+            </div>
             <div class="price-row">
               <span>Giá tiền:</span>
               <strong id="confirmPrice">0 VND</strong>

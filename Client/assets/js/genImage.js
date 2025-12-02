@@ -958,17 +958,65 @@ async function showConfirmDialog(
     const profileData = await profileResponse.json();
     const balance = profileData.balance || 0;
 
+    // Fetch daily free quota info
+    let quotaInfo = null;
+    try {
+      const quotaResponse = await fetch("/api/ai/daily-quota", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      quotaInfo = await quotaResponse.json();
+    } catch (err) {
+      console.error("Lỗi fetch quota:", err);
+    }
+
+    // Display free quota section
+    const freeQuotaSection = document.getElementById("freeQuotaSection");
+    const quotaNote = document.getElementById("quotaNote");
+
+    if (quotaInfo && quotaInfo.maxFree > 0) {
+      freeQuotaSection.style.display = "block";
+      document.getElementById("remainingFree").textContent =
+        quotaInfo.remainingFree;
+      document.getElementById("maxFree").textContent = quotaInfo.maxFree;
+
+      if (quotaInfo.remainingFree > 0) {
+        freeQuotaSection.classList.remove("exhausted");
+        quotaNote.classList.remove("warning");
+      } else {
+        freeQuotaSection.classList.add("exhausted");
+        quotaNote.textContent = "⚠️ Đã hết lượt miễn phí, sẽ trừ từ số dư";
+        quotaNote.classList.add("warning");
+      }
+    } else {
+      freeQuotaSection.style.display = "none";
+    }
+
     document.getElementById("confirmPrice").textContent =
       fee.toLocaleString() + " VND";
     document.getElementById("confirmBalance").textContent =
       balance.toLocaleString() + " VND";
 
-    if (balance < fee) {
+    // Check if can proceed: has free quota OR has enough balance
+    const hasFreeQuota = quotaInfo && quotaInfo.remainingFree > 0;
+
+    if (hasFreeQuota) {
+      // Has free quota - always allow
+      document.getElementById("confirmBalance").style.color = "#10b981";
+      document.querySelector(".btn-confirm").disabled = false;
+      // Show that this is free
+      document.getElementById(
+        "confirmPrice"
+      ).innerHTML = `<span style="text-decoration: line-through; color: #9ca3af;">${fee.toLocaleString()} VND</span> <span style="color: #16a34a; font-weight: 600;">MIỄN PHÍ</span>`;
+    } else if (balance < fee) {
       document.getElementById("confirmBalance").style.color = "#d32f2f";
       document.querySelector(".btn-confirm").disabled = true;
+      document.getElementById("confirmPrice").textContent =
+        fee.toLocaleString() + " VND";
     } else {
       document.getElementById("confirmBalance").style.color = "#10b981";
       document.querySelector(".btn-confirm").disabled = false;
+      document.getElementById("confirmPrice").textContent =
+        fee.toLocaleString() + " VND";
     }
 
     const dialog = document.getElementById("confirmDialog");

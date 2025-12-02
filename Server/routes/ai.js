@@ -4,6 +4,7 @@ const {
   generateFaceImage,
   generateOutfit,
   generateBackground,
+  getDailyQuota,
 } = require("../controllers/aiController");
 const { upload, attachCloudinaryFile } = require("../config/multerCloudinary");
 
@@ -76,5 +77,9 @@ router.post(
   checkAuth,
   generateBackground
 );
+
+// Get daily free quota info
+router.get("/daily-quota", checkAuth, getDailyQuota);
+router.post("/daily-quota", checkAuth, getDailyQuota);
 
 module.exports = router;
