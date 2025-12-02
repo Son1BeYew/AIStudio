@@ -132,7 +132,7 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1>🎨 Chào Mừng Đến Với EternaPicSHT AI!</h1>
+            <h1> Chào Mừng Đến Với EternaPicSHT AI!</h1>
             <p>Hành trình sáng tạo AI của bạn bắt đầu từ đây</p>
           </div>
 
@@ -141,7 +141,7 @@ class EmailService {
             <p>Cảm ơn bạn đã đăng ký tài khoản tại EternaPicSHT AI! Chúng tôi rất vui mừng được đồng hành cùng bạn trên hành trình khám phá sức mạnh của AI trong việc tạo ảnh.</p>
 
             <div class="features">
-              <h3>🎁 Tài Khoản Của Bạn Đã Sẵn Sàng:</h3>
+              <h3> Tài Khoản Của Bạn Đã Sẵn Sàng:</h3>
               <div class="feature-item">
                 <div class="feature-icon">✓</div>
                 <div>
@@ -150,14 +150,14 @@ class EmailService {
                 </div>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">🚀</div>
+                <div class="feature-icon"></div>
                 <div>
                   <strong>Công nghệ AI tiên tiến</strong>
                   <br>Truy cập các mô hình AI tạo ảnh hàng đầu
                 </div>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">🎯</div>
+                <div class="feature-icon"></div>
                 <div>
                   <strong>Giao diện thân thiện</strong>
                   <br>Dễ sử dụng ngay cả cho người mới bắt đầu
@@ -169,7 +169,7 @@ class EmailService {
               <a href="${
                 process.env.CLIENT_URL || "http://localhost:5000"
               }/tao-anh.html" class="btn">
-                🎨 Bắt Đầu Tạo Ảnh Ngay
+                 Bắt Đầu Tạo Ảnh Ngay
               </a>
             </div>
 
@@ -279,7 +279,7 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1>🔐 Xác Minh Thanh Toán</h1>
+            <h1>Xác Minh Thanh Toán</h1>
             <p>EternaPicSHT AI</p>
           </div>
 
@@ -403,7 +403,7 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1>🎉 Thanh Toán Thành Công!</h1>
+            <h1>Thanh Toán Thành Công!</h1>
             <p>Gói ${planName} đã được kích hoạt</p>
           </div>
 
@@ -412,12 +412,12 @@ class EmailService {
             <p>Thanh toán của bạn đã được xử lý thành công. Gói ${planName} đã được kích hoạt cho tài khoản của bạn.</p>
 
             <div class="success-box">
-              <h2>✅ Gói ${planName} Đã Kích Hoạt</h2>
+              <h2>Gói ${planName} Đã Kích Hoạt</h2>
               <p><strong>Ngày hết hạn:</strong> ${expiryDate}</p>
               <p><strong>Hỗ trợ:</strong> Ưu tiên 24/7</p>
             </div>
 
-            <h3>🎁 Quyền Lợi Của Bạn:</h3>
+            <h3>Quyền Lợi Của Bạn:</h3>
             ${
               planName === "Pro"
                 ? `
@@ -447,7 +447,7 @@ class EmailService {
               <a href="${
                 process.env.CLIENT_URL || "http://localhost:5000"
               }/tao-anh.html" class="btn">
-                🎨 Bắt Đầu Sử Dụng Ngay
+                 Bắt Đầu Sử Dụng Ngay
               </a>
             </div>
 

@@ -323,6 +323,105 @@
       font-size: 9px;
     }
 
+    /* Success Modal */
+    .success-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .success-modal.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .success-modal-content {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 50px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      animation: scaleIn 0.5s ease 0.2s both;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .success-icon svg {
+      width: 40px;
+      height: 40px;
+      color: #fff;
+    }
+
+    .success-modal h3 {
+      font-size: 1.5rem;
+      color: #1e1e2f;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .success-modal p {
+      color: #6b7280;
+      font-size: 1rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .success-modal .countdown {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-top: 15px;
+    }
+
+    .success-modal .countdown span {
+      color: #10b981;
+      font-weight: 600;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 768px) {
       .login-wrapper {
@@ -425,6 +524,20 @@
           </button>
         </div>
       </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal" id="successModal">
+      <div class="success-modal-content">
+        <div class="success-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3>Chào mừng bạn!</h3>
+        <p>Tài khoản của bạn đã được tạo thành công. Bạn sẽ được chuyển đến trang chính ngay bây giờ.</p>
+        <div class="countdown">Chuyển hướng sau <span id="countdownTimer">3</span> giây...</div>
+      </div>
     </div>
 
     <script>
@@ -664,6 +777,25 @@
         }
       }
 
+      function showSuccessModal() {
+        const modal = document.getElementById("successModal");
+        const countdownEl = document.getElementById("countdownTimer");
+        let seconds = 3;
+
+        modal.classList.add("show");
+        document.body.style.overflow = "hidden";
+
+        const countdown = setInterval(() => {
+          seconds--;
+          countdownEl.textContent = seconds;
+
+          if (seconds <= 0) {
+            clearInterval(countdown);
+            window.location.href = "/Client/dashboard.html";
+          }
+        }, 1000);
+      }
+
       function clearAllErrors() {
         document.querySelectorAll(".error-message").forEach(el => {
           el.classList.remove("show");
@@ -745,8 +877,8 @@
             }
 
 
-            alert("Đăng ký thành công! 🎉");
-            window.location.href = "/Client/dashboard.html";
+            // Show success modal with countdown
+            showSuccessModal();
           } else {
             if (data.error && data.error.includes("already registered")) {
               showError("email", "Email này đã được đăng ký");

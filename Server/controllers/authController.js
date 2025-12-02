@@ -245,7 +245,7 @@ const validatePassword = (password) => {
   if (metCount < 4) {
     return {
       valid: false,
-      message: "Mật khẩu phải có chữ hoa, chữ thường, số và ký tự đặc biệt"
+      message: "Mật khẩu phải có chữ hoa, chữ thường, số và ký tự đặc biệt",
     };
   }
 
@@ -290,21 +290,21 @@ exports.register = async (req, res) => {
 
     await createFreePremiumForUser(user._id);
 
-    // Send welcome email
-    try {
-      const emailTemplate = emailService.getWelcomeTemplate(
-        user.email,
-        user.fullname
-      );
-      await emailService.sendEmail({
-        to: user.email,
-        ...emailTemplate,
-      });
-      console.log("Welcome email sent to:", user.email);
-    } catch (emailError) {
-      console.error("Error sending welcome email:", emailError);
-      // Don't fail registration if email fails
-    }
+    // Send welcome email - TEMPORARILY DISABLED for faster registration
+    // try {
+    //   const emailTemplate = emailService.getWelcomeTemplate(
+    //     user.email,
+    //     user.fullname
+    //   );
+    //   await emailService.sendEmail({
+    //     to: user.email,
+    //     ...emailTemplate,
+    //   });
+    //   console.log("Welcome email sent to:", user.email);
+    // } catch (emailError) {
+    //   console.error("Error sending welcome email:", emailError);
+    //   // Don't fail registration if email fails
+    // }
 
     const accessToken = signAccessToken(user);
     const refreshToken = signRefreshToken(user);
