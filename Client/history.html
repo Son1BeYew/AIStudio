@@ -250,6 +250,158 @@
         color: #999;
       }
 
+      /* Image Viewer Modal */
+      .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .image-modal.active {
+        display: flex;
+      }
+
+      .image-modal-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .image-modal-img-wrapper {
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 100%;
+        max-height: calc(90vh - 100px);
+      }
+
+      .image-modal-img {
+        max-width: 100%;
+        max-height: calc(90vh - 100px);
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        transition: transform 0.3s ease;
+        cursor: zoom-in;
+      }
+
+      .image-modal-img.zoomed {
+        cursor: grab;
+      }
+
+      .image-modal-img.dragging {
+        cursor: grabbing;
+      }
+
+      .image-modal-close {
+        position: absolute;
+        top: -40px;
+        right: -10px;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 32px;
+        cursor: pointer;
+        padding: 5px 10px;
+        transition: transform 0.2s;
+      }
+
+      .image-modal-close:hover {
+        transform: scale(1.2);
+      }
+
+      .image-modal-controls {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+      }
+
+      .zoom-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .zoom-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .zoom-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .zoom-level {
+        color: #fff;
+        font-size: 14px;
+        min-width: 50px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .image-modal-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .image-modal-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .image-modal-btn.download {
+        background: #10b981;
+        color: #fff;
+      }
+
+      .image-modal-btn.download:hover {
+        background: #059669;
+      }
+
+      .image-modal-btn.share {
+        background: #3b82f6;
+        color: #fff;
+      }
+
+      .image-modal-btn.share:hover {
+        background: #2563eb;
+      }
+
       @media (max-width: 1024px) {
         .history-grid {
           grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -375,6 +527,28 @@
 
     <div id="footer"></div>
 
+    <!-- Image Viewer Modal -->
+    <div class="image-modal" id="imageModal">
+      <div class="image-modal-content">
+        <button class="image-modal-close" onclick="closeImageModal()">
+          &times;
+        </button>
+        <div class="image-modal-img-wrapper" id="imageWrapper">
+          <img src="" alt="Preview" class="image-modal-img" id="modalImage" />
+        </div>
+        <div class="image-modal-controls">
+          <button class="zoom-btn" id="zoomOutBtn" onclick="zoomOut()" title="Thu nhỏ">−</button>
+          <span class="zoom-level" id="zoomLevel">100%</span>
+          <button class="zoom-btn" id="zoomInBtn" onclick="zoomIn()" title="Phóng to">+</button>
+          <button class="zoom-btn" id="zoomResetBtn" onclick="zoomReset()" title="Về mặc định">⟲</button>
+        </div>
+        <div class="image-modal-actions">
+          <button class="image-modal-btn download" id="modalDownloadBtn">Tải Về</button>
+          <button class="image-modal-btn share" id="modalShareBtn">Chia Sẻ</button>
+        </div>
+      </div>
+    </div>
+
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/floating-chat-loader.js"></script>
     <script>
@@ -457,14 +631,14 @@
                     }</div>
                     <div class="history-time">${date}</div>
                     <div class="history-actions full">
-                      <a href="${
+                      <button class="btn-action" onclick="openImageModal('${
                         item.outputImagePath
-                      }" target="_blank" class="btn-action" title="Xem ảnh">Xem</a>
+                      }', '${item.promptName}', '${item._id}')" title="Xem ảnh">Xem</button>
                       <button class="btn-action" onclick="downloadImage('${
                         item.outputImagePath
                       }', '${item.promptName}')" title="Tải về">Tải Về</button>
                       <button class="btn-action" onclick="shareToFacebook('${
-                        item.outputImagePath
+                        item._id
                       }')" title="Chia sẻ Facebook">Chia Sẻ</button>
                       <button class="btn-action btn-delete" onclick="deleteHistory('${
                         item._id
@@ -560,7 +734,7 @@
           // Fetch the image as a blob
           const response = await fetch(imagePath);
           if (!response.ok) {
-            throw new Error('Failed to fetch image');
+            throw new Error("Failed to fetch image");
           }
 
           const blob = await response.blob();
@@ -582,21 +756,142 @@
           setTimeout(() => {
             URL.revokeObjectURL(blobUrl);
           }, 100);
-
         } catch (error) {
-          console.error('Error downloading image:', error);
-          alert('Không thể tải ảnh. Vui lòng thử lại sau.');
+          console.error("Error downloading image:", error);
+          alert("Không thể tải ảnh. Vui lòng thử lại sau.");
         }
       }
 
       // Share to Facebook
-      function shareToFacebook(imagePath) {
-        const imageUrl = window.location.origin + imagePath;
+      function shareToFacebook(historyId) {
+        // Dùng trang share với Open Graph meta tags để hiển thị tên website
+        // Sử dụng URL public (ngrok/production) để Facebook có thể crawl được
+        const backendUrl = 'https://fidgetingly-unrefreshed-jeramy.ngrok-free.dev';
+        const shareUrl = backendUrl + '/share/' + historyId;
         const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-          imageUrl
-        )}&quote=Ảnh được tạo bởi EternaPicSHT Studio`;
+          shareUrl
+        )}`;
         window.open(facebookUrl, "facebook-share", "width=600,height=400");
       }
+
+      // Image Modal Functions
+      let currentImagePath = "";
+      let currentPromptName = "";
+      let currentHistoryId = "";
+      let currentZoom = 1;
+      const MIN_ZOOM = 0.5;
+      const MAX_ZOOM = 3;
+      const ZOOM_STEP = 0.25;
+
+      function updateZoomDisplay() {
+        document.getElementById("zoomLevel").textContent = Math.round(currentZoom * 100) + "%";
+        document.getElementById("zoomOutBtn").disabled = currentZoom <= MIN_ZOOM;
+        document.getElementById("zoomInBtn").disabled = currentZoom >= MAX_ZOOM;
+
+        const modalImg = document.getElementById("modalImage");
+        modalImg.style.transform = `scale(${currentZoom})`;
+
+        if (currentZoom > 1) {
+          modalImg.classList.add("zoomed");
+        } else {
+          modalImg.classList.remove("zoomed");
+        }
+      }
+
+      function zoomIn() {
+        if (currentZoom < MAX_ZOOM) {
+          currentZoom = Math.min(currentZoom + ZOOM_STEP, MAX_ZOOM);
+          updateZoomDisplay();
+        }
+      }
+
+      function zoomOut() {
+        if (currentZoom > MIN_ZOOM) {
+          currentZoom = Math.max(currentZoom - ZOOM_STEP, MIN_ZOOM);
+          updateZoomDisplay();
+        }
+      }
+
+      function zoomReset() {
+        currentZoom = 1;
+        updateZoomDisplay();
+      }
+
+      function openImageModal(imagePath, promptName, historyId) {
+        currentImagePath = imagePath;
+        currentPromptName = promptName;
+        currentHistoryId = historyId;
+        currentZoom = 1;
+
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+
+        modalImg.src = imagePath;
+        modalImg.style.transform = "scale(1)";
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden";
+        updateZoomDisplay();
+
+        // Set up button handlers
+        document.getElementById("modalDownloadBtn").onclick = () => {
+          downloadImage(currentImagePath, currentPromptName);
+        };
+
+        document.getElementById("modalShareBtn").onclick = () => {
+          shareToFacebook(currentHistoryId);
+        };
+      }
+
+      function closeImageModal() {
+        const modal = document.getElementById("imageModal");
+        modal.classList.remove("active");
+        document.body.style.overflow = "";
+        currentZoom = 1;
+        document.getElementById("modalImage").style.transform = "scale(1)";
+      }
+
+      // Close modal on background click
+      document.getElementById("imageModal").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) {
+          closeImageModal();
+        }
+      });
+
+      // Close modal on Escape key, zoom with +/-
+      document.addEventListener("keydown", (e) => {
+        const modal = document.getElementById("imageModal");
+        if (!modal.classList.contains("active")) return;
+
+        if (e.key === "Escape") {
+          closeImageModal();
+        } else if (e.key === "+" || e.key === "=") {
+          zoomIn();
+        } else if (e.key === "-") {
+          zoomOut();
+        } else if (e.key === "0") {
+          zoomReset();
+        }
+      });
+
+      // Zoom with mouse wheel
+      document.getElementById("imageModal").addEventListener("wheel", (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+          zoomIn();
+        } else {
+          zoomOut();
+        }
+      });
+
+      // Double click to toggle zoom
+      document.getElementById("modalImage").addEventListener("dblclick", () => {
+        if (currentZoom === 1) {
+          currentZoom = 2;
+        } else {
+          currentZoom = 1;
+        }
+        updateZoomDisplay();
+      });
 
       document.addEventListener("DOMContentLoaded", () => {
         if (checkLogin()) {

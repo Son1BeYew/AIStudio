@@ -22,6 +22,7 @@ const trendsRoutes = require("./routes/trends");
 const collectionsRoutes = require("./routes/collections");
 const contentManagementRoutes = require("./routes/contentManagement");
 const debugContentRoutes = require("./routes/debugContent");
+const shareRoutes = require("./routes/share");
 console.log(
   "Content management routes loaded:",
   typeof contentManagementRoutes
@@ -69,6 +70,7 @@ app.use("/api/trends", trendsRoutes);
 app.use("/api/collections", collectionsRoutes);
 app.use("/api/admin/content-management", contentManagementRoutes);
 app.use("/api/debug/content", debugContentRoutes);
+app.use("/share", shareRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {
