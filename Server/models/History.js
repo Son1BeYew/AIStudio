@@ -9,7 +9,7 @@ const historySchema = new mongoose.Schema(
     originalImagePath: { type: String, required: true },
     outputImagePath: { type: String, required: true },
     outputImageUrl: { type: String, default: "" },
-    localPath: { type: String, required: true }, // For accessing via /outputs/
+    localPath: { type: String, default: "" }, // For accessing via /outputs/ (optional when using Cloudinary)
     model: { type: String, default: "nano-banana" },
     status: { type: String, enum: ["success", "failed"], default: "success" },
     errorMessage: { type: String, default: "" },
