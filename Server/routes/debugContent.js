@@ -2,6 +2,40 @@ const express = require("express");
 const History = require("../models/History");
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/debug/content/check-history:
+ *   get:
+ *     summary: Debug endpoint to check History collection data
+ *     tags: [Debug]
+ *     responses:
+ *       200:
+ *         description: Debug information about History collection
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalCount:
+ *                   type: number
+ *                 statusCounts:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       count:
+ *                         type: number
+ *                 hasModerationStatus:
+ *                   type: boolean
+ *                 todayCount:
+ *                   type: number
+ *                 sampleDocs:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
 // Debug endpoint to check actual data in History collection
 router.get("/check-history", async (req, res) => {
   try {

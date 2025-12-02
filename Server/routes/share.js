@@ -3,7 +3,31 @@ const History = require("../models/History");
 
 const router = express.Router();
 
-// Share page for Facebook Open Graph
+/**
+ * @swagger
+ * /share/{historyId}:
+ *   get:
+ *     summary: Get share page with Open Graph meta tags for social media
+ *     tags: [Share]
+ *     parameters:
+ *       - in: path
+ *         name: historyId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: History ID of the generated image
+ *     responses:
+ *       200:
+ *         description: HTML page with Open Graph meta tags
+ *         content:
+ *           text/html:
+ *             schema:
+ *               type: string
+ *       404:
+ *         description: Image not found
+ *       500:
+ *         description: Server error
+ */
 router.get("/:historyId", async (req, res) => {
   try {
     const { historyId } = req.params;

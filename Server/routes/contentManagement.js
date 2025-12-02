@@ -33,7 +33,41 @@ async function verifyAdmin(req, res, next) {
   }
 }
 
-// Get content statistics
+/**
+ * @swagger
+ * /api/admin/content-management/content-statistics:
+ *   get:
+ *     summary: Get content statistics for admin dashboard
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Content statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalImages:
+ *                   type: number
+ *                 successImages:
+ *                   type: number
+ *                 failedImages:
+ *                   type: number
+ *                 pendingImages:
+ *                   type: number
+ *                 reportedImages:
+ *                   type: number
+ *                 approvedImages:
+ *                   type: number
+ *                 imagesChange:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/content-statistics", verifyAdmin, async (req, res) => {
   try {
     const today = new Date();
@@ -116,6 +150,66 @@ router.get("/content-statistics", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/media-library:
+ *   get:
+ *     summary: Get media library with pagination and filters
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [success, failed, approved, pending, flagged]
+ *       - in: query
+ *         name: model
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: dateRange
+ *         schema:
+ *           type: string
+ *           enum: [today, 7days, 30days]
+ *     responses:
+ *       200:
+ *         description: Paginated media library
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/History'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *                 totalPages:
+ *                   type: number
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 // Get media library with pagination and filters
 router.get("/media-library", verifyAdmin, async (req, res) => {
   try {
@@ -213,6 +307,31 @@ router.get("/media-library", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/content-moderation:
+ *   get:
+ *     summary: Get content needing moderation
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of images pending moderation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/History'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 // Get content needing moderation
 router.get("/content-moderation", verifyAdmin, async (req, res) => {
   try {
@@ -244,6 +363,31 @@ router.get("/content-moderation", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/reports:
+ *   get:
+ *     summary: Get content reports
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of content reports
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 reports:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ContentReport'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 // Get reports
 router.get("/reports", verifyAdmin, async (req, res) => {
   try {
@@ -277,6 +421,33 @@ router.get("/reports", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/image/{id}:
+ *   get:
+ *     summary: Get single image details
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Image ID
+ *     responses:
+ *       200:
+ *         description: Image details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/History'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Image not found
+ */
 // Get single image details
 router.get("/image/:id", verifyAdmin, async (req, res) => {
   try {
@@ -310,6 +481,43 @@ router.get("/image/:id", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/image/{id}/status:
+ *   put:
+ *     summary: Update image moderation status
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Image ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [approved, rejected, flagged, pending]
+ *               notes:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Status updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Image not found
+ */
 // Update image moderation status
 router.put("/image/:id/status", verifyAdmin, async (req, res) => {
   try {
@@ -351,6 +559,34 @@ router.put("/image/:id/status", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/image/{id}:
+ *   delete:
+ *     summary: Delete a single image
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Image ID
+ *     responses:
+ *       200:
+ *         description: Image deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Image not found
+ */
 // Delete single image
 router.delete("/image/:id", verifyAdmin, async (req, res) => {
   try {
@@ -378,6 +614,43 @@ router.delete("/image/:id", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/images/bulk-delete:
+ *   delete:
+ *     summary: Bulk delete multiple images
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - imageIds
+ *             properties:
+ *               imageIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of image IDs to delete
+ *     responses:
+ *       200:
+ *         description: Images deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 deletedCount:
+ *                   type: number
+ *       400:
+ *         description: Valid image IDs required
+ */
 // Bulk delete images
 router.delete("/images/bulk-delete", verifyAdmin, async (req, res) => {
   try {
@@ -406,6 +679,51 @@ router.delete("/images/bulk-delete", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/report/{id}:
+ *   put:
+ *     summary: Resolve a content report
+ *     tags: [Content Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Report ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [pending, reviewed, resolved, dismissed]
+ *               notes:
+ *                 type: string
+ *                 description: Review notes
+ *     responses:
+ *       200:
+ *         description: Report resolved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 report:
+ *                   $ref: '#/components/schemas/ContentReport'
+ *       404:
+ *         description: Report not found
+ */
 // Resolve report
 router.put("/report/:id", verifyAdmin, async (req, res) => {
   try {
@@ -440,6 +758,51 @@ router.put("/report/:id", verifyAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/report:
+ *   post:
+ *     summary: Submit a content report (public)
+ *     tags: [Content Management]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - imageId
+ *               - reason
+ *             properties:
+ *               imageId:
+ *                 type: string
+ *                 description: ID of the image being reported
+ *               reason:
+ *                 type: string
+ *                 enum: [inappropriate, spam, copyright, other]
+ *               description:
+ *                 type: string
+ *                 description: Additional details about the report
+ *               reporterEmail:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       201:
+ *         description: Report submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 report:
+ *                   $ref: '#/components/schemas/ContentReport'
+ *       400:
+ *         description: Image ID and reason are required
+ *       404:
+ *         description: Image not found
+ */
 // Create content report (for frontend users)
 router.post("/report", async (req, res) => {
   try {
@@ -481,6 +844,33 @@ router.post("/report", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/debug-check:
+ *   get:
+ *     summary: Debug endpoint to check data (development only)
+ *     tags: [Content Management]
+ *     responses:
+ *       200:
+ *         description: Debug data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalCount:
+ *                   type: number
+ *                 successCount:
+ *                   type: number
+ *                 failedCount:
+ *                   type: number
+ *                 sampleImages:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 message:
+ *                   type: string
+ */
 // Debug endpoint to check data
 router.get("/debug-check", async (req, res) => {
   try {
@@ -515,6 +905,43 @@ router.get("/debug-check", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/admin/content-management/public-images:
+ *   get:
+ *     summary: Get all public images (no auth required)
+ *     tags: [Content Management]
+ *     responses:
+ *       200:
+ *         description: List of all public images
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       localPath:
+ *                         type: string
+ *                       promptName:
+ *                         type: string
+ *                       userEmail:
+ *                         type: string
+ *                       model:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       status:
+ *                         type: string
+ *                 total:
+ *                   type: number
+ */
 // Public endpoint for frontend testing (no auth required)
 router.get("/public-images", async (req, res) => {
   try {

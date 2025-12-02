@@ -4,6 +4,29 @@ const User = require("../models/User");
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /protected:
+ *   get:
+ *     summary: Get current authenticated user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: No token provided or invalid/expired token
+ *       404:
+ *         description: User not found
+ */
 router.get("/", async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: "No token provided" });
