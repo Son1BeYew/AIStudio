@@ -918,56 +918,47 @@ async function showConfirmDialog(
     pendingGenerateData = { promptName, selectedFile: file, type, extra };
 
     const token = localStorage.getItem("token");
-    let promptData = null;
+    const headers = { Authorization: `Bearer ${token}` };
     let fee = 0;
 
-    const response = await fetch("/api/prompts", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // Chạy song song tất cả API calls để tăng tốc
+    const serviceConfigEndpoint = type === "outfit"
+      ? "/api/service-config/outfit"
+      : type === "background"
+        ? "/api/service-config/background"
+        : null;
 
-    const prompts = await response.json();
-    promptData = prompts.find((p) => p.name === promptName);
+    const [promptsRes, trendingRes, serviceConfigRes, profileRes, quotaRes] = await Promise.all([
+      fetch("/api/prompts", { headers }),
+      fetch("/api/prompts-trending", { headers }),
+      serviceConfigEndpoint ? fetch(serviceConfigEndpoint, { headers }) : Promise.resolve(null),
+      fetch("/api/profile/me", { headers }),
+      fetch("/api/ai/daily-quota", { headers }).catch(() => null)
+    ]);
 
+    // Parse responses
+    const [prompts, trendingPrompts, serviceConfig, profileData, quotaInfo] = await Promise.all([
+      promptsRes.json(),
+      trendingRes.json(),
+      serviceConfigRes ? serviceConfigRes.json() : null,
+      profileRes.json(),
+      quotaRes ? quotaRes.json() : null
+    ]);
+
+    // Tìm promptData
+    let promptData = prompts.find((p) => p.name === promptName);
     if (!promptData) {
-      const trendingResponse = await fetch("/api/prompts-trending", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const trendingPrompts = await trendingResponse.json();
       promptData = trendingPrompts.find((p) => p.name === promptName);
     }
 
+    // Xác định fee
     if (type === "faceImage") {
       fee = promptData?.fee || 0;
-    } else if (type === "outfit") {
-      const configResponse = await fetch("/api/service-config/outfit", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const configData = await configResponse.json();
-      fee = configData?.fee || 0;
-    } else if (type === "background") {
-      const configResponse = await fetch("/api/service-config/background", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const configData = await configResponse.json();
-      fee = configData?.fee || 0;
+    } else if (serviceConfig) {
+      fee = serviceConfig.fee || 0;
     }
 
-    const profileResponse = await fetch("/api/profile/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const profileData = await profileResponse.json();
     const balance = profileData.balance || 0;
-
-    // Fetch daily free quota info
-    let quotaInfo = null;
-    try {
-      const quotaResponse = await fetch("/api/ai/daily-quota", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      quotaInfo = await quotaResponse.json();
-    } catch (err) {
-      console.error("Lỗi fetch quota:", err);
-    }
 
     // Display free quota section
     const freeQuotaSection = document.getElementById("freeQuotaSection");

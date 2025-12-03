@@ -6,7 +6,7 @@ const historySchema = new mongoose.Schema(
     promptId: { type: mongoose.Schema.Types.ObjectId, ref: "Prompt", default: null },
     promptName: { type: String, required: true },
     promptTitle: { type: String, default: "" },
-    originalImagePath: { type: String, required: true },
+    originalImagePath: { type: String, default: "" },
     outputImagePath: { type: String, required: true },
     outputImageUrl: { type: String, default: "" },
     localPath: { type: String, default: "" }, // For accessing via /outputs/ (optional when using Cloudinary)

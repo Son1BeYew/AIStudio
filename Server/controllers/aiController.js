@@ -797,7 +797,7 @@ Composition: centered subject, balanced framing, professional layout`;
         userId: userObjectId,
         promptName: "background_generation",
         promptTitle: `Tạo bối cảnh: ${prompt.substring(0, 50)}...`,
-        originalImagePath: null, // Không có ảnh gốc
+        originalImagePath: "", // Background generation không có ảnh gốc
         outputImagePath: cloudinaryOutputUrl,
         outputImageUrl: imageUrl,
         status: "success",
