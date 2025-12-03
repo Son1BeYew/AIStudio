@@ -1131,6 +1131,7 @@
     <div id="footer"></div>
 
     <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/toast-modal.js"></script>
     <script src="/assets/js/floating-chat-loader.js"></script>
     <script>
       const amountInput = document.getElementById("amount-input");
@@ -1147,8 +1148,8 @@
       function checkLogin() {
         const token = localStorage.getItem("token");
         if (!token) {
-          alert("Vui lòng đăng nhập trước");
-          window.location.href = "/login.html";
+          showToast("Vui lòng đăng nhập trước", "error");
+          setTimeout(() => window.location.href = "/login.html", 1000);
           return false;
         }
         return true;
@@ -1583,7 +1584,7 @@
 
       async function sendVerificationCode() {
         if (!selectedPaymentMethod) {
-          alert('Vui lòng chọn phương thức thanh toán!');
+          showToast('Vui lòng chọn phương thức thanh toán!', 'warning');
           return;
         }
 
@@ -1608,13 +1609,13 @@
             goToStep(2);
             startResendTimer();
           } else {
-            alert('Không thể gửi mã: ' + result.error);
+            showToast('Không thể gửi mã: ' + result.error, 'error');
             continueBtn.textContent = 'Tiếp tục';
             continueBtn.disabled = false;
           }
         } catch (error) {
           console.error('Error:', error);
-          alert('Lỗi khi gửi mã xác minh!');
+          showToast('Lỗi khi gửi mã xác minh!', 'error');
           const continueBtn = document.getElementById('continue-btn');
           continueBtn.textContent = 'Tiếp tục';
           continueBtn.disabled = false;
@@ -1678,7 +1679,7 @@
           });
           const result = await response.json();
           if (result.success) {
-            alert('Mã mới đã được gửi!');
+            showToast('Mã mới đã được gửi!', 'success');
           }
         } catch (error) {
           console.error('Error:', error);
@@ -1695,7 +1696,7 @@
       async function verifyAndProceed() {
         const code = getVerificationCode();
         if (code.length !== 6) {
-          alert('Vui lòng nhập đầy đủ 6 số!');
+          showToast('Vui lòng nhập đầy đủ 6 số!', 'warning');
           return;
         }
 
@@ -1720,15 +1721,15 @@
             if (selectedPaymentMethod === 'momo') {
               await createMomoPayment(currentUpgradePlan);
             } else if (selectedPaymentMethod === 'vnpay') {
-              alert('🔒 VNPay đang phát triển!');
+              showToast('🔒 VNPay đang phát triển!', 'info');
               closeUpgradeModal();
             }
           } else {
-            alert('❌ ' + result.error);
+            showToast('❌ ' + result.error, 'error');
           }
         } catch (error) {
           console.error('Error:', error);
-          alert('❌ Xác minh thất bại!');
+          showToast('❌ Xác minh thất bại!', 'error');
         }
       }
 
@@ -1755,7 +1756,7 @@
         try {
           const token = localStorage.getItem('token');
           if (!token) {
-            alert('Vui lòng đăng nhập lại!');
+            showToast('Vui lòng đăng nhập lại!', 'error');
             return;
           }
 
@@ -1771,7 +1772,7 @@
           if (!response.ok) {
             const errorText = await response.text();
             console.error("API Error:", response.status, errorText);
-            alert("Lỗi máy chủ: " + (response.statusText || "Vui lòng thử lại sau"));
+            showToast("Lỗi máy chủ: " + (response.statusText || "Vui lòng thử lại sau"), 'error');
             return;
           }
 
@@ -1782,11 +1783,11 @@
             closeUpgradeModal();
             window.open(result.payUrl, '_blank');
           } else {
-            alert('Không thể tạo thanh toán MoMo: ' + (result.error || 'Unknown error'));
+            showToast('Không thể tạo thanh toán MoMo: ' + (result.error || 'Unknown error'), 'error');
           }
         } catch (error) {
           console.error('Error creating MoMo payment:', error);
-          alert('Lỗi khi tạo thanh toán MoMo. Vui lòng thử lại!');
+          showToast('Lỗi khi tạo thanh toán MoMo. Vui lòng thử lại!', 'error');
         }
       }
 
@@ -1804,7 +1805,7 @@
           const token = localStorage.getItem("token");
 
           if (!token) {
-            alert("Vui lòng đăng nhập trước khi nâng cấp!");
+            showToast("Vui lòng đăng nhập trước khi nâng cấp!", 'error');
             return;
           }
 
@@ -1820,8 +1821,9 @@
           if (!response.ok) {
             const errorText = await response.text();
             console.error("API Error:", response.status, errorText);
-            alert(
-              "Lỗi máy chủ: " + (response.statusText || "Vui lòng thử lại sau")
+            showToast(
+              "Lỗi máy chủ: " + (response.statusText || "Vui lòng thử lại sau"),
+              'error'
             );
             return;
           }
@@ -1833,26 +1835,29 @@
               // Redirect to payment
               window.location.href = result.payUrl;
             } else {
-              alert(
-                "Nâng cấp thành công! Vui lòng tải lại trang để cập nhật thông tin."
+              showToast(
+                "Nâng cấp thành công! Vui lòng tải lại trang để cập nhật thông tin.",
+                'success'
               );
               loadCurrentPremium();
               loadPremiumHistory(); // Refresh history
             }
           } else {
-            alert(
+            showToast(
               "Lỗi: " +
                 (result.error ||
                   result.message ||
-                  "Không thể xử lý yêu cầu. Vui lòng liên hệ hỗ trợ.")
+                  "Không thể xử lý yêu cầu. Vui lòng liên hệ hỗ trợ."),
+              'error'
             );
           }
         } catch (error) {
           console.error("❌ Lỗi:", error);
-          alert(
+          showToast(
             "Lỗi kết nối: " +
               error.message +
-              ". Vui lòng kiểm tra kết nối mạng và thử lại."
+              ". Vui lòng kiểm tra kết nối mạng và thử lại.",
+            'error'
           );
         }
       }
@@ -2039,13 +2044,13 @@
         const selectedMethod = document.querySelector('input[name="payment-method"]:checked').value;
 
         if (!amount || amount < 1000) {
-          alert("Vui lòng nhập số tiền hợp lệ (tối thiểu 1000đ)");
+          showToast("Vui lòng nhập số tiền hợp lệ (tối thiểu 1000đ)", 'warning');
           return;
         }
 
         // For now, only process MoMo payments
         if (selectedMethod === "vnpay") {
-          alert("Thanh toán qua VNPay đang được phát triển. Vui lòng chọn MoMo để thanh toán.");
+          showToast("Thanh toán qua VNPay đang được phát triển. Vui lòng chọn MoMo để thanh toán.", 'info');
           return;
         }
 
@@ -2083,16 +2088,17 @@
             // Redirect to Momo payment
             window.location.href = result.payUrl;
           } else {
-            alert(
+            showToast(
               "Lỗi: " +
                 (result.error ||
                   result.message ||
-                  "Không thể tạo link thanh toán")
+                  "Không thể tạo link thanh toán"),
+              'error'
             );
           }
         } catch (error) {
           console.error("❌ Lỗi:", error);
-          alert("Lỗi khi tạo link thanh toán: " + error.message);
+          showToast("Lỗi khi tạo link thanh toán: " + error.message, 'error');
         } finally {
           topupBtn.disabled = false;
           topupBtn.textContent = "Nạp Tiền Ngay";
@@ -2390,14 +2396,12 @@
 
       // Cancel transaction function
       async function cancelTransaction(transactionId) {
-        if (!confirm('Bạn có chắc muốn hủy giao dịch này?')) {
-          return;
-        }
+        showConfirm('Bạn có chắc muốn hủy giao dịch này?', async () => {
 
         try {
           const token = localStorage.getItem('token');
           if (!token) {
-            alert('Vui lòng đăng nhập lại!');
+            showToast('Vui lòng đăng nhập lại!', 'error');
             return;
           }
 
@@ -2412,16 +2416,17 @@
           const result = await response.json();
 
           if (response.ok && result.success) {
-            alert('Đã hủy giao dịch thành công!');
+            showToast('Đã hủy giao dịch thành công!', 'success');
             // Reload history to update the display
             loadHistory();
           } else {
-            alert('Lỗi: ' + (result.error || 'Không thể hủy giao dịch'));
+            showToast('Lỗi: ' + (result.error || 'Không thể hủy giao dịch'), 'error');
           }
         } catch (error) {
           console.error('Error cancelling transaction:', error);
-          alert('Lỗi khi hủy giao dịch. Vui lòng thử lại!');
+          showToast('Lỗi khi hủy giao dịch. Vui lòng thử lại!', 'error');
         }
+        }, { danger: true });
       }
     </script>
 

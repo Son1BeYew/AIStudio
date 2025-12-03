@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!checkAuthBeforeAction()) return;
 
       if (!window.trendSelectedFile) {
-        alert("Vui lòng chọn ảnh trước");
+        showToast("Vui lòng chọn ảnh trước", 'warning');
         return;
       }
 
@@ -437,7 +437,7 @@ async function downloadTrendImage(imagePath, name) {
     }, 100);
   } catch (error) {
     console.error("Error downloading image:", error);
-    alert("Không thể tải ảnh. Vui lòng thử lại sau.");
+    showToast("Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
   }
 }
 
@@ -541,11 +541,11 @@ generateBtn.addEventListener("click", async () => {
   if (!checkAuthBeforeAction()) return;
 
   if (!selectedFile) {
-    alert("Vui lòng chọn ảnh trước");
+    showToast("Vui lòng chọn ảnh trước", 'warning');
     return;
   }
   if (!promptSelect.value) {
-    alert("Vui lòng chọn chế độ ảnh");
+    showToast("Vui lòng chọn chế độ ảnh", 'warning');
     return;
   }
 
@@ -607,7 +607,7 @@ async function downloadImage(imagePath, promptName) {
     }, 100);
   } catch (error) {
     console.error("Error downloading image:", error);
-    alert("Không thể tải ảnh. Vui lòng thử lại sau.");
+    showToast("Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
   }
 }
 
@@ -645,7 +645,7 @@ bgGenerateBtn.addEventListener("click", async () => {
 
   const prompt = bgPromptInput.value.trim();
   if (!prompt) {
-    alert("Vui lòng nhập mô tả bối cảnh bạn muốn tạo");
+    showToast("Vui lòng nhập mô tả bối cảnh bạn muốn tạo", 'warning');
     return;
   }
 
@@ -834,17 +834,17 @@ outfitGenerateBtn.addEventListener("click", async () => {
   if (!checkAuthBeforeAction()) return;
 
   if (!outfitSelectedFile) {
-    alert("Vui lòng chọn ảnh người trước");
+    showToast("Vui lòng chọn ảnh người trước", 'warning');
     return;
   }
 
   if (!clothingSelectedFile) {
     if (!outfitGenderSelect.value) {
-      alert("Vui lòng chọn giới tính");
+      showToast("Vui lòng chọn giới tính", 'warning');
       return;
     }
     if (!outfitTypeSelect.value || !outfitHairstyleSelect.value) {
-      alert("Vui lòng chọn loại trang phục và kiểu tóc");
+      showToast("Vui lòng chọn loại trang phục và kiểu tóc", 'warning');
       return;
     }
   }
@@ -1014,7 +1014,7 @@ async function showConfirmDialog(
     dialog.classList.remove("hidden");
   } catch (error) {
     console.error("Lỗi load thông tin giá:", error);
-    alert("Lỗi khi tải thông tin giá");
+    showToast("Lỗi khi tải thông tin giá", 'error');
   }
 }
 
@@ -1044,7 +1044,7 @@ async function proceedGenerate() {
 
 async function proceedGenerateFaceImage() {
   if (!pendingGenerateData.selectedFile || !pendingGenerateData.promptName) {
-    alert("Dữ liệu không hợp lệ");
+    showToast("Dữ liệu không hợp lệ", 'error');
     return;
   }
 
@@ -1107,7 +1107,7 @@ async function proceedGenerateFaceImage() {
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-      alert("Lỗi: " + (result.error || result.message));
+      showToast("Lỗi: " + (result.error || result.message), 'error');
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -1117,7 +1117,7 @@ async function proceedGenerateFaceImage() {
             <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
           </div>
         `;
-    alert("Lỗi khi tạo ảnh: " + error.message);
+    showToast("Lỗi khi tạo ảnh: " + error.message, 'error');
   } finally {
     const generateBtn = document.getElementById("generate-btn");
     generateBtn.disabled = false;
@@ -1127,7 +1127,7 @@ async function proceedGenerateFaceImage() {
 
 async function proceedGenerateBackground() {
   if (!pendingGenerateData.extra.bgPrompt) {
-    alert("Dữ liệu không hợp lệ");
+    showToast("Dữ liệu không hợp lệ", 'error');
     return;
   }
 
@@ -1186,7 +1186,7 @@ async function proceedGenerateBackground() {
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-      alert("Lỗi: " + (result.error || result.message));
+      showToast("Lỗi: " + (result.error || result.message), 'error');
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -1196,7 +1196,7 @@ async function proceedGenerateBackground() {
             <p>❌ Lỗi khi tạo bối cảnh: ${error.message}</p>
           </div>
         `;
-    alert("Lỗi khi tạo bối cảnh: " + error.message);
+    showToast("Lỗi khi tạo bối cảnh: " + error.message, 'error');
   } finally {
     const bgGenerateBtn = document.getElementById("bg-generate-btn");
     bgGenerateBtn.disabled = false;
@@ -1206,7 +1206,7 @@ async function proceedGenerateBackground() {
 
 async function proceedGenerateOutfit() {
   if (!pendingGenerateData.selectedFile) {
-    alert("Dữ liệu không hợp lệ");
+    showToast("Dữ liệu không hợp lệ", 'error');
     return;
   }
 
@@ -1277,7 +1277,7 @@ async function proceedGenerateOutfit() {
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-      alert("Lỗi: " + (result.error || result.message));
+      showToast("Lỗi: " + (result.error || result.message), 'error');
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -1287,7 +1287,7 @@ async function proceedGenerateOutfit() {
             <p>❌ Lỗi khi thay đổi trang phục: ${error.message}</p>
           </div>
         `;
-    alert("Lỗi khi thay đổi trang phục: " + error.message);
+    showToast("Lỗi khi thay đổi trang phục: " + error.message, 'error');
   } finally {
     const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
     outfitGenerateBtn.disabled = false;
@@ -1297,7 +1297,7 @@ async function proceedGenerateOutfit() {
 
 async function proceedGenerateTrending() {
   if (!pendingGenerateData.selectedFile || !window.currentTrend) {
-    alert("Dữ liệu không hợp lệ");
+    showToast("Dữ liệu không hợp lệ", 'error');
     return;
   }
 
@@ -1347,7 +1347,7 @@ async function proceedGenerateTrending() {
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-      alert("Lỗi: " + (result.error || result.message));
+      showToast("Lỗi: " + (result.error || result.message), 'error');
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -1357,7 +1357,7 @@ async function proceedGenerateTrending() {
             <p> Lỗi khi tạo ảnh: ${error.message}</p>
           </div>
         `;
-    alert("Lỗi khi tạo ảnh: " + error.message);
+    showToast("Lỗi khi tạo ảnh: " + error.message, 'error');
   } finally {
     const trendGenerateBtn = document.getElementById("trend-generate-btn");
     trendGenerateBtn.disabled = false;

@@ -651,6 +651,7 @@
 
     <script src="/assets/js/auth-utils.js"></script>
     <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/toast-modal.js"></script>
     <script src="/assets/js/floating-chat-loader.js"></script>
     <script>
       // =============================================
@@ -1271,9 +1272,9 @@
 
       // Danger Zone Actions
       document.getElementById('btn-deactivate')?.addEventListener('click', () => {
-        if (confirm('Bạn có chắc muốn vô hiệu hóa tài khoản?')) {
+        showConfirm('Bạn có chắc muốn vô hiệu hóa tài khoản?', () => {
           showToast('Tài khoản đã được vô hiệu hóa', 'info');
-        }
+        }, { danger: true });
       });
 
       document.getElementById('btn-delete')?.addEventListener('click', () => {
@@ -1403,7 +1404,7 @@
       }
 
       async function revokeSession(sessionId) {
-        if (!confirm('Bạn có chắc muốn thu hồi phiên đăng nhập này?')) return;
+        showConfirm('Bạn có chắc muốn thu hồi phiên đăng nhập này?', async () => {
 
         try {
           const response = await fetchWithAuth(`/api/sessions/${sessionId}`, {
@@ -1435,11 +1436,12 @@
           console.error('Error revoking session:', error);
           showToast('Không thể thu hồi phiên đăng nhập', 'error');
         }
+        }, { danger: true });
       }
 
       // Revoke all sessions button
       document.getElementById('btn-revoke-all-sessions')?.addEventListener('click', async () => {
-        if (!confirm('Bạn có chắc muốn đăng xuất khỏi tất cả thiết bị khác? Bạn sẽ vẫn đăng nhập trên thiết bị này.')) return;
+        showConfirm('Bạn có chắc muốn đăng xuất khỏi tất cả thiết bị khác? Bạn sẽ vẫn đăng nhập trên thiết bị này.', async () => {
 
         try {
           const response = await fetchWithAuth('/api/sessions/revoke-all', {
@@ -1457,6 +1459,7 @@
           console.error('Error revoking all sessions:', error);
           showToast('Không thể đăng xuất khỏi các thiết bị', 'error');
         }
+        }, { danger: true });
       });
 
 
@@ -1470,14 +1473,14 @@
 
       document.querySelectorAll('.btn-disconnect').forEach(btn => {
         btn.addEventListener('click', () => {
-          if (confirm('Bạn có chắc muốn hủy liên kết tài khoản này?')) {
+          showConfirm('Bạn có chắc muốn hủy liên kết tài khoản này?', () => {
             const item = btn.closest('.connection-item');
             item.querySelector('.connected').textContent = 'Chưa liên kết';
             item.querySelector('.connected').classList.replace('connected', 'not-connected');
             btn.textContent = 'Liên kết';
             btn.classList.replace('btn-disconnect', 'btn-connect');
             showToast('Đã hủy liên kết tài khoản', 'success');
-          }
+          }, { danger: true });
         });
       });
     </script>

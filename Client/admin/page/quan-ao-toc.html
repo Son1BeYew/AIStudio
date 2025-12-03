@@ -669,6 +669,7 @@
         </div>
     </div>
 
+    <script src="/assets/js/toast-modal.js"></script>
     <script>
         const API_BASE_READ = "/api/outfit-styles/all";
         const API_BASE_WRITE = "/api/outfit-styles";
@@ -693,7 +694,7 @@
                 renderPrompts();
             } catch (error) {
                 console.error('Lỗi:', error);
-                showAlert('Lỗi khi tải dữ liệu', 'error');
+                showToast('Lỗi khi tải dữ liệu', 'error');
             }
         }
 
@@ -798,23 +799,23 @@
         }
 
         async function deletePrompt(id) {
-            if (!confirm('Bạn chắc chắn muốn xóa mục này?')) return;
+            showConfirm('Bạn chắc chắn muốn xóa mục này?', async () => {
+                try {
+                    const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+                    const response = await fetch(`${API_BASE_WRITE}/${id}`, { 
+                        method: 'DELETE',
+                        headers
+                    });
+                    if (!response.ok) throw new Error('Lỗi xóa');
 
-            try {
-                const headers = token ? { "Authorization": `Bearer ${token}` } : {};
-                const response = await fetch(`${API_BASE_WRITE}/${id}`, { 
-                    method: 'DELETE',
-                    headers
-                });
-                if (!response.ok) throw new Error('Lỗi xóa');
-
-                showAlert('Xóa thành công!', 'success');
-                await new Promise(resolve => setTimeout(resolve, 500));
-                await loadPrompts();
-            } catch (error) {
-                console.error('Lỗi:', error);
-                showAlert('Lỗi khi xóa mục', 'error');
-            }
+                    showToast('Xóa thành công!', 'success');
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    await loadPrompts();
+                } catch (error) {
+                    console.error('Lỗi:', error);
+                    showToast('Lỗi khi xóa mục', 'error');
+                }
+            }, { danger: true });
         }
 
         async function savePrompt() {
@@ -828,15 +829,15 @@
 
             // Validation
             if (!gender) {
-                showAlert('Vui lòng chọn giới tính', 'error');
+                showToast('Vui lòng chọn giới tính', 'error');
                 return;
             }
             if (!typeName.trim()) {
-                showAlert('Vui lòng nhập tên loại trang phục', 'error');
+                showToast('Vui lòng nhập tên loại trang phục', 'error');
                 return;
             }
             if (!typeValue.trim()) {
-                showAlert('Vui lòng nhập giá trị loại trang phục', 'error');
+                showToast('Vui lòng nhập giá trị loại trang phục', 'error');
                 return;
             }
 
@@ -895,13 +896,13 @@
                     throw new Error(responseData.error || responseData.message || 'Lỗi khi lưu');
                 }
 
-                showAlert(promptId ? 'Cập nhật thành công!' : 'Thêm mới thành công!', 'success');
+                showToast(promptId ? 'Cập nhật thành công!' : 'Thêm mới thành công!', 'success');
                 resetForm();
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await loadPrompts();
             } catch (error) {
                 console.error('Lỗi:', error);
-                showAlert(error.message || 'Lỗi khi lưu mục', 'error');
+                showToast(error.message || 'Lỗi khi lưu mục', 'error');
             } finally {
                 showLoading(false);
             }
@@ -912,15 +913,7 @@
             document.getElementById('promptId').value = '';
         }
 
-        function showAlert(message, type) {
-            const alert = document.getElementById('alert');
-            alert.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i><span>${message}</span>`;
-            alert.className = `alert show ${type}`;
-            
-            setTimeout(() => {
-                alert.classList.remove('show');
-            }, 3000);
-        }
+
 
         function showLoading(show) {
             document.getElementById('loading').style.display = show ? 'block' : 'none';

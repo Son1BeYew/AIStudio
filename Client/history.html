@@ -575,6 +575,7 @@
     </div>
 
     <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/toast-modal.js"></script>
     <script src="/assets/js/floating-chat-loader.js"></script>
     <script>
       // Tab switching
@@ -602,8 +603,8 @@
       function checkLogin() {
         const token = localStorage.getItem("token");
         if (!token) {
-          alert("Vui lòng đăng nhập trước");
-          window.location.href = "/login.html";
+          showToast("Vui lòng đăng nhập trước", 'error');
+          setTimeout(() => window.location.href = "/login.html", 1000);
           return false;
         }
         return true;
@@ -735,24 +736,25 @@
 
       // Delete history
       async function deleteHistory(historyId) {
-        if (!confirm("Bạn có chắc muốn xóa lịch sử này?")) return;
+        showConfirm("Bạn có chắc muốn xóa lịch sử này?", async () => {
+          try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`/api/history/${historyId}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            });
 
-        try {
-          const token = localStorage.getItem("token");
-          const response = await fetch(`/api/history/${historyId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (response.ok) {
-            loadImagesHistory();
-          } else {
-            alert("Không thể xóa lịch sử");
+            if (response.ok) {
+              showToast("Đã xóa lịch sử thành công", 'success');
+              loadImagesHistory();
+            } else {
+              showToast("Không thể xóa lịch sử", 'error');
+            }
+          } catch (error) {
+            console.error("Lỗi:", error);
+            showToast("Lỗi khi xóa lịch sử", 'error');
           }
-        } catch (error) {
-          console.error("Lỗi:", error);
-          alert("Lỗi khi xóa lịch sử");
-        }
+        }, { danger: true });
       }
 
       // Download image
@@ -785,7 +787,7 @@
           }, 100);
         } catch (error) {
           console.error("Error downloading image:", error);
-          alert("Không thể tải ảnh. Vui lòng thử lại sau.");
+          showToast("Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
         }
       }
 
