@@ -1,21 +1,26 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
+const crypto = require("crypto");
 const User = require("../models/User");
 const Premium = require("../models/Premium");
 const emailService = require("../services/emailService");
+const { createSession, deleteSessionByTokenId } = require("./sessionController");
 
-const signAccessToken = (user) => {
+// Generate unique token ID for session tracking
+const generateTokenId = () => crypto.randomBytes(16).toString("hex");
+
+const signAccessToken = (user, tokenId) => {
   return jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
+    { id: user._id, email: user.email, role: user.role, tokenId },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
 };
 
-const signRefreshToken = (user) => {
+const signRefreshToken = (user, tokenId) => {
   return jwt.sign(
-    { id: user._id, email: user.email },
+    { id: user._id, email: user.email, tokenId },
     process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
@@ -306,11 +311,17 @@ exports.register = async (req, res) => {
     //   // Don't fail registration if email fails
     // }
 
-    const accessToken = signAccessToken(user);
-    const refreshToken = signRefreshToken(user);
+    // Generate unique token ID for session tracking
+    const tokenId = generateTokenId();
+
+    const accessToken = signAccessToken(user, tokenId);
+    const refreshToken = signRefreshToken(user, tokenId);
 
     user.refreshToken = refreshToken;
     await user.save();
+
+    // Create session record
+    await createSession(user._id, req, tokenId, 7);
 
     res.json({
       message: "User registered successfully",
@@ -331,11 +342,18 @@ exports.login = (req, res, next) => {
       if (err || !user)
         return res.status(400).json({ error: info?.message || "Login failed" });
       console.log("Login Sucessfully", "Role:", user.role);
-      const accessToken = signAccessToken(user);
-      const refreshToken = signRefreshToken(user);
+
+      // Generate unique token ID for session tracking
+      const tokenId = generateTokenId();
+
+      const accessToken = signAccessToken(user, tokenId);
+      const refreshToken = signRefreshToken(user, tokenId);
 
       user.refreshToken = refreshToken;
       await user.save();
+
+      // Create session record
+      await createSession(user._id, req, tokenId, 7);
 
       res.json({ accessToken, refreshToken, user });
     }
@@ -351,11 +369,17 @@ exports.googleCallback = async (req, res) => {
     await createFreePremiumForUser(req.user._id);
   }
 
-  const accessToken = signAccessToken(req.user);
-  const refreshToken = signRefreshToken(req.user);
+  // Generate unique token ID for session tracking
+  const tokenId = generateTokenId();
+
+  const accessToken = signAccessToken(req.user, tokenId);
+  const refreshToken = signRefreshToken(req.user, tokenId);
 
   req.user.refreshToken = refreshToken;
   await req.user.save();
+
+  // Create session record
+  await createSession(req.user._id, req, tokenId, 7);
 
   const role = (req.user?.role || "user").toLowerCase();
   const baseUrl = process.env.CLIENT_BASE_URL || "http://localhost:5000";

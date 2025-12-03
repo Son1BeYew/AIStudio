@@ -25,6 +25,7 @@ const collectionsRoutes = require("./routes/collections");
 const contentManagementRoutes = require("./routes/contentManagement");
 const debugContentRoutes = require("./routes/debugContent");
 const shareRoutes = require("./routes/share");
+const sessionRoutes = require("./routes/sessionRoutes");
 const app = express();
 
 // CORS configuration
@@ -80,6 +81,7 @@ app.use("/api/collections", collectionsRoutes);
 app.use("/api/admin/content-management", contentManagementRoutes);
 app.use("/api/debug/content", debugContentRoutes);
 app.use("/share", shareRoutes);
+app.use("/api/sessions", sessionRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {
