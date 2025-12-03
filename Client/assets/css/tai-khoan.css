@@ -3,7 +3,7 @@
    Clean, Human-Designed Interface
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 /* ============================================
    Variables
@@ -25,18 +25,16 @@
   --color-orange: #ea580c;
   --color-blue: #2563eb;
 
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
 }
 
-/* ============================================
-   Base Container - Full Width Layout
-   ============================================ */
 .account-container {
   width: 100%;
   max-width: 100%;
@@ -216,7 +214,7 @@
    ============================================ */
 .account-tabs {
   display: flex;
-  gap: 4px;
+  gap: 5px;
   background: var(--color-white);
   padding: 6px;
   border-radius: var(--radius-md);
@@ -286,8 +284,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ============================================
@@ -369,7 +371,7 @@
 .form-group select:focus {
   outline: none;
   border-color: var(--color-gray-900);
-  box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .form-group input::placeholder {
@@ -447,17 +449,29 @@
 }
 
 .strength-bar::after {
-  content: '';
+  content: "";
   display: block;
   height: 100%;
   width: 0;
   transition: width 0.2s ease;
 }
 
-.strength-bar.weak::after { width: 25%; background: var(--color-red); }
-.strength-bar.fair::after { width: 50%; background: var(--color-orange); }
-.strength-bar.good::after { width: 75%; background: var(--color-blue); }
-.strength-bar.strong::after { width: 100%; background: var(--color-green); }
+.strength-bar.weak::after {
+  width: 25%;
+  background: var(--color-red);
+}
+.strength-bar.fair::after {
+  width: 50%;
+  background: var(--color-orange);
+}
+.strength-bar.good::after {
+  width: 75%;
+  background: var(--color-blue);
+}
+.strength-bar.strong::after {
+  width: 100%;
+  background: var(--color-green);
+}
 
 .strength-text {
   font-size: 12px;
@@ -583,7 +597,7 @@
   background: var(--color-white);
   border-radius: 50%;
   transition: transform 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .toggle-switch input:checked + .toggle-slider {
@@ -625,7 +639,7 @@
 }
 
 .session-item.current .session-icon {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--color-white);
 }
 
@@ -807,7 +821,7 @@
 }
 
 .tx-id {
-  font-family: 'SF Mono', 'Consolas', monospace;
+  font-family: "SF Mono", "Consolas", monospace;
   font-size: 12px;
   color: var(--color-gray-500);
 }
@@ -837,11 +851,15 @@
 
 .tx-amount {
   font-weight: 600;
-  font-family: 'SF Mono', 'Consolas', monospace;
+  font-family: "SF Mono", "Consolas", monospace;
 }
 
-.tx-amount.positive { color: var(--color-green); }
-.tx-amount.negative { color: var(--color-gray-800); }
+.tx-amount.positive {
+  color: var(--color-green);
+}
+.tx-amount.negative {
+  color: var(--color-gray-800);
+}
 
 .tx-status {
   display: inline-block;
@@ -1079,7 +1097,7 @@
 }
 
 .danger-zone h2::before {
-  content: '⚠';
+  content: "⚠";
   font-size: 16px;
 }
 
@@ -1166,17 +1184,29 @@
   transform: translateX(0);
 }
 
-.toast-success { border-left: 3px solid var(--color-green); }
-.toast-error { border-left: 3px solid var(--color-red); }
-.toast-info { border-left: 3px solid var(--color-blue); }
+.toast-success {
+  border-left: 3px solid var(--color-green);
+}
+.toast-error {
+  border-left: 3px solid var(--color-red);
+}
+.toast-info {
+  border-left: 3px solid var(--color-blue);
+}
 
 .toast svg {
   flex-shrink: 0;
 }
 
-.toast-success svg { color: var(--color-green); }
-.toast-error svg { color: var(--color-red); }
-.toast-info svg { color: var(--color-blue); }
+.toast-success svg {
+  color: var(--color-green);
+}
+.toast-error svg {
+  color: var(--color-red);
+}
+.toast-info svg {
+  color: var(--color-blue);
+}
 
 .toast span {
   font-weight: 500;
