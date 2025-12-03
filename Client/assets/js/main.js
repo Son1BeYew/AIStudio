@@ -47,29 +47,36 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(link);
   }
 
-  function loadComponent(id, file) {
-    fetch(file)
-      .then((res) => res.text())
-      .then((data) => {
-        const el = document.getElementById(id);
-        if (!el) return console.warn("Errol Data #" + id);
-        el.innerHTML = data;
+  async function loadComponent(id, file) {
+    try {
+      const res = await fetch(file);
+      const data = await res.text();
+      const el = document.getElementById(id);
+      if (!el) return console.warn("Errol Data #" + id);
+      el.innerHTML = data;
 
-        if (componentCSS[id]) loadCSS(componentCSS[id]);
+      if (componentCSS[id]) loadCSS(componentCSS[id]);
 
-        if (id === "header") checkAuth();
-        if (id === "slider") initSlider();
-
-        initScrollAnimations();
-      })
-      .catch((err) => console.error("Không thể nạp " + file, err));
+      if (id === "header") checkAuth();
+      if (id === "slider") initSlider();
+    } catch (err) {
+      console.error("Không thể nạp " + file, err);
+    }
   }
 
-  loadComponent("header", "/assets/components/header.html");
-  loadComponent("hero", "/assets/components/hero.html");
-  loadComponent("features", "/assets/components/features.html");
-  loadComponent("footer", "/assets/components/footer.html");
-  loadComponent("slider", "/assets/components/slider.html");
+  // Load critical components first, then others
+  Promise.all([
+    loadComponent("header", "/assets/components/header.html"),
+    loadComponent("hero", "/assets/components/hero.html")
+  ]).then(() => {
+    // Load non-critical components after
+    loadComponent("features", "/assets/components/features.html");
+    loadComponent("footer", "/assets/components/footer.html");
+    loadComponent("slider", "/assets/components/slider.html");
+    
+    // Init scroll animations once after all loaded
+    setTimeout(() => initScrollAnimations(), 100);
+  });
 });
 function checkAuth() {
   const params = new URLSearchParams(window.location.search);
@@ -87,9 +94,18 @@ function checkAuth() {
   fetch("/protected", {
     headers: { Authorization: "Bearer " + token },
   })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok && res.status === 401) {
+        // Chỉ xóa token khi server trả về 401 (Unauthorized)
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        if (authDiv) authDiv.classList.add("loaded");
+        return null;
+      }
+      return res.json();
+    })
     .then((data) => {
-      if (!authDiv || !data.user) {
+      if (!data || !authDiv || !data.user) {
         if (authDiv) authDiv.classList.add("loaded");
         return;
       }
@@ -253,8 +269,7 @@ function checkAuth() {
     })
     .catch((err) => {
       console.error("Lỗi xác thực:", err);
-      localStorage.removeItem("token");
-      // Hiện nút Đăng Nhập khi lỗi
+      // KHÔNG xóa token khi có lỗi network, chỉ log error
       if (authDiv) authDiv.classList.add("loaded");
     });
 }

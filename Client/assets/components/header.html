@@ -11,6 +11,7 @@
     <div class="nav-links">
       <a href="/">Giới thiệu</a>
       <a href="/trends.html" onmouseenter="prefetchTrends()">Xu hướng</a>
+      <a href="/bo-suu-tap.html" onmouseenter="prefetchCollections()">Bộ sưu tập</a>
       <a href="/pricing.html">Bảng giá</a>
       <a href="mailto:support@eternapicsht.com">Liên hệ</a>
     </div>
@@ -41,6 +42,22 @@
           }
         });
         console.log('✅ Trends prefetched');
+      })
+      .catch(() => {});
+  }
+
+  // Prefetch collections data khi hover vào link
+  let collectionsPrefetched = false;
+  function prefetchCollections() {
+    if (collectionsPrefetched) return;
+    collectionsPrefetched = true;
+
+    fetch('/api/collections')
+      .then(r => r.json())
+      .then(collections => {
+        sessionStorage.setItem('collectionsCache', JSON.stringify(collections));
+        sessionStorage.setItem('collectionsCacheTime', Date.now().toString());
+        console.log('✅ Collections prefetched');
       })
       .catch(() => {});
   }

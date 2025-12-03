@@ -26,6 +26,7 @@ async function getValidAccessToken() {
     }
   } catch (err) {
     console.error("Error checking token expiration:", err);
+    // Không logout, chỉ log error và tiếp tục dùng token hiện tại
   }
 
   return token;
