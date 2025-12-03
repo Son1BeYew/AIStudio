@@ -47,31 +47,6 @@ router.get("/", verifyToken, sessionController.getMySessions);
 
 /**
  * @swagger
- * /sessions/{id}:
- *   delete:
- *     summary: Revoke a specific session
- *     tags: [Sessions]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Session ID to revoke
- *     responses:
- *       200:
- *         description: Session revoked successfully
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Session not found
- */
-router.delete("/:id", verifyToken, sessionController.revokeSession);
-
-/**
- * @swagger
  * /sessions/revoke-all:
  *   delete:
  *     summary: Revoke all sessions except current
@@ -94,5 +69,30 @@ router.delete("/:id", verifyToken, sessionController.revokeSession);
  *         description: Unauthorized
  */
 router.delete("/revoke-all", verifyToken, sessionController.revokeAllSessions);
+
+/**
+ * @swagger
+ * /sessions/{id}:
+ *   delete:
+ *     summary: Revoke a specific session
+ *     tags: [Sessions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Session ID to revoke
+ *     responses:
+ *       200:
+ *         description: Session revoked successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Session not found
+ */
+router.delete("/:id", verifyToken, sessionController.revokeSession);
 
 module.exports = router;

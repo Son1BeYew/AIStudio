@@ -515,10 +515,19 @@ svg.spin {
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-primary:hover {
   background: var(--color-black);
+}
+
+.btn-primary.large {
+  padding: 14px 28px;
+  font-size: 15px;
 }
 
 .btn-secondary {
@@ -531,11 +540,20 @@ svg.spin {
   font-weight: 500;
   cursor: pointer;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-secondary:hover {
   background: var(--color-gray-100);
   border-color: var(--color-gray-400);
+}
+
+.btn-secondary.large {
+  padding: 14px 28px;
+  font-size: 15px;
 }
 
 /* ============================================
@@ -920,6 +938,13 @@ svg.spin {
 .pagination-controls {
   display: flex;
   gap: 4px;
+  align-items: center;
+}
+
+#page-numbers {
+  display: flex;
+  gap: 4px;
+  align-items: center;
 }
 
 .pagination-btn {

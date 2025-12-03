@@ -52,10 +52,10 @@ exports.getMyProfile = async (req, res) => {
 exports.updateMyProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { fullname, email, dob, bietDanh, gioiTinh, phone, address, mangXaHoi, anhDaiDien } = req.body;
+    const { fullname, dob, bietDanh, gioiTinh, phone, address, mangXaHoi, anhDaiDien } = req.body;
 
-    // 🟢 Cập nhật bảng User trước (fullname, email, dob)
-    const userUpdateData = { fullname, email };
+    // 🟢 Cập nhật bảng User trước (fullname, dob) - KHÔNG cho phép thay đổi email
+    const userUpdateData = { fullname };
     if (dob !== undefined) userUpdateData.dob = dob;
 
     await User.findByIdAndUpdate(

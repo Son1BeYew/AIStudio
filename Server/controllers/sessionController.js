@@ -175,10 +175,24 @@ exports.revokeAllSessions = async (req, res) => {
     const userId = req.user.id;
     const currentTokenId = req.tokenId;
 
+    console.log("Revoking all sessions for user:", userId);
+    console.log("Current tokenId:", currentTokenId);
+
+    // Find sessions to revoke
+    const sessionsToRevoke = await Session.find({
+      userId,
+      isActive: true,
+      tokenId: { $ne: currentTokenId },
+    });
+
+    console.log("Sessions to revoke:", sessionsToRevoke.length);
+
     const result = await Session.updateMany(
       { userId, isActive: true, tokenId: { $ne: currentTokenId } },
       { isActive: false }
     );
+
+    console.log("Modified count:", result.modifiedCount);
 
     res.json({
       message: "Đã đăng xuất khỏi tất cả thiết bị khác",
