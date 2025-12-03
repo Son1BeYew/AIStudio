@@ -28,40 +28,36 @@
         <p>Những phong cách ảnh nổi bật</p>
       </div>
       <div class="trends-grid">
-        <div class="trend-card" style="background-color: #f5f5f7;">
-          <div class="trend-image"></div>
-          <h3>Cyberpunk neon</h3>
-          <p>Phong cách tương lai đầy màu sắc neon, bóng đêm kỹ thuật số</p>
+        <!-- Skeleton cards hiển thị ngay, sẽ được thay thế bằng data thật -->
+        <div class="trend-card skeleton-card">
+          <div class="trend-image skeleton-image"></div>
+          <h3 class="skeleton-text"></h3>
+          <p class="skeleton-text"></p>
         </div>
-
-        <div class="trend-card" style="background-color: #f5f5f7;">
-          <div class="trend-image"></div>
-          <h3>Thiên nhiên xanh</h3>
-          <p>Hòa nhập tự nhiên, cảnh rừng sâu và động vật hoang dã</p>
+        <div class="trend-card skeleton-card">
+          <div class="trend-image skeleton-image"></div>
+          <h3 class="skeleton-text"></h3>
+          <p class="skeleton-text"></p>
         </div>
-
-        <div class="trend-card" style="background-color: #f5f5f7;">
-          <div class="trend-image"></div>
-          <h3>Phim hoạt hình 3d</h3>
-          <p>Style disney/pixar, nhân vật hoạt hình siêu chi tiết</p>
+        <div class="trend-card skeleton-card">
+          <div class="trend-image skeleton-image"></div>
+          <h3 class="skeleton-text"></h3>
+          <p class="skeleton-text"></p>
         </div>
-
-        <div class="trend-card" style="background-color: #f5f5f7;">
-          <div class="trend-image"></div>
-          <h3>Fantasy magic</h3>
-          <p>Thế giới phép thuật, rồng, yêu tinh và phép lạ</p>
+        <div class="trend-card skeleton-card">
+          <div class="trend-image skeleton-image"></div>
+          <h3 class="skeleton-text"></h3>
+          <p class="skeleton-text"></p>
         </div>
-
-        <div class="trend-card" style="background-color: #f5f5f7;">
-          <div class="trend-image"></div>
-          <h3>Retro vintage</h3>
-          <p>Phong cách 70s, 80s retro, film cũ và bộ máy quay vintage</p>
+        <div class="trend-card skeleton-card">
+          <div class="trend-image skeleton-image"></div>
+          <h3 class="skeleton-text"></h3>
+          <p class="skeleton-text"></p>
         </div>
-
-        <div class="trend-card" style="background-color: #f5f5f7;">
-          <div class="trend-image"></div>
-          <h3>Pop art modern</h3>
-          <p>Nghệ thuật hiện đại, warhol style, màu sắc đập mắt</p>
+        <div class="trend-card skeleton-card">
+          <div class="trend-image skeleton-image"></div>
+          <h3 class="skeleton-text"></h3>
+          <p class="skeleton-text"></p>
         </div>
       </div>
     </section>
@@ -86,6 +82,20 @@
 <script>
   // API calls để lấy dữ liệu thật
   const API_BASE = "/api/trends";
+
+  // Cache để lưu data trends
+  let cachedTrends = null;
+
+  // Preload images để load nhanh hơn
+  function preloadImages(urls) {
+    urls.forEach(url => {
+      if (url) {
+        const img = new Image();
+        img.src = url;
+      }
+    });
+  }
+
   // Định dạng thời gian
   function formatTimeAgo(date) {
     const now = new Date();
@@ -109,6 +119,19 @@
   async function loadPopularTrends() {
     console.log("🔄 Loading popular trends...");
     try {
+      // Check sessionStorage cache first
+      const cached = sessionStorage.getItem('trendsCache');
+      const cacheTime = sessionStorage.getItem('trendsCacheTime');
+      const now = Date.now();
+
+      // Use cache if less than 5 minutes old
+      if (cached && cacheTime && (now - parseInt(cacheTime)) < 300000) {
+        console.log("📦 Using cached trends data");
+        const trends = JSON.parse(cached);
+        renderTrends(trends);
+        return;
+      }
+
       const response = await fetch(`${API_BASE}/popular`);
       console.log("📡 API Response status:", response.status);
 
@@ -117,32 +140,42 @@
       const trends = await response.json();
       console.log("📊 Popular trends data:", trends);
 
-      const trendsGrid = document.querySelector(".trends-grid");
-      console.log("🎯 Trends grid element:", trendsGrid);
+      // Cache the data
+      sessionStorage.setItem('trendsCache', JSON.stringify(trends));
+      sessionStorage.setItem('trendsCacheTime', now.toString());
 
-      // Clear existing mock data
-      trendsGrid.innerHTML = "";
-      trends.forEach((trend, index) => {
-        const trendCard = document.createElement("div");
-        trendCard.className = "trend-card";
-        trendCard.innerHTML = `
-              <div class="trend-image" style="${trend.image
-            ? `background-image: url('${trend.image}')`
-            : `background: linear-gradient(135deg, #${Math.floor(
-              Math.random() * 16777215
-            ).toString(16)}, #${Math.floor(
-              Math.random() * 16777215
-            ).toString(16)})`
-          }"></div>
-              <h3>${trend.title}</h3>
-              <p>${trend.description || "Style ảnh độc đáo và sáng tạo"}</p>
-            `;
-        trendsGrid.appendChild(trendCard);
-      });
+      // Preload images immediately
+      preloadImages(trends.map(t => t.image).filter(Boolean));
+
+      renderTrends(trends);
     } catch (error) {
       console.error("Error loading popular trends:", error);
       // Giữ mock data nếu API thất bại
     }
+  }
+
+  // Render trends to DOM
+  function renderTrends(trends) {
+    const trendsGrid = document.querySelector(".trends-grid");
+    if (!trendsGrid) return;
+
+    // Build HTML string first (faster than multiple appendChild)
+    const html = trends.map(trend => `
+      <div class="trend-card">
+        <div class="trend-image" style="${trend.image
+          ? `background-image: url('${trend.image}')`
+          : `background: linear-gradient(135deg, #${Math.floor(
+            Math.random() * 16777215
+          ).toString(16)}, #${Math.floor(
+            Math.random() * 16777215
+          ).toString(16)})`
+        }"></div>
+        <h3>${trend.title}</h3>
+        <p>${trend.description || "Style ảnh độc đáo và sáng tạo"}</p>
+      </div>
+    `).join('');
+
+    trendsGrid.innerHTML = html;
   }
 
   // Thêm loading states
@@ -166,15 +199,31 @@
     });
   }
 
+  // Start loading immediately (don't wait for DOMContentLoaded)
+  const trendsPromise = fetch(`${API_BASE}/popular`).then(r => r.json()).catch(() => null);
+
   // Khởi tạo khi DOM load xong
   document.addEventListener("DOMContentLoaded", async function () {
     showLoading();
 
-    // Tải dữ liệu thật từ API
-    await Promise.all([loadPopularTrends(), loadTrendsStats()]);
+    // Use pre-fetched data if available
+    const prefetchedTrends = await trendsPromise;
+    if (prefetchedTrends) {
+      preloadImages(prefetchedTrends.map(t => t.image).filter(Boolean));
+      sessionStorage.setItem('trendsCache', JSON.stringify(prefetchedTrends));
+      sessionStorage.setItem('trendsCacheTime', Date.now().toString());
+      renderTrends(prefetchedTrends);
+    }
+
+    // Load stats separately
+    if (typeof loadTrendsStats === 'function') {
+      await loadTrendsStats();
+    }
 
     hideLoading();
-    document.body.appendChild(refreshBtn);
+    if (typeof refreshBtn !== 'undefined') {
+      document.body.appendChild(refreshBtn);
+    }
   });
 </script>
 </body>

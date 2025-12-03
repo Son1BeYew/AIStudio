@@ -10,7 +10,7 @@
     </div>
     <div class="nav-links">
       <a href="/">Giới thiệu</a>
-      <a href="/trends.html">Xu hướng</a>
+      <a href="/trends.html" onmouseenter="prefetchTrends()">Xu hướng</a>
       <a href="/pricing.html">Bảng giá</a>
       <a href="mailto:support@eternapicsht.com">Liên hệ</a>
     </div>
@@ -21,3 +21,27 @@
     </div>
   </nav>
 </header>
+<script>
+  // Prefetch trends data khi hover vào link
+  let trendsPrefetched = false;
+  function prefetchTrends() {
+    if (trendsPrefetched) return;
+    trendsPrefetched = true;
+
+    fetch('/api/trends/popular')
+      .then(r => r.json())
+      .then(trends => {
+        sessionStorage.setItem('trendsCache', JSON.stringify(trends));
+        sessionStorage.setItem('trendsCacheTime', Date.now().toString());
+        // Preload images
+        trends.forEach(t => {
+          if (t.image) {
+            const img = new Image();
+            img.src = t.image;
+          }
+        });
+        console.log('✅ Trends prefetched');
+      })
+      .catch(() => {});
+  }
+</script>

@@ -37,6 +37,7 @@ background: linear-gradient(90deg, #333333, #2e2e2e, #4a4a4a);
   padding: 0 250px;
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
+  scroll-behavior: auto;
 }
 
 
@@ -45,29 +46,36 @@ background: linear-gradient(90deg, #333333, #2e2e2e, #4a4a4a);
 }
 
 .image-name-list span {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
-  color: rgba(0, 0, 0, 0.25);  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-
+  color: rgba(0, 0, 0, 0.35);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.35s ease;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  will-change: transform, color, opacity;
+  will-change: transform, opacity;
   opacity: 0.5;
+  transform: translateZ(0) scale(1);
+  transform-origin: center center;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .image-name-list span.active {
-  font-size: 38px;
   background: linear-gradient(90deg, #6b00c3, #da56ff, #dd00ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
   color: transparent;
+  opacity: 1;
+  transform: translateZ(0) scale(1.25);
 }
 
 .image-name-list span.prev,
 .image-name-list span.next {
-  color: rgba(180,180,180,0.4);
-  font-size: 24px;
+  color: rgba(150, 150, 150, 0.5);
   opacity: 0.6;
 }
 

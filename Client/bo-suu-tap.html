@@ -347,6 +347,45 @@
         }
       }
 
+      /* Skeleton Loading */
+      .skeleton-item {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .skeleton-image {
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.5s infinite;
+      }
+
+      .skeleton-text {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: skeleton-shimmer 1.5s infinite;
+        border-radius: 4px;
+        height: 20px;
+        margin: 15px;
+      }
+
+      .skeleton-text.short {
+        width: 60%;
+        height: 14px;
+      }
+
+      @keyframes skeleton-shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
         .collection-hero h1 {
@@ -454,11 +493,13 @@
     <!-- Collection Grid -->
     <section class="collection-grid">
       <div class="collection-grid-items" id="collectionGrid">
-        <!-- Loading State -->
-        <div class="loading-container" id="loadingState">
-          <div class="loading-spinner"></div>
-          <div class="loading-text">Đang tải bộ sưu tập...</div>
-        </div>
+        <!-- Skeleton Loading Cards -->
+        <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+        <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+        <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+        <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+        <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+        <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
       </div>
     </section>
 
@@ -478,13 +519,66 @@
       let isLoading = false;
       let paginationInfo = null;
 
+      // Preload images để load nhanh hơn
+      function preloadImages(urls) {
+        urls.forEach(url => {
+          if (url) {
+            const img = new Image();
+            img.src = url;
+          }
+        });
+      }
+
+      // Pre-fetch data immediately (don't wait for DOMContentLoaded)
+      const collectionsPromise = fetch('/api/collections?sort=latest&page=1&limit=50')
+        .then(r => r.json())
+        .catch(() => null);
+
       // Initialize
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener("DOMContentLoaded", async function () {
         // Setup event listeners
         setupEventListeners();
 
-        // Load initial data
-        loadCollections();
+        // Check sessionStorage cache first
+        const cached = sessionStorage.getItem('collectionsCache');
+        const cacheTime = sessionStorage.getItem('collectionsCacheTime');
+        const now = Date.now();
+
+        // Use cache if less than 5 minutes old
+        if (cached && cacheTime && (now - parseInt(cacheTime)) < 300000) {
+          console.log("📦 Using cached collections data");
+          const result = JSON.parse(cached);
+          if (result.success) {
+            collections = result.data;
+            filteredCollections = [...collections];
+            paginationInfo = result.pagination;
+            preloadImages(collections.map(c => c.image).filter(Boolean));
+            renderCollections();
+            loadStats();
+            return;
+          }
+        }
+
+        // Use pre-fetched data if available
+        const prefetchedResult = await collectionsPromise;
+        if (prefetchedResult && prefetchedResult.success) {
+          console.log("✅ Using pre-fetched collections data");
+          collections = prefetchedResult.data;
+          filteredCollections = [...collections];
+          paginationInfo = prefetchedResult.pagination;
+
+          // Cache the data
+          sessionStorage.setItem('collectionsCache', JSON.stringify(prefetchedResult));
+          sessionStorage.setItem('collectionsCacheTime', now.toString());
+
+          // Preload images
+          preloadImages(collections.map(c => c.image).filter(Boolean));
+          renderCollections();
+        } else {
+          // Fallback to normal load
+          loadCollections();
+        }
+
         loadStats();
       });
 
@@ -510,6 +604,15 @@
             collections = result.data;
             filteredCollections = [...collections];
             paginationInfo = result.pagination;
+
+            // Cache the data (only for default sort without search)
+            if (currentSort === 'latest' && !currentSearch) {
+              sessionStorage.setItem('collectionsCache', JSON.stringify(result));
+              sessionStorage.setItem('collectionsCacheTime', Date.now().toString());
+            }
+
+            // Preload images
+            preloadImages(collections.map(c => c.image).filter(Boolean));
             renderCollections();
           } else {
             showError("Không thể tải bộ sưu tập: " + result.message);
@@ -519,7 +622,6 @@
           showError("Lỗi kết nối đến máy chủ");
         } finally {
           isLoading = false;
-          hideLoadingState();
         }
       }
 
@@ -611,18 +713,13 @@
         const grid = document.getElementById("collectionGrid");
         if (collections.length === 0) {
           grid.innerHTML = `
-            <div class="loading-container" id="loadingState">
-              <div class="loading-spinner"></div>
-              <div class="loading-text">Đang tải bộ sưu tập...</div>
-            </div>
+            <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+            <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+            <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+            <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+            <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+            <div class="skeleton-item"><div class="skeleton-image"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
           `;
-        }
-      }
-
-      function hideLoadingState() {
-        const loadingElement = document.getElementById("loadingState");
-        if (loadingElement) {
-          loadingElement.style.display = "none";
         }
       }
 
