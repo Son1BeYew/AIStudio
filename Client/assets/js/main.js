@@ -74,7 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
 function checkAuth() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token") || localStorage.getItem("token");
-  if (!token) return;
+  const authDiv = document.getElementById("auth-section");
+
+  if (!token) {
+    // Không có token → hiện nút Đăng Nhập
+    if (authDiv) authDiv.classList.add("loaded");
+    return;
+  }
 
   localStorage.setItem("token", token);
 
@@ -83,8 +89,10 @@ function checkAuth() {
   })
     .then((res) => res.json())
     .then((data) => {
-      const authDiv = document.getElementById("auth-section");
-      if (!authDiv || !data.user) return;
+      if (!authDiv || !data.user) {
+        if (authDiv) authDiv.classList.add("loaded");
+        return;
+      }
 
       const avatarURL =
         data.user.avatar ||
@@ -227,10 +235,15 @@ function checkAuth() {
           arrow.style.transform = "rotate(0deg)";
         }
       });
+
+      // Hiện auth section sau khi setup xong
+      authDiv.classList.add("loaded");
     })
     .catch((err) => {
       console.error("Lỗi xác thực:", err);
       localStorage.removeItem("token");
+      // Hiện nút Đăng Nhập khi lỗi
+      if (authDiv) authDiv.classList.add("loaded");
     });
 }
 
