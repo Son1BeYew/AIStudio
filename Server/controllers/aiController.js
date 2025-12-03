@@ -18,7 +18,7 @@ const DAILY_FREE_IMAGES = {
   max: 15,
   yearly: 5,
   monthly: 3,
-  free: 0
+  free: 0,
 };
 
 // Helper function to check and use daily free quota
@@ -38,14 +38,20 @@ async function checkAndUseDailyFreeQuota(userId) {
 
   // Check if we need to reset (new day - reset at midnight)
   const now = new Date();
-  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayMidnight = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
 
   if (!user.lastFreeImageReset || user.lastFreeImageReset < todayMidnight) {
     // Reset quota for new day
     user.dailyFreeImagesUsed = 0;
     user.lastFreeImageReset = now;
     await user.save();
-    console.log(`🔄 Reset daily free quota for user ${userId}, plan: ${premiumType}`);
+    console.log(
+      `🔄 Reset daily free quota for user ${userId}, plan: ${premiumType}`
+    );
   }
 
   const usedFree = user.dailyFreeImagesUsed || 0;
@@ -55,13 +61,15 @@ async function checkAndUseDailyFreeQuota(userId) {
     // Use free quota
     user.dailyFreeImagesUsed = usedFree + 1;
     await user.save();
-    console.log(`🎁 Used free quota: ${usedFree + 1}/${maxFreeImages} for user ${userId}`);
+    console.log(
+      `🎁 Used free quota: ${usedFree + 1}/${maxFreeImages} for user ${userId}`
+    );
     return {
       hasFreeQuota: true,
       remainingFree: remainingFree - 1,
       usedFree: usedFree + 1,
       maxFree: maxFreeImages,
-      isFreeImage: true
+      isFreeImage: true,
     };
   }
 
@@ -70,7 +78,7 @@ async function checkAndUseDailyFreeQuota(userId) {
     remainingFree: 0,
     usedFree: usedFree,
     maxFree: maxFreeImages,
-    isFreeImage: false
+    isFreeImage: false,
   };
 }
 
@@ -90,7 +98,11 @@ async function getDailyFreeQuotaInfo(userId) {
 
   // Check if we need to reset
   const now = new Date();
-  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayMidnight = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
 
   let usedFree = user.dailyFreeImagesUsed || 0;
 
@@ -103,7 +115,7 @@ async function getDailyFreeQuotaInfo(userId) {
     usedFree,
     maxFree: maxFreeImages,
     premiumType,
-    nextReset: new Date(todayMidnight.getTime() + 24 * 60 * 60 * 1000) // Tomorrow midnight
+    nextReset: new Date(todayMidnight.getTime() + 24 * 60 * 60 * 1000), // Tomorrow midnight
   };
 }
 
@@ -117,13 +129,10 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-// Note: Google Generative AI initialization removed since all models use Replicate API
-console.log("✅ Replicate API initialized for all AI models");
-
 // Model execution function
 async function executeModel(modelName, prompt, imageInputs) {
   try {
-    console.log(`🚀 Executing model: ${modelName}`);
+    console.log(`Executing model: ${modelName}`);
 
     // All models use Replicate API
     let replicateModel;
@@ -308,7 +317,9 @@ exports.generateFaceImage = async (req, res) => {
       if (freeQuotaInfo.isFreeImage) {
         // Use free quota, no charge
         isFreeImage = true;
-        console.log(`🎁 Free image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`);
+        console.log(
+          `🎁 Free image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`
+        );
       } else {
         // No free quota, charge from balance
         if (!profile || profile.balance < fee) {
@@ -316,7 +327,7 @@ exports.generateFaceImage = async (req, res) => {
             error: "Số dư không đủ để tạo ảnh. Vui lòng nạp tiền",
             freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
             dailyFreeUsed: freeQuotaInfo.usedFree,
-            dailyFreeMax: freeQuotaInfo.maxFree
+            dailyFreeMax: freeQuotaInfo.maxFree,
           });
         }
 
@@ -492,7 +503,9 @@ exports.generateOutfit = async (req, res) => {
       if (freeQuotaInfo.isFreeImage) {
         // Use free quota, no charge
         isFreeImage = true;
-        console.log(`🎁 Free outfit image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`);
+        console.log(
+          `🎁 Free outfit image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`
+        );
       } else {
         // No free quota, charge from balance
         if (!profile || profile.balance < outfitFee) {
@@ -500,7 +513,7 @@ exports.generateOutfit = async (req, res) => {
             error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền",
             freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
             dailyFreeUsed: freeQuotaInfo.usedFree,
-            dailyFreeMax: freeQuotaInfo.maxFree
+            dailyFreeMax: freeQuotaInfo.maxFree,
           });
         }
 
@@ -687,7 +700,9 @@ exports.generateBackground = async (req, res) => {
       if (freeQuotaInfo.isFreeImage) {
         // Use free quota, no charge
         isFreeImage = true;
-        console.log(`🎁 Free background image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`);
+        console.log(
+          `🎁 Free background image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`
+        );
       } else {
         // No free quota, charge from balance
         if (!profile || profile.balance < backgroundFee) {
@@ -695,7 +710,7 @@ exports.generateBackground = async (req, res) => {
             error: "Số dư không đủ để tạo bối cảnh. Vui lòng nạp tiền",
             freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
             dailyFreeUsed: freeQuotaInfo.usedFree,
-            dailyFreeMax: freeQuotaInfo.maxFree
+            dailyFreeMax: freeQuotaInfo.maxFree,
           });
         }
 
@@ -830,13 +845,13 @@ exports.getDailyQuota = async (req, res) => {
 
     res.json({
       success: true,
-      ...quotaInfo
+      ...quotaInfo,
     });
   } catch (error) {
     console.error("❌ Lỗi lấy quota info:", error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 };

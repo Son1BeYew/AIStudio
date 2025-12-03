@@ -25,10 +25,6 @@ const collectionsRoutes = require("./routes/collections");
 const contentManagementRoutes = require("./routes/contentManagement");
 const debugContentRoutes = require("./routes/debugContent");
 const shareRoutes = require("./routes/share");
-console.log(
-  "Content management routes loaded:",
-  typeof contentManagementRoutes
-);
 const app = express();
 
 // CORS configuration
@@ -52,10 +48,14 @@ require("./config/passport")(passport);
 app.use(passport.initialize());
 
 // Swagger API Documentation - MUST be before static files
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: "EternaPicSHT API Documentation"
-}));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "EternaPicSHT API Documentation",
+  })
+);
 
 // Static files - AFTER api-docs route
 app.use(express.static(path.join(__dirname, "../Client")));
@@ -129,5 +129,4 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`📚 Swagger API Docs available at http://localhost:${PORT}/api-docs`);
 });
