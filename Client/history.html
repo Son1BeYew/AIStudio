@@ -537,14 +537,39 @@
           <img src="" alt="Preview" class="image-modal-img" id="modalImage" />
         </div>
         <div class="image-modal-controls">
-          <button class="zoom-btn" id="zoomOutBtn" onclick="zoomOut()" title="Thu nhỏ">−</button>
+          <button
+            class="zoom-btn"
+            id="zoomOutBtn"
+            onclick="zoomOut()"
+            title="Thu nhỏ"
+          >
+            −
+          </button>
           <span class="zoom-level" id="zoomLevel">100%</span>
-          <button class="zoom-btn" id="zoomInBtn" onclick="zoomIn()" title="Phóng to">+</button>
-          <button class="zoom-btn" id="zoomResetBtn" onclick="zoomReset()" title="Về mặc định">⟲</button>
+          <button
+            class="zoom-btn"
+            id="zoomInBtn"
+            onclick="zoomIn()"
+            title="Phóng to"
+          >
+            +
+          </button>
+          <button
+            class="zoom-btn"
+            id="zoomResetBtn"
+            onclick="zoomReset()"
+            title="Về mặc định"
+          >
+            ⟲
+          </button>
         </div>
         <div class="image-modal-actions">
-          <button class="image-modal-btn download" id="modalDownloadBtn">Tải Về</button>
-          <button class="image-modal-btn share" id="modalShareBtn">Chia Sẻ</button>
+          <button class="image-modal-btn download" id="modalDownloadBtn">
+            Tải Về
+          </button>
+          <button class="image-modal-btn share" id="modalShareBtn">
+            Chia Sẻ
+          </button>
         </div>
       </div>
     </div>
@@ -633,7 +658,9 @@
                     <div class="history-actions full">
                       <button class="btn-action" onclick="openImageModal('${
                         item.outputImagePath
-                      }', '${item.promptName}', '${item._id}')" title="Xem ảnh">Xem</button>
+                      }', '${item.promptName}', '${
+                item._id
+              }')" title="Xem ảnh">Xem</button>
                       <button class="btn-action" onclick="downloadImage('${
                         item.outputImagePath
                       }', '${item.promptName}')" title="Tải về">Tải Về</button>
@@ -766,8 +793,9 @@
       function shareToFacebook(historyId) {
         // Dùng trang share với Open Graph meta tags để hiển thị tên website
         // Sử dụng URL public (ngrok/production) để Facebook có thể crawl được
-        const backendUrl = 'https://fidgetingly-unrefreshed-jeramy.ngrok-free.dev';
-        const shareUrl = backendUrl + '/share/' + historyId;
+        const backendUrl =
+          "https://fidgetingly-unrefreshed-jeramy.ngrok-free.dev";
+        const shareUrl = backendUrl + "/share/" + historyId;
         const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
           shareUrl
         )}`;
@@ -784,8 +812,10 @@
       const ZOOM_STEP = 0.25;
 
       function updateZoomDisplay() {
-        document.getElementById("zoomLevel").textContent = Math.round(currentZoom * 100) + "%";
-        document.getElementById("zoomOutBtn").disabled = currentZoom <= MIN_ZOOM;
+        document.getElementById("zoomLevel").textContent =
+          Math.round(currentZoom * 100) + "%";
+        document.getElementById("zoomOutBtn").disabled =
+          currentZoom <= MIN_ZOOM;
         document.getElementById("zoomInBtn").disabled = currentZoom >= MAX_ZOOM;
 
         const modalImg = document.getElementById("modalImage");

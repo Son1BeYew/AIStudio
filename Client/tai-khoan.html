@@ -33,10 +33,10 @@
             </div>
           </div>
           <div class="user-info">
-            <h1 id="display-name">Nguyễn Văn A</h1>
-            <p id="display-email">nguyenvana@email.com</p>
+            <h1 id="display-name">Đang tải...</h1>
+            <p id="display-email">...</p>
             <div class="user-badges">
-              <span class="badge badge-plan" id="user-plan">PRO</span>
+              <span class="badge badge-plan" id="user-plan">FREE</span>
               <span class="badge badge-verified">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
@@ -48,7 +48,7 @@
           <div class="balance-display">
             <div class="balance-card">
               <span class="balance-label">Số dư hiện tại</span>
-              <span class="balance-amount" id="current-balance">150,000 VND</span>
+              <span class="balance-amount" id="current-balance">0 VND</span>
             </div>
             <button class="btn-topup" onclick="window.location.href='/topup.html'">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -115,18 +115,18 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label for="fullname">Họ và Tên</label>
-                  <input type="text" id="fullname" placeholder="Nhập họ và tên" value="Nguyễn Văn A" />
+                  <input type="text" id="fullname" placeholder="Nhập họ và tên" value="" />
                 </div>
                 <div class="form-group">
                   <label for="email">Email</label>
                   <div class="input-with-badge">
-                    <input type="email" id="email" placeholder="Nhập email" value="nguyenvana@email.com" />
+                    <input type="email" id="email" placeholder="Nhập email" value="" />
                     <span class="input-badge verified">Đã xác minh</span>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="phone">Số Điện Thoại</label>
-                  <input type="tel" id="phone" placeholder="Nhập số điện thoại" value="0901234567" />
+                  <input type="tel" id="phone" placeholder="Nhập số điện thoại" value="" />
                 </div>
                 <div class="form-group">
                   <label for="gender">Giới Tính</label>
@@ -138,15 +138,15 @@
                 </div>
                 <div class="form-group">
                   <label for="birthday">Ngày Sinh</label>
-                  <input type="date" id="birthday" value="1995-06-15" />
+                  <input type="date" id="birthday" value="" />
                 </div>
                 <div class="form-group">
                   <label for="nickname">Biệt Danh</label>
-                  <input type="text" id="nickname" placeholder="Nhập biệt danh" value="VanA" />
+                  <input type="text" id="nickname" placeholder="Nhập biệt danh" value="" />
                 </div>
                 <div class="form-group full-width">
                   <label for="address">Địa Chỉ</label>
-                  <input type="text" id="address" placeholder="Nhập địa chỉ" value="123 Nguyễn Huệ, Q.1, TP.HCM" />
+                  <input type="text" id="address" placeholder="Nhập địa chỉ" value="" />
                 </div>
               </div>
               <div class="form-actions">
@@ -320,7 +320,7 @@
               </div>
               <div class="stat-info">
                 <span class="stat-label">Số dư hiện tại</span>
-                <span class="stat-value" id="stat-balance">150,000 VND</span>
+                <span class="stat-value" id="stat-balance">0 VND</span>
               </div>
             </div>
             <div class="stat-card">
@@ -332,7 +332,7 @@
               </div>
               <div class="stat-info">
                 <span class="stat-label">Tổng đã nạp</span>
-                <span class="stat-value">500,000 VND</span>
+                <span class="stat-value" id="stat-total-deposited">0 VND</span>
               </div>
             </div>
             <div class="stat-card">
@@ -344,7 +344,7 @@
               </div>
               <div class="stat-info">
                 <span class="stat-label">Gói hiện tại</span>
-                <span class="stat-value plan">PRO</span>
+                <span class="stat-value plan" id="stat-plan">FREE</span>
               </div>
             </div>
           </div>
@@ -380,64 +380,28 @@
                     <th>Trạng thái</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td class="tx-id">#TXN001</td>
-                    <td><span class="tx-type topup">Nạp tiền</span></td>
-                    <td>Nạp qua MoMo</td>
-                    <td class="tx-amount positive">+100,000 VND</td>
-                    <td>03/12/2025 14:30</td>
-                    <td><span class="tx-status success">Thành công</span></td>
-                  </tr>
-                  <tr>
-                    <td class="tx-id">#TXN002</td>
-                    <td><span class="tx-type usage">Sử dụng</span></td>
-                    <td>Tạo ảnh - Hot Trend</td>
-                    <td class="tx-amount negative">-5,000 VND</td>
-                    <td>03/12/2025 12:15</td>
-                    <td><span class="tx-status success">Thành công</span></td>
-                  </tr>
-                  <tr>
-                    <td class="tx-id">#TXN003</td>
-                    <td><span class="tx-type usage">Sử dụng</span></td>
-                    <td>Tạo ảnh - Cá nhân</td>
-                    <td class="tx-amount negative">-3,000 VND</td>
-                    <td>02/12/2025 18:45</td>
-                    <td><span class="tx-status success">Thành công</span></td>
-                  </tr>
-                  <tr>
-                    <td class="tx-id">#TXN004</td>
-                    <td><span class="tx-type topup">Nạp tiền</span></td>
-                    <td>Nạp qua VNPay</td>
-                    <td class="tx-amount positive">+50,000 VND</td>
-                    <td>01/12/2025 09:20</td>
-                    <td><span class="tx-status success">Thành công</span></td>
-                  </tr>
-                  <tr>
-                    <td class="tx-id">#TXN005</td>
-                    <td><span class="tx-type purchase">Mua gói</span></td>
-                    <td>Nâng cấp gói PRO</td>
-                    <td class="tx-amount negative">-199,000 VND</td>
-                    <td>28/11/2025 16:00</td>
-                    <td><span class="tx-status success">Thành công</span></td>
+                <tbody id="transactions-tbody">
+                  <tr class="loading-row">
+                    <td colspan="6" style="text-align: center; padding: 40px;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin" style="display: inline-block;">
+                        <circle cx="12" cy="12" r="10"/>
+                      </svg>
+                      <span style="margin-left: 8px;">Đang tải giao dịch...</span>
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div class="table-pagination">
-              <span class="pagination-info">Hiển thị 1-5 của 24 giao dịch</span>
-              <div class="pagination-controls">
-                <button class="pagination-btn" disabled>
+              <span class="pagination-info" id="pagination-info">Đang tải...</span>
+              <div class="pagination-controls" id="pagination-controls">
+                <button class="pagination-btn" id="prev-page" disabled>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6"/>
                   </svg>
                 </button>
-                <button class="pagination-btn active">1</button>
-                <button class="pagination-btn">2</button>
-                <button class="pagination-btn">3</button>
-                <button class="pagination-btn">...</button>
-                <button class="pagination-btn">5</button>
-                <button class="pagination-btn">
+                <span id="page-numbers"></span>
+                <button class="pagination-btn" id="next-page">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6"/>
                   </svg>
@@ -708,6 +672,401 @@
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/floating-chat-loader.js"></script>
     <script>
+      // =============================================
+      // Load User Profile Data from Database
+      // =============================================
+      async function loadUserProfile() {
+        try {
+          const response = await fetchWithAuth('/api/profile/me');
+          if (!response.ok) {
+            if (response.status === 401) {
+              window.location.href = '/login.html';
+              return;
+            }
+            throw new Error('Failed to load profile');
+          }
+
+          const profile = await response.json();
+          console.log('Loaded profile:', profile);
+
+          // Extract user data from populated userId
+          const user = profile.userId || {};
+
+          // ===== Update Header Card =====
+          // Avatar
+          const avatarUrl = user.avatar || profile.anhDaiDien || '/assets/images/profile.jpg';
+          document.getElementById('user-avatar').src = avatarUrl;
+
+          // Display name
+          const displayName = user.fullname || 'Chưa cập nhật';
+          document.getElementById('display-name').textContent = displayName;
+
+          // Display email
+          const displayEmail = user.email || '';
+          document.getElementById('display-email').textContent = displayEmail;
+
+          // User plan badge - get from premium info
+          const userPlan = document.getElementById('user-plan');
+          const statPlan = document.getElementById('stat-plan');
+          const premiumType = user.premiumType || 'free';
+          const planLabels = {
+            'free': 'FREE',
+            'monthly': 'MONTHLY',
+            'yearly': 'YEARLY',
+            'pro': 'PRO',
+            'max': 'MAX'
+          };
+          const planLabel = planLabels[premiumType] || 'FREE';
+          if (userPlan) {
+            userPlan.textContent = planLabel;
+          }
+          if (statPlan) {
+            statPlan.textContent = planLabel;
+          }
+
+          // Balance
+          const balance = profile.balance || 0;
+          const formattedBalance = new Intl.NumberFormat('vi-VN').format(balance) + ' VND';
+          document.getElementById('current-balance').textContent = formattedBalance;
+          if (document.getElementById('stat-balance')) {
+            document.getElementById('stat-balance').textContent = formattedBalance;
+          }
+
+          // ===== Update Profile Form =====
+          // Fullname
+          const fullnameInput = document.getElementById('fullname');
+          if (fullnameInput) fullnameInput.value = user.fullname || '';
+
+          // Email
+          const emailInput = document.getElementById('email');
+          if (emailInput) emailInput.value = user.email || '';
+
+          // Phone
+          const phoneInput = document.getElementById('phone');
+          if (phoneInput) phoneInput.value = profile.phone || '';
+
+          // Gender
+          const genderSelect = document.getElementById('gender');
+          if (genderSelect && profile.gioiTinh) {
+            genderSelect.value = profile.gioiTinh;
+          }
+
+          // Birthday/DOB - from User model
+          const birthdayInput = document.getElementById('birthday');
+          if (birthdayInput && user.dob) {
+            const dob = new Date(user.dob);
+            const formattedDate = dob.toISOString().split('T')[0];
+            birthdayInput.value = formattedDate;
+          } else if (birthdayInput) {
+            birthdayInput.value = '';
+          }
+
+          // Nickname
+          const nicknameInput = document.getElementById('nickname');
+          if (nicknameInput) nicknameInput.value = profile.bietDanh || '';
+
+          // Address - from Profile model
+          const addressInput = document.getElementById('address');
+          if (addressInput) addressInput.value = profile.address || '';
+
+          // ===== Update Social Links =====
+          if (profile.mangXaHoi) {
+            const facebookInput = document.getElementById('social-facebook');
+            if (facebookInput) facebookInput.value = profile.mangXaHoi.facebook || '';
+
+            const instagramInput = document.getElementById('social-instagram');
+            if (instagramInput) instagramInput.value = profile.mangXaHoi.instagram || '';
+
+            const linkedinInput = document.getElementById('social-linkedin');
+            if (linkedinInput) linkedinInput.value = profile.mangXaHoi.linkedin || '';
+          }
+
+          // Update email verified badge
+          const emailBadge = document.querySelector('.input-badge.verified');
+          if (emailBadge && user.email) {
+            emailBadge.style.display = 'inline-flex';
+          }
+
+        } catch (error) {
+          console.error('Error loading profile:', error);
+          showToast('Không thể tải thông tin hồ sơ', 'error');
+        }
+      }
+
+      // Load profile when page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        // Check if user is logged in
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = '/login.html';
+          return;
+        }
+        loadUserProfile();
+        loadTransactionHistory();
+      });
+
+      // =============================================
+      // Transaction History - Load from Database
+      // =============================================
+      let allTransactions = [];
+      let currentPage = 1;
+      const itemsPerPage = 10;
+      let currentFilter = 'all';
+      let currentTimeFilter = 'all';
+
+      async function loadTransactionHistory() {
+        try {
+          // Load account summary for stats
+          const summaryPromise = fetchWithAuth('/api/topup/account-summary');
+          // Load topup history
+          const topupPromise = fetchWithAuth('/api/topup/history');
+          // Load premium history
+          const premiumPromise = fetchWithAuth('/api/premium/history');
+
+          const [summaryRes, topupRes, premiumRes] = await Promise.all([
+            summaryPromise, topupPromise, premiumPromise
+          ]);
+
+          // Process account summary
+          if (summaryRes.ok) {
+            const summary = await summaryRes.json();
+            const totalDeposited = document.getElementById('stat-total-deposited');
+            if (totalDeposited) {
+              totalDeposited.textContent = new Intl.NumberFormat('vi-VN').format(summary.totalDeposited || 0) + ' VND';
+            }
+          }
+
+          // Process topup history
+          let topups = [];
+          if (topupRes.ok) {
+            topups = await topupRes.json();
+            console.log('Loaded topups:', topups.length);
+          }
+
+          // Process premium history
+          let premiums = [];
+          if (premiumRes.ok) {
+            premiums = await premiumRes.json();
+            console.log('Loaded premiums:', premiums.length);
+          }
+
+          // Combine and format transactions
+          allTransactions = [];
+
+          // Add topup transactions
+          topups.forEach(topup => {
+            allTransactions.push({
+              id: topup._id,
+              type: 'topup',
+              typeLabel: 'Nạp tiền',
+              description: getTopupDescription(topup.method),
+              amount: topup.amount,
+              isPositive: true,
+              date: new Date(topup.createdAt),
+              status: topup.status,
+              statusLabel: getStatusLabel(topup.status)
+            });
+          });
+
+          // Add premium transactions
+          premiums.forEach(premium => {
+            allTransactions.push({
+              id: premium._id,
+              type: 'purchase',
+              typeLabel: 'Mua gói',
+              description: premium.planName || `Nâng cấp gói ${premium.plan?.toUpperCase() || ''}`,
+              amount: premium.price,
+              isPositive: false,
+              date: new Date(premium.createdAt),
+              status: premium.status === 'active' ? 'success' : premium.status,
+              statusLabel: premium.status === 'active' ? 'Thành công' : getStatusLabel(premium.status)
+            });
+          });
+
+          // Sort by date descending
+          allTransactions.sort((a, b) => b.date - a.date);
+
+          // Render transactions
+          renderTransactions();
+          updatePagination();
+
+        } catch (error) {
+          console.error('Error loading transaction history:', error);
+          document.getElementById('transactions-tbody').innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 40px; color: #ef4444;">
+                Không thể tải lịch sử giao dịch
+              </td>
+            </tr>
+          `;
+        }
+      }
+
+      function getTopupDescription(method) {
+        const methods = {
+          'momo': 'Nạp qua MoMo',
+          'bank': 'Chuyển khoản ngân hàng',
+          'card': 'Thẻ tín dụng/ghi nợ',
+          'vnpay': 'Nạp qua VNPay'
+        };
+        return methods[method] || 'Nạp tiền';
+      }
+
+      function getStatusLabel(status) {
+        const statuses = {
+          'success': 'Thành công',
+          'pending': 'Đang xử lý',
+          'failed': 'Thất bại',
+          'cancelled': 'Đã hủy',
+          'active': 'Thành công',
+          'expired': 'Hết hạn'
+        };
+        return statuses[status] || status;
+      }
+
+      function getStatusClass(status) {
+        if (status === 'success' || status === 'active') return 'success';
+        if (status === 'pending') return 'pending';
+        if (status === 'failed' || status === 'cancelled') return 'failed';
+        return '';
+      }
+
+      function filterTransactions() {
+        let filtered = [...allTransactions];
+
+        // Filter by type
+        if (currentFilter !== 'all') {
+          filtered = filtered.filter(tx => tx.type === currentFilter);
+        }
+
+        // Filter by time
+        if (currentTimeFilter !== 'all') {
+          const now = new Date();
+          let cutoffDate;
+          switch (currentTimeFilter) {
+            case '7days':
+              cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+              break;
+            case '30days':
+              cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+              break;
+            case '90days':
+              cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+              break;
+          }
+          if (cutoffDate) {
+            filtered = filtered.filter(tx => tx.date >= cutoffDate);
+          }
+        }
+
+        return filtered;
+      }
+
+      function renderTransactions() {
+        const filtered = filterTransactions();
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageTransactions = filtered.slice(start, end);
+
+        const tbody = document.getElementById('transactions-tbody');
+
+        if (pageTransactions.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+                Không có giao dịch nào
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = pageTransactions.map(tx => {
+          const formattedAmount = new Intl.NumberFormat('vi-VN').format(tx.amount);
+          const formattedDate = tx.date.toLocaleDateString('vi-VN') + ' ' +
+            tx.date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+          const shortId = '#' + tx.id.slice(-6).toUpperCase();
+
+          return `
+            <tr>
+              <td class="tx-id">${shortId}</td>
+              <td><span class="tx-type ${tx.type}">${tx.typeLabel}</span></td>
+              <td>${tx.description}</td>
+              <td class="tx-amount ${tx.isPositive ? 'positive' : 'negative'}">${tx.isPositive ? '+' : '-'}${formattedAmount} VND</td>
+              <td>${formattedDate}</td>
+              <td><span class="tx-status ${getStatusClass(tx.status)}">${tx.statusLabel}</span></td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function updatePagination() {
+        const filtered = filterTransactions();
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        const start = (currentPage - 1) * itemsPerPage + 1;
+        const end = Math.min(currentPage * itemsPerPage, filtered.length);
+
+        // Update info text
+        const paginationInfo = document.getElementById('pagination-info');
+        if (filtered.length > 0) {
+          paginationInfo.textContent = `Hiển thị ${start}-${end} của ${filtered.length} giao dịch`;
+        } else {
+          paginationInfo.textContent = 'Không có giao dịch';
+        }
+
+        // Update page numbers
+        const pageNumbers = document.getElementById('page-numbers');
+        let pageHTML = '';
+        for (let i = 1; i <= totalPages && i <= 5; i++) {
+          pageHTML += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+        }
+        if (totalPages > 5) {
+          pageHTML += `<button class="pagination-btn" disabled>...</button>`;
+          pageHTML += `<button class="pagination-btn ${totalPages === currentPage ? 'active' : ''}" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+        }
+        pageNumbers.innerHTML = pageHTML;
+
+        // Update prev/next buttons
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage >= totalPages || totalPages === 0;
+      }
+
+      function goToPage(page) {
+        currentPage = page;
+        renderTransactions();
+        updatePagination();
+      }
+
+      // Filter event listeners
+      document.getElementById('filter-type')?.addEventListener('change', (e) => {
+        currentFilter = e.target.value;
+        currentPage = 1;
+        renderTransactions();
+        updatePagination();
+      });
+
+      document.getElementById('filter-time')?.addEventListener('change', (e) => {
+        currentTimeFilter = e.target.value;
+        currentPage = 1;
+        renderTransactions();
+        updatePagination();
+      });
+
+      // Pagination buttons
+      document.getElementById('prev-page')?.addEventListener('click', () => {
+        if (currentPage > 1) {
+          goToPage(currentPage - 1);
+        }
+      });
+
+      document.getElementById('next-page')?.addEventListener('click', () => {
+        const filtered = filterTransactions();
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        if (currentPage < totalPages) {
+          goToPage(currentPage + 1);
+        }
+      });
+
       // Tab Navigation
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -757,10 +1116,55 @@
         });
       }
 
-      // Form Submissions (Frontend only - no backend)
-      document.getElementById('profile-form')?.addEventListener('submit', (e) => {
+      // Form Submissions - Save to Database
+      document.getElementById('profile-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        showToast('Cập nhật hồ sơ thành công!', 'success');
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><circle cx="12" cy="12" r="10"/></svg> Đang lưu...';
+
+        try {
+          const profileData = {
+            fullname: document.getElementById('fullname').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            gioiTinh: document.getElementById('gender').value,
+            bietDanh: document.getElementById('nickname').value,
+            dob: document.getElementById('birthday').value,
+            address: document.getElementById('address').value,
+          };
+
+          // Call API and add minimum delay for better UX
+          const [response] = await Promise.all([
+            fetchWithAuth('/api/profile/me', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(profileData)
+            }),
+            new Promise(resolve => setTimeout(resolve, 2000))
+          ]);
+
+          if (!response.ok) {
+            throw new Error('Failed to update profile');
+          }
+
+          const result = await response.json();
+          console.log('Profile updated:', result);
+
+          // Update display name and email in header
+          document.getElementById('display-name').textContent = profileData.fullname || 'Chưa cập nhật';
+          document.getElementById('display-email').textContent = profileData.email || '';
+
+          showToast('Cập nhật hồ sơ thành công!', 'success');
+        } catch (error) {
+          console.error('Error updating profile:', error);
+          showToast('Không thể cập nhật hồ sơ!', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
       });
 
       document.getElementById('password-form')?.addEventListener('submit', (e) => {
@@ -775,9 +1179,43 @@
         showToast('Đổi mật khẩu thành công!', 'success');
       });
 
-      document.getElementById('social-form')?.addEventListener('submit', (e) => {
+      document.getElementById('social-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        showToast('Cập nhật mạng xã hội thành công!', 'success');
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><circle cx="12" cy="12" r="10"/></svg> Đang lưu...';
+
+        try {
+          const mangXaHoi = {
+            facebook: document.getElementById('social-facebook').value,
+            instagram: document.getElementById('social-instagram').value,
+            linkedin: document.getElementById('social-linkedin').value,
+          };
+
+          // Call API and add minimum delay for better UX
+          const [response] = await Promise.all([
+            fetchWithAuth('/api/profile/me', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ mangXaHoi })
+            }),
+            new Promise(resolve => setTimeout(resolve, 2000))
+          ]);
+
+          if (!response.ok) {
+            throw new Error('Failed to update social links');
+          }
+
+          showToast('Cập nhật mạng xã hội thành công!', 'success');
+        } catch (error) {
+          console.error('Error updating social links:', error);
+          showToast('Không thể cập nhật mạng xã hội!', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
       });
 
       // Toast Function
@@ -805,16 +1243,44 @@
         }, 3000);
       }
 
-      // Avatar Upload Preview
-      document.getElementById('avatar-upload')?.addEventListener('change', (e) => {
+      // Avatar Upload - Save to Server
+      document.getElementById('avatar-upload')?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            document.getElementById('user-avatar').src = e.target.result;
-            showToast('Ảnh đại diện đã được cập nhật!', 'success');
-          };
-          reader.readAsDataURL(file);
+        if (!file) return;
+
+        // Preview immediately
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          document.getElementById('user-avatar').src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+
+        // Upload to server
+        try {
+          const formData = new FormData();
+          formData.append('avatar', file);
+
+          const response = await fetchWithAuth('/api/profile/me/avatar', {
+            method: 'PUT',
+            body: formData
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to upload avatar');
+          }
+
+          const result = await response.json();
+          console.log('Avatar updated:', result);
+
+          // Update avatar with server URL
+          if (result.profile?.anhDaiDien) {
+            document.getElementById('user-avatar').src = result.profile.anhDaiDien;
+          }
+
+          showToast('Ảnh đại diện đã được cập nhật!', 'success');
+        } catch (error) {
+          console.error('Error uploading avatar:', error);
+          showToast('Không thể tải lên ảnh đại diện!', 'error');
         }
       });
 

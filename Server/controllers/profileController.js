@@ -12,7 +12,7 @@ exports.getMyProfile = async (req, res) => {
     let profile = await Profile.findOne({ userId })
       .populate({
         path: "userId",
-        select: "fullname email avatar role"
+        select: "fullname email avatar role dob hasPremium premiumType premiumExpiry"
       })
       .lean(); // thêm lean để trả về object gọn gàng hơn
 
@@ -30,7 +30,7 @@ exports.getMyProfile = async (req, res) => {
       profile = await Profile.findOne({ userId })
         .populate({
           path: "userId",
-          select: "fullname email avatar role"
+          select: "fullname email avatar role dob hasPremium premiumType premiumExpiry"
         })
         .lean();
     }
@@ -52,21 +52,24 @@ exports.getMyProfile = async (req, res) => {
 exports.updateMyProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { fullname, email, bietDanh, gioiTinh, phone, mangXaHoi, anhDaiDien } = req.body;
+    const { fullname, email, dob, bietDanh, gioiTinh, phone, address, mangXaHoi, anhDaiDien } = req.body;
 
-    // 🟢 Cập nhật bảng User trước (fullname, email)
+    // 🟢 Cập nhật bảng User trước (fullname, email, dob)
+    const userUpdateData = { fullname, email };
+    if (dob !== undefined) userUpdateData.dob = dob;
+
     await User.findByIdAndUpdate(
       userId,
-      { fullname, email },
+      userUpdateData,
       { new: true, runValidators: true }
     );
 
     // 🟢 Cập nhật bảng Profile
     const updatedProfile = await Profile.findOneAndUpdate(
       { userId },
-      { bietDanh, gioiTinh, phone, mangXaHoi, anhDaiDien },
+      { bietDanh, gioiTinh, phone, address, mangXaHoi, anhDaiDien },
       { new: true, runValidators: true }
-    ).populate("userId", "fullname email avatar role");
+    ).populate("userId", "fullname email avatar role dob");
 
     if (!updatedProfile) {
       return res.status(404).json({ message: "Không tìm thấy hồ sơ để cập nhật" });
