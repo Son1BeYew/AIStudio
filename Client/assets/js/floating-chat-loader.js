@@ -2,8 +2,11 @@
   const API_BASE_URL = "http://localhost:5000/api/chat";
   const WELCOME_TEMPLATE = `
       <div class="welcome-message">
-        <h2>Xin chàoôo! (◕ᴗ◕✿)</h2>
-        <p>Tôi là trợ lý AI hỗ trợ bạn. Tôi sẽ giúp bạn với bất kỳ điều gì!</p>
+        <div class="welcome-icon">
+          <img src="/assets/images/chatbot.png" alt="Chatbot" />
+        </div>
+        <h2>Xin chào! Tôi có thể giúp gì?</h2>
+        <p>Trợ lý AI của EternaPic Studio</p>
       </div>
     `;
   const getStoredUser = () => {
@@ -350,9 +353,12 @@
 
       .welcome-message {
         text-align: center;
-        padding: 24px 12px;
-        color: #718096;
-        animation: fadeIn 0.5s ease-out;
+        padding: 28px 16px 20px;
+        animation: fadeIn 0.6s ease-out;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
       }
 
       @keyframes fadeIn {
@@ -360,19 +366,48 @@
         to { opacity: 1; transform: translateY(0); }
       }
 
+      .welcome-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 8px;
+        animation: float 3s ease-in-out infinite;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .welcome-icon img {
+        width: 70%;
+        height: 70%;
+        object-fit: contain;
+        mix-blend-mode: multiply;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+
       .welcome-message h2 {
-        margin: 0 0 8px 0;
-        font-size: 16px;
-        color: #2d3748;
-        font-weight: 600;
+        margin: 0;
+        font-size: 17px;
+        color: #1a1a1a;
+        font-weight: 700;
+        letter-spacing: -0.3px;
       }
 
       .welcome-message p {
         font-size: 12px;
         margin: 0;
-        line-height: 1.4;
-        color: #718096;
+        line-height: 1.5;
+        color: #64748b;
+        max-width: 200px;
       }
+
+
 
       .message {
         display: flex;
@@ -480,17 +515,18 @@
 
       .loading-indicator {
         display: flex;
-        gap: 8px;
-        padding: 14px 18px;
+        gap: 4px;
+        padding: 6px 10px;
         background: white;
-        border-radius: 18px;
-        border: 1px solid #e8e8e8;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
         align-items: center;
+        max-width: fit-content;
       }
 
       .loading-dot {
-        width: 10px;
-        height: 10px;
+        width: 5px;
+        height: 5px;
         background: linear-gradient(135deg, #666 0%, #999 100%);
         border-radius: 50%;
         animation: bounce 1.4s infinite ease-in-out;
@@ -521,9 +557,9 @@
       }
 
       #messageInput:focus {
-        border-color: #667eea;
+        border-color: #1a1a1a;
         background: white;
-        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.08);
       }
 
       #messageInput::placeholder {

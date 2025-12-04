@@ -163,9 +163,10 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 24px;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.2), transparent);
+  width: 70px;
+  height: 3px;
+  background: linear-gradient(90deg, #1a1a1a 0%, #1a1a1a 70%, transparent 100%);
+  border-radius: 1.5px;
 }
 
 .nav-list {
