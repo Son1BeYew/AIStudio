@@ -11,34 +11,34 @@
 
 ```mermaid
 graph TB
-    subgraph "PRESENTATION LAYER"
-        Browser[Web Browser]
-        Mobile[Mobile Browser]
-        Desktop[Desktop App]
+    subgraph "TẦNG GIAO DIỆN"
+        Browser[Trình duyệt Web]
+        Mobile[Trình duyệt Di động]
+        Desktop[Ứng dụng Desktop]
     end
     
-    subgraph "APPLICATION LAYER"
-        LB[Load Balancer<br/>Nginx]
+    subgraph "TẦNG ỨNG DỤNG"
+        LB[Cân bằng tải<br/>Nginx]
         
-        subgraph "Express.js Server"
-            MW[Middleware Layer<br/>CORS, Auth, Rate Limit]
-            Routes[Routing Layer<br/>Auth, AI, Premium, Admin]
-            Controllers[Controller Layer<br/>Business Logic]
-            Services[Service Layer<br/>Email, File, AI, Moderation]
-            Models[Model Layer<br/>Mongoose ODM]
+        subgraph "Máy chủ Express.js"
+            MW[Tầng Middleware<br/>CORS, Xác thực, Giới hạn]
+            Routes[Tầng Định tuyến<br/>Auth, AI, Premium, Admin]
+            Controllers[Tầng Controller<br/>Xử lý nghiệp vụ]
+            Services[Tầng Dịch vụ<br/>Email, File, AI, Kiểm duyệt]
+            Models[Tầng Model<br/>Mongoose ODM]
         end
     end
     
-    subgraph "DATA LAYER"
+    subgraph "TẦNG DỮ LIỆU"
         MongoDB[(MongoDB Atlas<br/>Replica Set)]
-        Redis[(Redis Cache<br/>Session Store)]
+        Redis[(Redis Cache<br/>Lưu trữ Session)]
     end
     
-    subgraph "EXTERNAL SERVICES"
-        Replicate[Replicate API<br/>AI Models]
-        Cloudinary[Cloudinary<br/>Image Storage]
-        MoMo[MoMo Gateway<br/>Payment]
-        Gmail[Gmail SMTP<br/>Email Service]
+    subgraph "DỊCH VỤ BÊN NGOÀI"
+        Replicate[Replicate API<br/>Mô hình AI]
+        Cloudinary[Cloudinary<br/>Lưu trữ Ảnh]
+        MoMo[Cổng MoMo<br/>Thanh toán]
+        Gmail[Gmail SMTP<br/>Dịch vụ Email]
     end
     
     Browser --> LB
@@ -77,48 +77,48 @@ graph TB
 
 ```mermaid
 sequenceDiagram
-    actor User
-    participant Frontend
-    participant Backend
+    actor NguoiDung as Người dùng
+    participant GiaoDien as Giao diện
+    participant Maychu as Máy chủ
     participant Cloudinary
     participant AI as Replicate AI
     participant DB as MongoDB
     
-    User->>Frontend: 1. Upload Image + Select Prompt
-    Frontend->>Frontend: 2. Validate File (type, size)
-    Frontend->>Backend: 3. POST /api/ai/generate-face
+    NguoiDung->>GiaoDien: 1. Tải ảnh lên + Chọn Prompt
+    GiaoDien->>GiaoDien: 2. Kiểm tra file (loại, kích thước)
+    GiaoDien->>Maychu: 3. POST /api/ai/generate-face
     
-    Backend->>Backend: 4. JWT Authentication
-    Backend->>Backend: 5. Check User Permissions
-    Backend->>Cloudinary: 6. Upload Original Image
-    Cloudinary-->>Backend: 7. Return Image URL
+    Maychu->>Maychu: 4. Xác thực JWT
+    Maychu->>Maychu: 5. Kiểm tra quyền người dùng
+    Maychu->>Cloudinary: 6. Tải ảnh gốc lên
+    Cloudinary-->>Maychu: 7. Trả về URL ảnh
     
-    Backend->>Backend: 8. Check Daily Free Quota
+    Maychu->>Maychu: 8. Kiểm tra quota miễn phí hàng ngày
     
-    alt Has Free Quota
-        Backend->>Backend: Use Free Image
-    else No Free Quota
-        Backend->>DB: Check Balance
-        Backend->>DB: Deduct Fee
+    alt Còn quota miễn phí
+        Maychu->>Maychu: Sử dụng ảnh miễn phí
+    else Hết quota miễn phí
+        Maychu->>DB: Kiểm tra số dư
+        Maychu->>DB: Trừ phí
     end
     
-    Backend->>Backend: 9. Prepare AI Request
-    Backend->>AI: 10. Generate Image (prompt + image)
+    Maychu->>Maychu: 9. Chuẩn bị yêu cầu AI
+    Maychu->>AI: 10. Tạo ảnh (prompt + ảnh)
     
-    AI->>AI: 11. Process with AI Model
-    AI-->>Backend: 12. Return Generated Image URL
+    AI->>AI: 11. Xử lý với mô hình AI
+    AI-->>Maychu: 12. Trả về URL ảnh đã tạo
     
-    Backend->>Backend: 13. Download Result
-    Backend->>Cloudinary: 14. Upload Result Image
-    Cloudinary-->>Backend: 15. Return Permanent URL
+    Maychu->>Maychu: 13. Tải kết quả về
+    Maychu->>Cloudinary: 14. Tải ảnh kết quả lên
+    Cloudinary-->>Maychu: 15. Trả về URL vĩnh viễn
     
-    Backend->>Backend: 16. Content Moderation (AI Safety Score)
-    Backend->>DB: 17. Save to History
+    Maychu->>Maychu: 16. Kiểm duyệt nội dung (Điểm an toàn AI)
+    Maychu->>DB: 17. Lưu vào Lịch sử
     
-    Backend-->>Frontend: 18. Return Response (URLs, metadata)
-    Frontend->>User: 19. Display Generated Image
+    Maychu-->>GiaoDien: 18. Trả về phản hồi (URLs, metadata)
+    GiaoDien->>NguoiDung: 19. Hiển thị ảnh đã tạo
     
-    Note over User,DB: Total Time: 1-3 minutes
+    Note over NguoiDung,DB: Tổng thời gian: 1-3 phút
 ```
 
 ---
@@ -127,48 +127,48 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    actor User
-    participant Frontend
-    participant Backend
+    actor NguoiDung as Người dùng
+    participant GiaoDien as Giao diện
+    participant Maychu as Máy chủ
     participant DB as MongoDB
-    participant MoMo as MoMo Gateway
-    participant Email as Email Service
+    participant MoMo as Cổng MoMo
+    participant Email as Dịch vụ Email
     
-    User->>Frontend: 1. Select Premium Plan (Pro/Max)
-    Frontend->>Backend: 2. POST /api/premium/purchase
+    NguoiDung->>GiaoDien: 1. Chọn gói Premium (Pro/Max)
+    GiaoDien->>Maychu: 2. POST /api/premium/purchase
     
-    Backend->>Backend: 3. Validate Request
-    Backend->>DB: 4. Create Premium Record (status: pending)
+    Maychu->>Maychu: 3. Kiểm tra yêu cầu
+    Maychu->>DB: 4. Tạo bản ghi Premium (trạng thái: chờ)
     
-    Backend->>Backend: 5. Prepare MoMo Request
-    Note over Backend: orderId, amount, signature
+    Maychu->>Maychu: 5. Chuẩn bị yêu cầu MoMo
+    Note over Maychu: orderId, số tiền, chữ ký
     
-    Backend->>MoMo: 6. POST Create Payment
-    MoMo->>MoMo: 7. Validate & Create Session
-    MoMo-->>Backend: 8. Return payUrl
+    Maychu->>MoMo: 6. POST Tạo thanh toán
+    MoMo->>MoMo: 7. Xác thực & Tạo phiên
+    MoMo-->>Maychu: 8. Trả về payUrl
     
-    Backend-->>Frontend: 9. Return payUrl
-    Frontend->>User: 10. Redirect to MoMo
+    Maychu-->>GiaoDien: 9. Trả về payUrl
+    GiaoDien->>NguoiDung: 10. Chuyển hướng đến MoMo
     
-    User->>MoMo: 11. Enter Payment Info
-    User->>MoMo: 12. Confirm Payment
+    NguoiDung->>MoMo: 11. Nhập thông tin thanh toán
+    NguoiDung->>MoMo: 12. Xác nhận thanh toán
     
-    MoMo->>MoMo: 13. Process Payment
+    MoMo->>MoMo: 13. Xử lý thanh toán
     
-    alt Payment Success
-        MoMo->>Backend: 14. IPN Callback (resultCode: 0)
-        Backend->>Backend: 15. Verify Signature
-        Backend->>DB: 16. Update Premium (status: active)
-        Backend->>DB: 17. Update User (hasPremium: true)
-        Backend->>Email: 18. Send Success Email
-        MoMo->>User: 19. Redirect to Success Page
-    else Payment Failed
-        MoMo->>Backend: 14. IPN Callback (resultCode: ≠0)
-        Backend->>DB: 16. Update Premium (status: failed)
-        MoMo->>User: 19. Redirect to Failed Page
+    alt Thanh toán thành công
+        MoMo->>Maychu: 14. IPN Callback (resultCode: 0)
+        Maychu->>Maychu: 15. Xác minh chữ ký
+        Maychu->>DB: 16. Cập nhật Premium (trạng thái: kích hoạt)
+        Maychu->>DB: 17. Cập nhật User (hasPremium: true)
+        Maychu->>Email: 18. Gửi email thành công
+        MoMo->>NguoiDung: 19. Chuyển đến trang thành công
+    else Thanh toán thất bại
+        MoMo->>Maychu: 14. IPN Callback (resultCode: ≠0)
+        Maychu->>DB: 16. Cập nhật Premium (trạng thái: thất bại)
+        MoMo->>NguoiDung: 19. Chuyển đến trang thất bại
     end
     
-    User->>Frontend: 20. View Result
+    NguoiDung->>GiaoDien: 20. Xem kết quả
 ```
 
 ---
@@ -177,143 +177,143 @@ sequenceDiagram
 
 ```mermaid
 erDiagram
-    USER ||--o{ PREMIUM : has
-    USER ||--o{ PROFILE : has
-    USER ||--o{ HISTORY : creates
-    USER ||--o{ TOPUP : makes
-    USER ||--o{ SESSION : has
-    USER ||--o{ CONTENTREPORT : reports
+    NGUOIDUNG ||--o{ PREMIUM : co
+    NGUOIDUNG ||--o{ HOSO : co
+    NGUOIDUNG ||--o{ LICHSU : tao
+    NGUOIDUNG ||--o{ NAPTIEN : thuchien
+    NGUOIDUNG ||--o{ PHIEN : co
+    NGUOIDUNG ||--o{ BAOCAO : baocao
     
-    PROMPT ||--o{ HISTORY : used_in
-    HISTORY ||--o{ CONTENTREPORT : reported
+    PROMPT ||--o{ LICHSU : duocsudung
+    LICHSU ||--o{ BAOCAO : bibaocao
     
-    USER {
+    NGUOIDUNG {
         ObjectId _id PK
         string email UK
-        string password
-        string fullname
-        string role
-        boolean hasPremium
-        string premiumType
-        date premiumExpiry
-        date createdAt
+        string matKhau
+        string hoTen
+        string vaiTro
+        boolean coPremium
+        string loaiPremium
+        date ngayHetHanPremium
+        date ngayTao
     }
     
-    PROFILE {
+    HOSO {
         ObjectId _id PK
-        ObjectId userId FK
-        number balance
-        number totalTopup
-        number totalSpent
-        string address
-        string city
+        ObjectId maNguoiDung FK
+        number soDu
+        number tongNap
+        number tongChi
+        string diaChi
+        string thanhPho
     }
     
     PREMIUM {
         ObjectId _id PK
-        ObjectId userId FK
-        string plan
-        string planName
-        number price
-        number duration
-        string status
-        date startDate
-        date endDate
-        string paymentMethod
+        ObjectId maNguoiDung FK
+        string loaiGoi
+        string tenGoi
+        number gia
+        number thoiHan
+        string trangThai
+        date ngayBatDau
+        date ngayKetThuc
+        string phuongThucThanhToan
     }
     
     PROMPT {
         ObjectId _id PK
-        string name UK
-        string title
-        string prompt
-        number fee
-        string gender
-        boolean isActive
-        number usageCount
-        number revenue
+        string ten UK
+        string tieuDe
+        string noiDung
+        number phi
+        string gioiTinh
+        boolean dangHoatDong
+        number soLanSuDung
+        number doanhThu
     }
     
-    HISTORY {
+    LICHSU {
         ObjectId _id PK
-        ObjectId userId FK
-        ObjectId promptId FK
-        string promptName
-        string originalImagePath
-        string outputImagePath
+        ObjectId maNguoiDung FK
+        ObjectId maPrompt FK
+        string tenPrompt
+        string duongDanAnhGoc
+        string duongDanAnhKetQua
         string model
-        string status
-        string moderationStatus
-        number aiSafetyScore
-        date createdAt
+        string trangThai
+        string trangThaiKiemDuyet
+        number diemAnToan
+        date ngayTao
     }
     
-    TOPUP {
+    NAPTIEN {
         ObjectId _id PK
-        ObjectId userId FK
-        number amount
-        string method
-        string status
-        string momoTransactionId
-        date createdAt
+        ObjectId maNguoiDung FK
+        number soTien
+        string phuongThuc
+        string trangThai
+        string maGiaoDichMoMo
+        date ngayTao
     }
     
-    SESSION {
+    PHIEN {
         ObjectId _id PK
-        ObjectId userId FK
-        string tokenId UK
+        ObjectId maNguoiDung FK
+        string maToken UK
         string userAgent
-        string ipAddress
-        boolean isActive
-        date expiresAt
+        string diaChiIP
+        boolean dangHoatDong
+        date ngayHetHan
     }
     
-    CONTENTREPORT {
+    BAOCAO {
         ObjectId _id PK
-        ObjectId userId FK
-        ObjectId historyId FK
-        string reason
-        string status
-        date reportedAt
+        ObjectId maNguoiDung FK
+        ObjectId maLichSu FK
+        string lyDo
+        string trangThai
+        date ngayBaoCao
     }
 ```
 
 ---
 
-## 5. LUỒNG AUTHENTICATION (Auth Flow)
+## 5. LUỒNG XÁC THỰC (Auth Flow)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Guest
+    [*] --> Khach
     
-    Guest --> RegisterPage: Click Register
-    RegisterPage --> ValidateInput: Submit Form
-    ValidateInput --> CheckEmail: Valid
-    ValidateInput --> RegisterPage: Invalid (show error)
+    Khach --> TrangDangKy: Nhấn Đăng ký
+    TrangDangKy --> KiemTraDauVao: Gửi form
+    KiemTraDauVao --> KiemTraEmail: Hợp lệ
+    KiemTraDauVao --> TrangDangKy: Không hợp lệ (hiện lỗi)
     
-    CheckEmail --> CreateUser: Email Available
-    CheckEmail --> RegisterPage: Email Exists
+    KiemTraEmail --> TaoNguoiDung: Email khả dụng
+    KiemTraEmail --> TrangDangKy: Email đã tồn tại
     
-    CreateUser --> HashPassword: bcrypt(password, 10)
-    HashPassword --> SaveToDB: Create User Record
-    SaveToDB --> CreateFreePremium: Auto create Free plan
-    CreateFreePremium --> GenerateJWT: Generate Tokens
-    GenerateJWT --> CreateSession: Track Session
-    CreateSession --> LoggedIn: Success
+    TaoNguoiDung --> MaHoaMatKhau: bcrypt(matKhau, 10)
+    MaHoaMatKhau --> LuuVaoDB: Tạo bản ghi User
+    LuuVaoDB --> TaoGoiMienPhi: Tự động tạo gói Free
+    TaoGoiMienPhi --> TaoJWT: Tạo Tokens
+    TaoJWT --> TaoPhien: Theo dõi phiên
+    TaoPhien --> DaDangNhap: Thành công
     
-    Guest --> LoginPage: Click Login
-    LoginPage --> ValidateCredentials: Submit Form
-    ValidateCredentials --> CheckPassword: Find User
-    CheckPassword --> GenerateJWT: Password Match
-    CheckPassword --> LoginPage: Wrong Password
+    Khach --> TrangDangNhap: Nhấn Đăng nhập
+    TrangDangNhap --> KiemTraThongTin: Gửi form
+    KiemTraThongTin --> KiemTraMatKhau: Tìm User
+    KiemTraMatKhau --> TaoJWT: Mật khẩu đúng
+    KiemTraMatKhau --> TrangDangNhap: Sai mật khẩu
     
-    Guest --> OAuthProvider: OAuth Login
-    OAuthProvider --> OAuthCallback: User Approves
-    OAuthCallback --> FindOrCreateUser: Get User Info
-    FindOrCreateUser --> GenerateJWT: Success
+    Khach --> NhaCungCapOAuth: Đăng nhập OAuth
+    NhaCungCapOAuth --> CallbackOAuth: User chấp thuận
+    CallbackOAuth --> TimHoacTaoUser: Lấy thông tin User
+    TimHoacTaoUser --> TaoJWT: Thành công
     
-    LoggedIn --> Dashboard: Access Protected Routes
-    LoggedIn --> Guest: Logout / Token Expired
+    DaDangNhap --> Dashboard: Truy cập trang bảo vệ
+    DaDangNhap --> Khach: Đăng xuất / Token hết hạn
     
     Dashboard --> [*]
 ```
