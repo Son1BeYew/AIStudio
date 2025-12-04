@@ -1,4 +1,210 @@
 let trendData = [];
+let currentUserPlan = "free";
+let availableModels = ["nano-banana"];
+
+// Load user premium status and available models
+async function loadUserPremiumStatus() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      currentUserPlan = "free";
+      availableModels = ["nano-banana"];
+      return;
+    }
+
+    const response = await fetch("/api/premium/current", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const premiumData = await response.json();
+      currentUserPlan = premiumData.plan?.toLowerCase() || "free";
+
+      // Determine available models based on plan
+      switch (currentUserPlan) {
+        case "max":
+          availableModels = ["nano-banana", "gemini-2.0-flash", "gemini-3-pro"];
+          break;
+        case "pro":
+        case "monthly":
+        case "yearly":
+          availableModels = ["nano-banana", "gemini-2.0-flash"];
+          break;
+        default:
+          availableModels = ["nano-banana"];
+      }
+    } else {
+      currentUserPlan = "free";
+      availableModels = ["nano-banana"];
+    }
+  } catch (error) {
+    console.error("Error loading user premium status:", error);
+    currentUserPlan = "free";
+    availableModels = ["nano-banana"];
+  }
+}
+
+// Populate model dropdown UI based on available models
+function populateModelSelections() {
+  const modelDropdowns = [
+    {
+      id: "model-selection",
+      triggerId: "model-dropdown-trigger",
+      menuId: "model-dropdown-menu",
+      name: "ai-model",
+    },
+    {
+      id: "bg-model-selection",
+      triggerId: "bg-model-dropdown-trigger",
+      menuId: "bg-model-dropdown-menu",
+      name: "bg-ai-model",
+    },
+    {
+      id: "outfit-model-selection",
+      triggerId: "outfit-model-dropdown-trigger",
+      menuId: "outfit-model-dropdown-menu",
+      name: "outfit-ai-model",
+    },
+  ];
+
+  const allModelConfigs = {
+    "nano-banana": {
+      name: "Basic AI",
+      desc: "Miễn phí",
+      badge: "FREE",
+      badgeClass: "free",
+    },
+    "gemini-2.0-flash": {
+      name: "Pro AI",
+      desc: "Nhanh & Chất lượng cao",
+      badge: "PRO",
+      badgeClass: "pro",
+    },
+    "gemini-3-pro": {
+      name: "Ultra AI",
+      desc: "Chất lượng cao nhất",
+      badge: "MAX",
+      badgeClass: "max",
+    },
+  };
+
+  modelDropdowns.forEach(({ id, triggerId, menuId, name }) => {
+    const container = document.getElementById(id);
+    const trigger = document.getElementById(triggerId);
+    const menu = document.getElementById(menuId);
+
+    if (!container || !trigger || !menu) return;
+
+    let menuHtml = "";
+    let selectedModel = null;
+
+    // Show all models, but lock ones not available to user
+    const allModels = ["nano-banana", "gemini-2.0-flash", "gemini-3-pro"];
+
+    allModels.forEach((model) => {
+      const config = allModelConfigs[model];
+      const isAvailable = availableModels.includes(model);
+
+      // Select best available model by default
+      if (
+        isAvailable &&
+        model === availableModels[availableModels.length - 1]
+      ) {
+        selectedModel = model;
+      }
+
+      menuHtml += `
+        <div class="model-dropdown-option ${
+          !isAvailable ? "locked" : ""
+        }" data-model="${model}" data-available="${isAvailable}">
+          <div class="model-info">
+            <div class="model-name">${config.name}</div>
+            <div class="model-desc">${config.desc}</div>
+            <div class="model-badge ${
+              !isAvailable ? "locked" : config.badgeClass
+            }">${!isAvailable ? "🔒 " + config.badge : config.badge}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    menu.innerHTML = menuHtml;
+
+    // Update trigger to show selected model
+    if (selectedModel) {
+      updateDropdownTrigger(
+        trigger,
+        selectedModel,
+        allModelConfigs[selectedModel]
+      );
+    }
+
+    // Add click event to trigger
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      container.classList.toggle("open");
+
+      // Close other dropdowns
+      document.querySelectorAll(".model-dropdown").forEach((dropdown) => {
+        if (dropdown !== container) {
+          dropdown.classList.remove("open");
+        }
+      });
+    });
+
+    // Add click events to dropdown options
+    menu.querySelectorAll(".model-dropdown-option").forEach((option) => {
+      option.addEventListener("click", (e) => {
+        const model = option.dataset.model;
+        const isAvailable = option.dataset.available === "true";
+
+        if (!isAvailable) {
+          e.stopPropagation();
+          // Redirect to pricing page for locked models
+          window.location.href = "/topup.html";
+          return;
+        }
+
+        updateDropdownTrigger(trigger, model, allModelConfigs[model]);
+
+        // Update selected state
+        menu.querySelectorAll(".model-dropdown-option").forEach((opt) => {
+          opt.classList.remove("selected");
+        });
+        option.classList.add("selected");
+
+        // Close dropdown
+        container.classList.remove("open");
+      });
+    });
+  });
+
+  // Close dropdowns when clicking outside
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".model-dropdown").forEach((dropdown) => {
+      dropdown.classList.remove("open");
+    });
+  });
+}
+
+// Update dropdown trigger with selected model info
+function updateDropdownTrigger(trigger, model, config) {
+  const selectedInfo = trigger.querySelector(".selected-model-info");
+  if (selectedInfo) {
+    selectedInfo.innerHTML = `
+      <div class="model-info">
+        <div class="model-name">${config.name}</div>
+        <div class="model-desc">${config.desc}</div>
+        <div class="model-badge ${config.badgeClass}">${config.badge}</div>
+      </div>
+    `;
+  }
+
+  // Store selected model value
+  trigger.dataset.selectedModel = model;
+}
 
 // Load trending prompts từ API
 async function loadTrendingPrompts() {
@@ -174,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!checkAuthBeforeAction()) return;
 
       if (!window.trendSelectedFile) {
-        alert("Vui lòng chọn ảnh trước");
+        showToast("Vui lòng chọn ảnh trước", 'warning');
         return;
       }
 
@@ -231,7 +437,7 @@ async function downloadTrendImage(imagePath, name) {
     }, 100);
   } catch (error) {
     console.error("Error downloading image:", error);
-    alert("Không thể tải ảnh. Vui lòng thử lại sau.");
+    showToast("Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
   }
 }
 
@@ -335,11 +541,11 @@ generateBtn.addEventListener("click", async () => {
   if (!checkAuthBeforeAction()) return;
 
   if (!selectedFile) {
-    alert("Vui lòng chọn ảnh trước");
+    showToast("Vui lòng chọn ảnh trước", 'warning');
     return;
   }
   if (!promptSelect.value) {
-    alert("Vui lòng chọn chế độ ảnh");
+    showToast("Vui lòng chọn chế độ ảnh", 'warning');
     return;
   }
 
@@ -401,7 +607,7 @@ async function downloadImage(imagePath, promptName) {
     }, 100);
   } catch (error) {
     console.error("Error downloading image:", error);
-    alert("Không thể tải ảnh. Vui lòng thử lại sau.");
+    showToast("Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
   }
 }
 
@@ -409,6 +615,17 @@ async function downloadImage(imagePath, promptName) {
 document.addEventListener("DOMContentLoaded", () => {
   loadTrendingPrompts();
   loadPrompts();
+
+  // Load user premium status and populate model selections
+  loadUserPremiumStatus()
+    .then(() => {
+      populateModelSelections();
+    })
+    .catch((error) => {
+      console.error("Error initializing model selections:", error);
+      // Fallback to basic model selection
+      populateModelSelections();
+    });
 
   // Add event listener for gender filter
   genderSelect.addEventListener("change", () => {
@@ -428,7 +645,7 @@ bgGenerateBtn.addEventListener("click", async () => {
 
   const prompt = bgPromptInput.value.trim();
   if (!prompt) {
-    alert("Vui lòng nhập mô tả bối cảnh bạn muốn tạo");
+    showToast("Vui lòng nhập mô tả bối cảnh bạn muốn tạo", 'warning');
     return;
   }
 
@@ -617,17 +834,17 @@ outfitGenerateBtn.addEventListener("click", async () => {
   if (!checkAuthBeforeAction()) return;
 
   if (!outfitSelectedFile) {
-    alert("Vui lòng chọn ảnh người trước");
+    showToast("Vui lòng chọn ảnh người trước", 'warning');
     return;
   }
 
   if (!clothingSelectedFile) {
     if (!outfitGenderSelect.value) {
-      alert("Vui lòng chọn giới tính");
+      showToast("Vui lòng chọn giới tính", 'warning');
       return;
     }
     if (!outfitTypeSelect.value || !outfitHairstyleSelect.value) {
-      alert("Vui lòng chọn loại trang phục và kiểu tóc");
+      showToast("Vui lòng chọn loại trang phục và kiểu tóc", 'warning');
       return;
     }
   }
@@ -701,64 +918,103 @@ async function showConfirmDialog(
     pendingGenerateData = { promptName, selectedFile: file, type, extra };
 
     const token = localStorage.getItem("token");
-    let promptData = null;
+    const headers = { Authorization: `Bearer ${token}` };
     let fee = 0;
 
-    const response = await fetch("/api/prompts", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // Chạy song song tất cả API calls để tăng tốc
+    const serviceConfigEndpoint = type === "outfit"
+      ? "/api/service-config/outfit"
+      : type === "background"
+        ? "/api/service-config/background"
+        : null;
 
-    const prompts = await response.json();
-    promptData = prompts.find((p) => p.name === promptName);
+    const [promptsRes, trendingRes, serviceConfigRes, profileRes, quotaRes] = await Promise.all([
+      fetch("/api/prompts", { headers }),
+      fetch("/api/prompts-trending", { headers }),
+      serviceConfigEndpoint ? fetch(serviceConfigEndpoint, { headers }) : Promise.resolve(null),
+      fetch("/api/profile/me", { headers }),
+      fetch("/api/ai/daily-quota", { headers }).catch(() => null)
+    ]);
 
+    // Parse responses
+    const [prompts, trendingPrompts, serviceConfig, profileData, quotaInfo] = await Promise.all([
+      promptsRes.json(),
+      trendingRes.json(),
+      serviceConfigRes ? serviceConfigRes.json() : null,
+      profileRes.json(),
+      quotaRes ? quotaRes.json() : null
+    ]);
+
+    // Tìm promptData
+    let promptData = prompts.find((p) => p.name === promptName);
     if (!promptData) {
-      const trendingResponse = await fetch("/api/prompts-trending", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const trendingPrompts = await trendingResponse.json();
       promptData = trendingPrompts.find((p) => p.name === promptName);
     }
 
+    // Xác định fee
     if (type === "faceImage") {
       fee = promptData?.fee || 0;
-    } else if (type === "outfit") {
-      const configResponse = await fetch("/api/service-config/outfit", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const configData = await configResponse.json();
-      fee = configData?.fee || 0;
-    } else if (type === "background") {
-      const configResponse = await fetch("/api/service-config/background", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const configData = await configResponse.json();
-      fee = configData?.fee || 0;
+    } else if (serviceConfig) {
+      fee = serviceConfig.fee || 0;
     }
 
-    const profileResponse = await fetch("/api/profile/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const profileData = await profileResponse.json();
     const balance = profileData.balance || 0;
+
+    // Display free quota section
+    const freeQuotaSection = document.getElementById("freeQuotaSection");
+    const quotaNote = document.getElementById("quotaNote");
+
+    if (quotaInfo && quotaInfo.maxFree > 0) {
+      freeQuotaSection.style.display = "block";
+      document.getElementById("remainingFree").textContent =
+        quotaInfo.remainingFree;
+      document.getElementById("maxFree").textContent = quotaInfo.maxFree;
+
+      if (quotaInfo.remainingFree > 0) {
+        freeQuotaSection.classList.remove("exhausted");
+        quotaNote.classList.remove("warning");
+      } else {
+        freeQuotaSection.classList.add("exhausted");
+        quotaNote.textContent = "⚠️ Đã hết lượt miễn phí, sẽ trừ từ số dư";
+        quotaNote.classList.add("warning");
+      }
+    } else {
+      freeQuotaSection.style.display = "none";
+    }
 
     document.getElementById("confirmPrice").textContent =
       fee.toLocaleString() + " VND";
     document.getElementById("confirmBalance").textContent =
       balance.toLocaleString() + " VND";
 
-    if (balance < fee) {
+    // Check if can proceed: has free quota OR has enough balance
+    const hasFreeQuota = quotaInfo && quotaInfo.remainingFree > 0;
+
+    if (hasFreeQuota) {
+      // Has free quota - always allow
+      document.getElementById("confirmBalance").style.color = "#10b981";
+      document.querySelector(".btn-confirm").disabled = false;
+      // Show that this is free
+      document.getElementById(
+        "confirmPrice"
+      ).innerHTML = `<span style="text-decoration: line-through; color: #9ca3af;">${fee.toLocaleString()} VND</span> <span style="color: #16a34a; font-weight: 600;">MIỄN PHÍ</span>`;
+    } else if (balance < fee) {
       document.getElementById("confirmBalance").style.color = "#d32f2f";
       document.querySelector(".btn-confirm").disabled = true;
+      document.getElementById("confirmPrice").textContent =
+        fee.toLocaleString() + " VND";
     } else {
       document.getElementById("confirmBalance").style.color = "#10b981";
       document.querySelector(".btn-confirm").disabled = false;
+      document.getElementById("confirmPrice").textContent =
+        fee.toLocaleString() + " VND";
     }
 
     const dialog = document.getElementById("confirmDialog");
     dialog.classList.remove("hidden");
   } catch (error) {
     console.error("Lỗi load thông tin giá:", error);
-    alert("Lỗi khi tải thông tin giá");
+    showToast("Lỗi khi tải thông tin giá", 'error');
   }
 }
 
@@ -788,7 +1044,7 @@ async function proceedGenerate() {
 
 async function proceedGenerateFaceImage() {
   if (!pendingGenerateData.selectedFile || !pendingGenerateData.promptName) {
-    alert("Dữ liệu không hợp lệ");
+    showToast("Dữ liệu không hợp lệ", 'error');
     return;
   }
 
@@ -798,9 +1054,17 @@ async function proceedGenerateFaceImage() {
   closeConfirmDialog();
 
   const token = localStorage.getItem("token");
+
+  // Get selected model from dropdown
+  const modelTrigger = document.getElementById("model-dropdown-trigger");
+  const modelName = modelTrigger
+    ? modelTrigger.dataset.selectedModel || "nano-banana"
+    : "nano-banana";
+
   const formData = new FormData();
   formData.append("promptName", promptName);
   formData.append("image", selectedFile);
+  formData.append("model", modelName);
 
   try {
     const generateBtn = document.getElementById("generate-btn");
@@ -827,6 +1091,14 @@ async function proceedGenerateFaceImage() {
 
     if (result.success) {
       currentImageUrl = result.localPath;
+
+      // Display model info in the result
+      if (result.model && result.userPlan) {
+        console.log(
+          `✅ Generated with ${result.model} for ${result.userPlan} user`
+        );
+      }
+
       displayOutput(result);
     } else {
       const outputArea = document.getElementById("output-area");
@@ -835,7 +1107,7 @@ async function proceedGenerateFaceImage() {
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-      alert("Lỗi: " + (result.error || result.message));
+      showToast("Lỗi: " + (result.error || result.message), 'error');
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -845,7 +1117,7 @@ async function proceedGenerateFaceImage() {
             <p>❌ Lỗi khi tạo ảnh: ${error.message}</p>
           </div>
         `;
-    alert("Lỗi khi tạo ảnh: " + error.message);
+    showToast("Lỗi khi tạo ảnh: " + error.message, 'error');
   } finally {
     const generateBtn = document.getElementById("generate-btn");
     generateBtn.disabled = false;
@@ -855,7 +1127,7 @@ async function proceedGenerateFaceImage() {
 
 async function proceedGenerateBackground() {
   if (!pendingGenerateData.extra.bgPrompt) {
-    alert("Dữ liệu không hợp lệ");
+    showToast("Dữ liệu không hợp lệ", 'error');
     return;
   }
 
@@ -864,6 +1136,12 @@ async function proceedGenerateBackground() {
   closeConfirmDialog();
 
   const token = localStorage.getItem("token");
+
+  // Get selected model from dropdown
+  const bgModelTrigger = document.getElementById("bg-model-dropdown-trigger");
+  const bgModelName = bgModelTrigger
+    ? bgModelTrigger.dataset.selectedModel || "nano-banana"
+    : "nano-banana";
 
   try {
     const bgGenerateBtn = document.getElementById("bg-generate-btn");
@@ -886,12 +1164,20 @@ async function proceedGenerateBackground() {
       },
       body: JSON.stringify({
         prompt: bgPrompt,
+        model: bgModelName,
       }),
     });
 
     const result = await response.json();
 
     if (result.success) {
+      // Display model info in the result
+      if (result.model && result.userPlan) {
+        console.log(
+          `✅ Background generated with ${result.model} for ${result.userPlan} user`
+        );
+      }
+
       displayBgOutput(result);
     } else {
       const bgOutputArea = document.getElementById("bg-output-area");
@@ -900,7 +1186,7 @@ async function proceedGenerateBackground() {
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-      alert("Lỗi: " + (result.error || result.message));
+      showToast("Lỗi: " + (result.error || result.message), 'error');
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -910,7 +1196,7 @@ async function proceedGenerateBackground() {
             <p>❌ Lỗi khi tạo bối cảnh: ${error.message}</p>
           </div>
         `;
-    alert("Lỗi khi tạo bối cảnh: " + error.message);
+    showToast("Lỗi khi tạo bối cảnh: " + error.message, 'error');
   } finally {
     const bgGenerateBtn = document.getElementById("bg-generate-btn");
     bgGenerateBtn.disabled = false;
@@ -920,7 +1206,7 @@ async function proceedGenerateBackground() {
 
 async function proceedGenerateOutfit() {
   if (!pendingGenerateData.selectedFile) {
-    alert("Dữ liệu không hợp lệ");
+    showToast("Dữ liệu không hợp lệ", 'error');
     return;
   }
 
@@ -933,11 +1219,21 @@ async function proceedGenerateOutfit() {
   closeConfirmDialog();
 
   const token = localStorage.getItem("token");
+
+  // Get selected model from dropdown
+  const outfitModelTrigger = document.getElementById(
+    "outfit-model-dropdown-trigger"
+  );
+  const outfitModelName = outfitModelTrigger
+    ? outfitModelTrigger.dataset.selectedModel || "nano-banana"
+    : "nano-banana";
+
   const formData = new FormData();
   formData.append("type", outfitType);
   formData.append("hairstyle", outfitHairstyle);
   formData.append("description", outfitDescription);
   formData.append("image", selectedFile);
+  formData.append("model", outfitModelName);
   if (clothingFile) {
     formData.append("clothing", clothingFile);
   }
@@ -966,6 +1262,13 @@ async function proceedGenerateOutfit() {
     const result = await response.json();
 
     if (result.success) {
+      // Display model info in the result
+      if (result.model && result.userPlan) {
+        console.log(
+          `✅ Outfit generated with ${result.model} for ${result.userPlan} user`
+        );
+      }
+
       displayOutfitOutput(result);
     } else {
       const outfitOutputArea = document.getElementById("outfit-output-area");
@@ -974,7 +1277,7 @@ async function proceedGenerateOutfit() {
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-      alert("Lỗi: " + (result.error || result.message));
+      showToast("Lỗi: " + (result.error || result.message), 'error');
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -984,7 +1287,7 @@ async function proceedGenerateOutfit() {
             <p>❌ Lỗi khi thay đổi trang phục: ${error.message}</p>
           </div>
         `;
-    alert("Lỗi khi thay đổi trang phục: " + error.message);
+    showToast("Lỗi khi thay đổi trang phục: " + error.message, 'error');
   } finally {
     const outfitGenerateBtn = document.getElementById("outfit-generate-btn");
     outfitGenerateBtn.disabled = false;
@@ -994,7 +1297,7 @@ async function proceedGenerateOutfit() {
 
 async function proceedGenerateTrending() {
   if (!pendingGenerateData.selectedFile || !window.currentTrend) {
-    alert("Dữ liệu không hợp lệ");
+    showToast("Dữ liệu không hợp lệ", 'error');
     return;
   }
 
@@ -1044,7 +1347,7 @@ async function proceedGenerateTrending() {
               <p>❌ ${result.error || result.message}</p>
             </div>
           `;
-      alert("Lỗi: " + (result.error || result.message));
+      showToast("Lỗi: " + (result.error || result.message), 'error');
     }
   } catch (error) {
     console.error("Lỗi:", error);
@@ -1054,7 +1357,7 @@ async function proceedGenerateTrending() {
             <p> Lỗi khi tạo ảnh: ${error.message}</p>
           </div>
         `;
-    alert("Lỗi khi tạo ảnh: " + error.message);
+    showToast("Lỗi khi tạo ảnh: " + error.message, 'error');
   } finally {
     const trendGenerateBtn = document.getElementById("trend-generate-btn");
     trendGenerateBtn.disabled = false;

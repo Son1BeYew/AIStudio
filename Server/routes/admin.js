@@ -28,7 +28,40 @@ async function verifyAdmin(req, res, next) {
   }
 }
 
-// Get statistics for today
+/**
+ * @swagger
+ * /admin/statistics/today:
+ *   get:
+ *     summary: Get today's statistics
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Today's statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 summary:
+ *                   type: object
+ *                   properties:
+ *                     imagesToday:
+ *                       type: number
+ *                     promptsToday:
+ *                       type: number
+ *                     revenueToday:
+ *                       type: number
+ *                 charts:
+ *                   type: object
+ *                 transactions:
+ *                   type: object
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/statistics/today", verifyAdmin, async (req, res) => {
   try {
     const today = new Date();
@@ -218,7 +251,42 @@ router.get("/statistics/today", verifyAdmin, async (req, res) => {
   }
 });
 
-// Get dashboard statistics (for overview page)
+/**
+ * @swagger
+ * /admin/overview-stats:
+ *   get:
+ *     summary: Get dashboard overview statistics
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: timeRange
+ *         schema:
+ *           type: string
+ *           enum: [today, yesterday, 7days, 30days]
+ *         description: Time range filter
+ *     responses:
+ *       200:
+ *         description: Overview statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalUsers:
+ *                   type: number
+ *                 totalPrompts:
+ *                   type: number
+ *                 totalImages:
+ *                   type: number
+ *                 activeUsers:
+ *                   type: number
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/overview-stats", verifyAdmin, async (req, res) => {
   try {
     const timeRange = req.query.timeRange || "today";
@@ -280,7 +348,40 @@ router.get("/overview-stats", verifyAdmin, async (req, res) => {
   }
 });
 
-// Get dashboard statistics
+/**
+ * @swagger
+ * /admin/dashboard-stats:
+ *   get:
+ *     summary: Get dashboard statistics with charts data
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard statistics with charts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 stats:
+ *                   type: object
+ *                   properties:
+ *                     totalUsers:
+ *                       type: number
+ *                     totalPrompts:
+ *                       type: number
+ *                     totalImages:
+ *                       type: number
+ *                     totalMoney:
+ *                       type: number
+ *                 charts:
+ *                   type: object
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/dashboard-stats", verifyAdmin, async (req, res) => {
   try {
     // Get total users
@@ -375,7 +476,40 @@ router.get("/dashboard-stats", verifyAdmin, async (req, res) => {
   }
 });
 
-// Verify and mark topup as success (for manual verification of Momo payments)
+/**
+ * @swagger
+ * /admin/topup/{id}/verify:
+ *   put:
+ *     summary: Verify and mark topup as success
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: TopUp transaction ID
+ *     responses:
+ *       200:
+ *         description: Topup verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 topUp:
+ *                   $ref: '#/components/schemas/TopUp'
+ *       404:
+ *         description: Transaction not found
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.put("/topup/:id/verify", verifyAdmin, async (req, res) => {
   try {
     const { id } = req.params;
@@ -402,7 +536,28 @@ router.put("/topup/:id/verify", verifyAdmin, async (req, res) => {
   }
 });
 
-// Get all pending topups
+/**
+ * @swagger
+ * /admin/topup/pending:
+ *   get:
+ *     summary: Get all pending topup transactions
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of pending topups
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/TopUp'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/topup/pending", verifyAdmin, async (req, res) => {
   try {
     console.log("📋 Fetching pending topups");
@@ -418,7 +573,52 @@ router.get("/topup/pending", verifyAdmin, async (req, res) => {
   }
 });
 
-// Get top prompts with usage count and prices
+/**
+ * @swagger
+ * /admin/top-prompts:
+ *   get:
+ *     summary: Get top prompts with usage count and prices
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *           default: 10
+ *         description: Number of prompts to return
+ *       - in: query
+ *         name: timeRange
+ *         schema:
+ *           type: string
+ *           enum: [today, yesterday, 7days, 30days]
+ *         description: Time range filter
+ *     responses:
+ *       200:
+ *         description: List of top prompts with usage
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   usage:
+ *                     type: number
+ *                   price:
+ *                     type: number
+ *                   revenue:
+ *                     type: number
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/top-prompts", verifyAdmin, async (req, res) => {
   try {
     const limit = req.query.limit || 10;
@@ -494,7 +694,16 @@ router.get("/top-prompts", verifyAdmin, async (req, res) => {
   }
 });
 
-// Debug route (no auth required) - remove in production
+/**
+ * @swagger
+ * /admin/top-prompts-debug:
+ *   get:
+ *     summary: Debug route for top prompts (no auth required)
+ *     tags: [Debug]
+ *     responses:
+ *       200:
+ *         description: Debug data
+ */
 router.get("/top-prompts-debug", async (req, res) => {
   try {
     const historyCount = await History.countDocuments();
@@ -524,7 +733,33 @@ router.get("/top-prompts-debug", async (req, res) => {
   }
 });
 
-// Get all users
+/**
+ * @swagger
+ * /admin/users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/User'
+ *                   - type: object
+ *                     properties:
+ *                       isOnline:
+ *                         type: boolean
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/users", verifyAdmin, async (req, res) => {
   try {
     const users = await User.find({ role: "user" })
@@ -545,7 +780,64 @@ router.get("/users", verifyAdmin, async (req, res) => {
   }
 });
 
-// Get dashboard notifications and activities
+/**
+ * @swagger
+ * /admin/dashboard-feed:
+ *   get:
+ *     summary: Get dashboard notifications and activities feed
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard feed data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 notifications:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       type:
+ *                         type: string
+ *                         enum: [user_registered, image_created]
+ *                       message:
+ *                         type: string
+ *                       timestamp:
+ *                         type: string
+ *                         format: date-time
+ *                       avatar:
+ *                         type: string
+ *                       icon:
+ *                         type: string
+ *                 activities:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       promptName:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       userEmail:
+ *                         type: string
+ *                       userName:
+ *                         type: string
+ *                 contacts:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/dashboard-feed", verifyAdmin, async (req, res) => {
   try {
     // Get recent activities (history)
@@ -618,7 +910,66 @@ router.get("/dashboard-feed", verifyAdmin, async (req, res) => {
   }
 });
 
-// Get wallet statistics and transactions
+/**
+ * @swagger
+ * /admin/wallet-stats:
+ *   get:
+ *     summary: Get wallet statistics and transactions
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *           enum: [today, week, month, all]
+ *           default: today
+ *         description: Time filter for statistics
+ *     responses:
+ *       200:
+ *         description: Wallet statistics and transactions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalDeposit:
+ *                   type: number
+ *                   description: Total deposits in period
+ *                 monthSpent:
+ *                   type: number
+ *                   description: Amount spent this month
+ *                 weekSpent:
+ *                   type: number
+ *                   description: Amount spent this week
+ *                 todaySpent:
+ *                   type: number
+ *                   description: Amount spent today
+ *                 transactions:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       timestamp:
+ *                         type: string
+ *                         format: date-time
+ *                       userName:
+ *                         type: string
+ *                       userEmail:
+ *                         type: string
+ *                       type:
+ *                         type: string
+ *                         enum: [nap, tao-anh, hoan-tien]
+ *                       amount:
+ *                         type: number
+ *                       description:
+ *                         type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
 router.get("/wallet-stats", verifyAdmin, async (req, res) => {
   try {
     const filter = req.query.filter || "today";

@@ -2,7 +2,6 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
 
-// Validate Cloudinary configuration
 if (!process.env.CLOUDINARY_CLOUD_NAME) {
   throw new Error("CLOUDINARY_CLOUD_NAME environment variable is required");
 }

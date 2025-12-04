@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Xu hướng | EternaPicSHT AI </title>
+  <link rel="icon" type="image/png" href="/assets/images/logo.png" />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
     /* Tổng thể layout */
@@ -226,8 +227,200 @@
     .error-message {
       color: #dc2626;
       font-size: 0.875rem;
-      margin-top: 5px;
+      margin-top: 8px;
       display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .error-message.show {
+      display: block;
+      animation: shake 0.4s ease;
+    }
+
+    .input-group input.input-error {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+
+    /* Password Strength Indicator - Compact */
+    .password-strength {
+      margin-top: 6px;
+    }
+
+    .strength-bars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 4px;
+    }
+
+    .strength-bar {
+      height: 3px;
+      flex: 1;
+      background: #e5e7eb;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .strength-bar.active.weak {
+      background: #ef4444;
+    }
+
+    .strength-bar.active.medium {
+      background: #f59e0b;
+    }
+
+    .strength-bar.active.strong {
+      background: #10b981;
+    }
+
+    .strength-text {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .strength-text.weak {
+      color: #ef4444;
+    }
+
+    .strength-text.medium {
+      color: #f59e0b;
+    }
+
+    .strength-text.strong {
+      color: #10b981;
+    }
+
+    .password-requirements {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 10px;
+      font-size: 0.7rem;
+    }
+
+    .requirement {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      color: #9ca3af;
+      transition: color 0.2s;
+    }
+
+    .requirement.met {
+      color: #10b981;
+    }
+
+    .requirement-icon {
+      font-size: 9px;
+    }
+
+    /* Success Modal */
+    .success-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .success-modal.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .success-modal-content {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 50px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      animation: scaleIn 0.5s ease 0.2s both;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .success-icon svg {
+      width: 40px;
+      height: 40px;
+      color: #fff;
+    }
+
+    .success-modal h3 {
+      font-size: 1.5rem;
+      color: #1e1e2f;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .success-modal p {
+      color: #6b7280;
+      font-size: 1rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .success-modal .countdown {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-top: 15px;
+    }
+
+    .success-modal .countdown span {
+      color: #10b981;
+      font-weight: 600;
     }
 
     /* RESPONSIVE */
@@ -274,25 +467,41 @@
 
         <div class="input-group">
           <label for="fullname">Họ và Tên</label>
-          <input type="text" id="fullname" placeholder="Nhập họ và tên" required />
+          <input type="text" id="fullname" placeholder="Nhập họ và tên" />
           <div class="error-message" id="fullname-error"></div>
         </div>
 
         <div class="input-group">
           <label for="email">Email</label>
-          <input type="email" id="email" placeholder="Nhập email của bạn" required />
+          <input type="email" id="email" placeholder="Nhập email của bạn" />
           <div class="error-message" id="email-error"></div>
         </div>
 
         <div class="input-group">
           <label for="password">Mật khẩu</label>
-          <input type="password" id="password" placeholder="Nhập mật khẩu (ít nhất 6 ký tự)" required />
+          <input type="password" id="password" placeholder="Nhập mật khẩu" />
+          <div class="password-strength" id="passwordStrength" style="display: none;">
+            <div class="strength-bars">
+              <div class="strength-bar" id="bar1"></div>
+              <div class="strength-bar" id="bar2"></div>
+              <div class="strength-bar" id="bar3"></div>
+              <div class="strength-bar" id="bar4"></div>
+            </div>
+            <div class="strength-text" id="strengthText"></div>
+            <div class="password-requirements">
+              <div class="requirement" id="req-length"><span class="requirement-icon">○</span><span>8+ ký tự</span></div>
+              <div class="requirement" id="req-upper"><span class="requirement-icon">○</span><span>A-Z</span></div>
+              <div class="requirement" id="req-lower"><span class="requirement-icon">○</span><span>a-z</span></div>
+              <div class="requirement" id="req-number"><span class="requirement-icon">○</span><span>0-9</span></div>
+              <div class="requirement" id="req-special"><span class="requirement-icon">○</span><span>!@#$</span></div>
+            </div>
+          </div>
           <div class="error-message" id="password-error"></div>
         </div>
 
         <div class="input-group">
           <label for="confirmPassword">Xác nhận Mật khẩu</label>
-          <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required />
+          <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" />
           <div class="error-message" id="confirmPassword-error"></div>
         </div>
 
@@ -318,29 +527,288 @@
       </form>
     </div>
 
+    <!-- Success Modal -->
+    <div class="success-modal" id="successModal">
+      <div class="success-modal-content">
+        <div class="success-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3>Chào mừng bạn!</h3>
+        <p>Tài khoản của bạn đã được tạo thành công. Bạn sẽ được chuyển đến trang chính ngay bây giờ.</p>
+        <div class="countdown">Chuyển hướng sau <span id="countdownTimer">3</span> giây...</div>
+      </div>
+    </div>
+
     <script>
       const form = document.getElementById("registerForm");
+      let passwordStrengthLevel = 0; // 0: none, 1: weak, 2: medium, 3: strong
 
-      // Xoá error message khi user typing
-      document.querySelectorAll("input").forEach((input) => {
+      // Email validation helper - matching backend validation
+      function validateEmail(email) {
+        // Basic format check
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+          return { valid: false, message: "Email không đúng định dạng" };
+        }
+
+        // Check email length
+        if (email.length > 254) {
+          return { valid: false, message: "Email quá dài" };
+        }
+
+        const [localPart, domain] = email.toLowerCase().split("@");
+
+        // Check local part length
+        if (localPart.length > 64) {
+          return { valid: false, message: "Phần tên email quá dài" };
+        }
+
+        // Block disposable/temporary email domains
+        const disposableDomains = [
+          "tempmail.com", "temp-mail.org", "guerrillamail.com", "guerrillamail.org",
+          "mailinator.com", "maildrop.cc", "10minutemail.com", "10minutemail.net",
+          "throwaway.email", "fakeinbox.com", "trashmail.com", "trashmail.net",
+          "yopmail.com", "yopmail.fr", "sharklasers.com", "spam4.me", "grr.la",
+          "guerrillamail.info", "pokemail.net", "getnada.com", "tempail.com",
+          "mohmal.com", "dispostable.com", "mailnesia.com", "tempr.email",
+          "discard.email", "discardmail.com", "spamgourmet.com", "mytemp.email",
+          "mt2009.com", "tempinbox.com", "fakemailgenerator.com", "emailondeck.com",
+          "mailcatch.com", "mintemail.com", "tempmailo.com", "burnermail.io",
+          "mailsac.com", "33mail.com", "getairmail.com", "moakt.com", "jetable.org",
+          "spamex.com", "trash-mail.com", "wegwerfmail.de", "spamherelots.com",
+          "spamobox.com", "tempmailaddress.com", "emkei.cz", "anonymbox.com",
+          "dropmail.me", "harakirimail.com", "mailnull.com", "nowmymail.com",
+          "rmqkr.net", "sogetthis.com", "spamfree24.org", "speed.1s.fr",
+          "suremail.info", "tempemail.net", "tmpmail.org", "tmpmail.net",
+          "incognitomail.com", "incognitomail.org"
+        ];
+
+        if (disposableDomains.includes(domain)) {
+          return {
+            valid: false,
+            message: "Không chấp nhận email tạm thời. Vui lòng dùng email thật."
+          };
+        }
+
+        // Block suspicious patterns in domain
+        const suspiciousPatterns = [
+          /^temp/i, /^fake/i, /^trash/i, /^spam/i, /^junk/i,
+          /^throw/i, /^disposable/i, /^mailinator/i, /^guerrilla/i,
+          /^10minute/i, /^burner/i, /^anonymous/i
+        ];
+
+        for (const pattern of suspiciousPatterns) {
+          if (pattern.test(domain)) {
+            return {
+              valid: false,
+              message: "Không chấp nhận email từ dịch vụ email tạm thời"
+            };
+          }
+        }
+
+        // Check for valid TLD (at least 2 characters)
+        const tld = domain.split(".").pop();
+        if (tld.length < 2) {
+          return { valid: false, message: "Domain email không hợp lệ" };
+        }
+
+        // Block numeric-only domains (often spam)
+        const domainWithoutTld = domain.replace(/\.[^.]+$/, "");
+        if (/^\d+$/.test(domainWithoutTld)) {
+          return { valid: false, message: "Domain email không hợp lệ" };
+        }
+
+        // Block emails with too many dots in local part (often fake)
+        if ((localPart.match(/\./g) || []).length > 3) {
+          return { valid: false, message: "Email không hợp lệ" };
+        }
+
+        // Block emails starting or ending with dot
+        if (localPart.startsWith(".") || localPart.endsWith(".")) {
+          return { valid: false, message: "Email không hợp lệ" };
+        }
+
+        // Block consecutive dots
+        if (localPart.includes("..")) {
+          return { valid: false, message: "Email không hợp lệ" };
+        }
+
+        return { valid: true };
+      }
+
+      // Password strength checker
+      function checkPasswordStrength(password) {
+        const requirements = {
+          length: password.length >= 8,
+          upper: /[A-Z]/.test(password),
+          lower: /[a-z]/.test(password),
+          number: /[0-9]/.test(password),
+          special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+        };
+
+        // Update requirement indicators
+        Object.keys(requirements).forEach(key => {
+          const reqEl = document.getElementById(`req-${key}`);
+          if (reqEl) {
+            const iconEl = reqEl.querySelector('.requirement-icon');
+            if (requirements[key]) {
+              reqEl.classList.add('met');
+              iconEl.textContent = '✓';
+            } else {
+              reqEl.classList.remove('met');
+              iconEl.textContent = '○';
+            }
+          }
+        });
+
+        // Calculate strength score
+        const metCount = Object.values(requirements).filter(Boolean).length;
+
+        let strength = 0;
+        let strengthClass = '';
+        let strengthLabel = '';
+
+        if (password.length === 0) {
+          strength = 0;
+          strengthLabel = '';
+        } else if (metCount <= 2) {
+          strength = 1;
+          strengthClass = 'weak';
+          strengthLabel = 'Yếu - Mật khẩu chưa đủ mạnh';
+        } else if (metCount <= 4) {
+          strength = 2;
+          strengthClass = 'medium';
+          strengthLabel = 'Trung bình - Cần thêm yêu cầu';
+        } else {
+          strength = 3;
+          strengthClass = 'strong';
+          strengthLabel = 'Mạnh - Mật khẩu an toàn!';
+        }
+
+        passwordStrengthLevel = strength;
+
+        // Update strength bars
+        const bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+        bars.forEach((barId, index) => {
+          const bar = document.getElementById(barId);
+          bar.classList.remove('active', 'weak', 'medium', 'strong');
+
+          if (strength === 1 && index < 1) {
+            bar.classList.add('active', 'weak');
+          } else if (strength === 2 && index < 2) {
+            bar.classList.add('active', 'medium');
+          } else if (strength === 3 && index < 4) {
+            bar.classList.add('active', 'strong');
+          }
+        });
+
+        // Update strength text
+        const strengthText = document.getElementById('strengthText');
+        strengthText.textContent = strengthLabel;
+        strengthText.className = 'strength-text ' + strengthClass;
+
+        return { strength, requirements };
+      }
+
+      // Password input event
+      const passwordInput = document.getElementById('password');
+      passwordInput.addEventListener('input', () => {
+        const strengthContainer = document.getElementById('passwordStrength');
+        if (passwordInput.value.length > 0) {
+          strengthContainer.style.display = 'block';
+        } else {
+          strengthContainer.style.display = 'none';
+        }
+        checkPasswordStrength(passwordInput.value);
+
+        // Clear error when typing
+        const errorEl = document.getElementById('password-error');
+        if (errorEl) {
+          errorEl.classList.remove('show');
+        }
+        passwordInput.classList.remove('input-error');
+      });
+
+      // Xoá error message khi user typing (các field khác)
+      document.querySelectorAll("input:not(#password):not(#email)").forEach((input) => {
         input.addEventListener("input", () => {
           const errorEl = document.getElementById(`${input.id}-error`);
           if (errorEl) {
-            errorEl.style.display = "none";
+            errorEl.classList.remove("show");
           }
+          input.classList.remove("input-error");
         });
+      });
+
+      // Email real-time validation on blur
+      const emailInput = document.getElementById("email");
+      emailInput.addEventListener("input", () => {
+        const errorEl = document.getElementById("email-error");
+        if (errorEl) {
+          errorEl.classList.remove("show");
+        }
+        emailInput.classList.remove("input-error");
+      });
+
+      emailInput.addEventListener("blur", () => {
+        const email = emailInput.value.trim();
+        if (email) {
+          const validation = validateEmail(email);
+          if (!validation.valid) {
+            showError("email", validation.message);
+          }
+        }
       });
 
       function showError(fieldId, message) {
         const errorEl = document.getElementById(`${fieldId}-error`);
+        const inputEl = document.getElementById(fieldId);
         if (errorEl) {
           errorEl.textContent = message;
-          errorEl.style.display = "block";
+          errorEl.classList.remove("show");
+          // Trigger reflow để animation chạy lại
+          void errorEl.offsetWidth;
+          errorEl.classList.add("show");
         }
+        if (inputEl) {
+          inputEl.classList.add("input-error");
+          inputEl.focus();
+        }
+      }
+
+      function showSuccessModal() {
+        const modal = document.getElementById("successModal");
+        const countdownEl = document.getElementById("countdownTimer");
+        let seconds = 3;
+
+        modal.classList.add("show");
+        document.body.style.overflow = "hidden";
+
+        const countdown = setInterval(() => {
+          seconds--;
+          countdownEl.textContent = seconds;
+
+          if (seconds <= 0) {
+            clearInterval(countdown);
+            window.location.href = "/Client/dashboard.html";
+          }
+        }, 1000);
+      }
+
+      function clearAllErrors() {
+        document.querySelectorAll(".error-message").forEach(el => {
+          el.classList.remove("show");
+        });
+        document.querySelectorAll("input").forEach(el => {
+          el.classList.remove("input-error");
+        });
       }
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
+        clearAllErrors();
 
         const fullname = document.getElementById("fullname").value.trim();
         const email = document.getElementById("email").value.trim();
@@ -358,8 +826,27 @@
           return;
         }
 
-        if (password.length < 6) {
-          showError("password", "Mật khẩu phải có ít nhất 6 ký tự");
+        // Validate email with comprehensive check
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.valid) {
+          showError("email", emailValidation.message);
+          return;
+        }
+
+        if (!password) {
+          showError("password", "Vui lòng nhập mật khẩu");
+          return;
+        }
+
+        // Check password strength - must be STRONG
+        checkPasswordStrength(password);
+        if (passwordStrengthLevel < 3) {
+          showError("password", "Mật khẩu chưa đủ mạnh. Vui lòng đáp ứng tất cả yêu cầu bên trên.");
+          return;
+        }
+
+        if (!confirmPassword) {
+          showError("confirmPassword", "Vui lòng xác nhận mật khẩu");
           return;
         }
 
@@ -391,17 +878,17 @@
             }
 
 
-            alert("Đăng ký thành công! 🎉");
-            window.location.href = "/Client/dashboard.html";
+            // Show success modal with countdown
+            showSuccessModal();
           } else {
-            if (data.error.includes("already registered")) {
+            if (data.error && data.error.includes("already registered")) {
               showError("email", "Email này đã được đăng ký");
             } else {
-              alert(data.error || "Đăng ký thất bại");
+              showError("email", data.error || "Đăng ký thất bại, vui lòng thử lại");
             }
           }
         } catch (err) {
-          alert("Có lỗi xảy ra: " + err.message);
+          showError("email", "Có lỗi xảy ra, vui lòng thử lại sau");
         }
       });
     </script>

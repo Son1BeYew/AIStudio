@@ -6,8 +6,8 @@
     function checkLogin() {
       userToken = localStorage.getItem("token");
       if (!userToken) {
-        alert("Vui lòng đăng nhập trước");
-        window.location.href = "/login.html";
+        showToast("Vui lòng đăng nhập trước", 'error');
+        setTimeout(() => window.location.href = "/login.html", 1000);
         return false;
       }
       return true;

@@ -26,6 +26,7 @@ async function getValidAccessToken() {
     }
   } catch (err) {
     console.error("Error checking token expiration:", err);
+    // Không logout, chỉ log error và tiếp tục dùng token hiện tại
   }
 
   return token;
@@ -77,8 +78,24 @@ async function fetchWithAuth(url, options = {}) {
 
   let response = await fetch(url, { ...options, headers });
 
-  // Nếu 401 (token expired), thử refresh
+  // Nếu 401 (token expired hoặc session revoked)
   if (response.status === 401) {
+    // Check if session was revoked
+    try {
+      const errorData = await response.clone().json();
+      if (errorData.sessionExpired) {
+        // Session was revoked, force logout
+        console.log("Session was revoked, logging out...");
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login.html?message=session_revoked";
+        return response;
+      }
+    } catch (e) {
+      // If can't parse JSON, continue with refresh attempt
+    }
+
+    // Try to refresh token
     const refreshToken = localStorage.getItem("refreshToken");
     if (refreshToken) {
       token = await refreshAccessToken(refreshToken);

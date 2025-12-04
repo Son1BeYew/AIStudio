@@ -18,12 +18,13 @@ body {
   color: var(--text);
   background: #fff;
   line-height: 1.6;
+  opacity: 1;
 }
 body {
   background: radial-gradient(
-    150% 150% at 50% 90%, /* bán kính lớn, tâm gần đáy */
-    #ffffff 40%,           /* trung tâm sáng */
-    #000000 100%           /* rìa tối */
+    150% 150% at 50% 90%,
+    /* bán kính lớn, tâm gần đáy */ #ffffff 40%,
+    /* trung tâm sáng */ #000000 100% /* rìa tối */
   );
   background-attachment: fixed; /* giữ nền khi scroll */
   background-repeat: no-repeat;
@@ -50,7 +51,7 @@ nav .logo {
   gap: 6px;
 }
 nav .logo img {
-  width: 60px;   
+  width: 80px;
   height: auto;
   object-fit: contain;
 }
@@ -72,7 +73,7 @@ nav .nav-links a::after {
   background-color: var(--text);
   transition: all 0.3s ease;
   transform: translateX(-50%);
-  border-radius: 10px; 
+  border-radius: 10px;
 }
 nav .nav-links a:hover::after {
   width: 100%;
@@ -84,6 +85,13 @@ nav .auth {
   gap: 16px;
 }
 
+/* Ẩn auth section mặc định để tránh flash khi load */
+#auth-section {
+  visibility: hidden;
+}
+#auth-section.loaded {
+  visibility: visible;
+}
 
 /* ================= HERO ================= */
 .hero {
@@ -133,7 +141,6 @@ nav .auth {
   font-weight: bold;
   transition: all 0.5s ease;
 }
-
 
 button.primary {
   padding: 17px 40px;
@@ -478,7 +485,7 @@ button.full {
     width: 90%;
     padding: 30px;
   }
-} 
+}
 
 /* --- Mobile nhỏ (≤480px) --- */
 @media (max-width: 480px) {

@@ -66,7 +66,7 @@ body {
   padding: 10px 12px;
   border-radius: 8px;
   text-decoration: none;
-  color: #64748b;
+  color: #000000;
   font-size: 14px;
   margin-bottom: 2px;
   transition: all 0.2s;
@@ -76,12 +76,12 @@ body {
 
 .nav-item:hover {
   background: #f1f5f9;
-  color: #475569;
+  color: #000000;
 }
 
 .nav-item.active {
   background: #f0f4ff;
-  color: #6366f1;
+  color: #000;
 }
 
 .nav-item-content {
@@ -120,7 +120,7 @@ body {
 .sub-item {
   display: block;
   padding: 8px 12px;
-  color: #64748b;
+  color: #000000;
   text-decoration: none;
   font-size: 13px;
   border-radius: 6px;
@@ -131,7 +131,7 @@ body {
 
 .sub-item:hover {
   background: #f1f5f9;
-  color: #475569;
+  color: #000000;
 }
 
 .sidebar-footer {
@@ -363,7 +363,7 @@ body {
 
 .tab.active {
   background: white;
-  color: #6366f1;
+  color: #111;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 

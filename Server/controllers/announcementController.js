@@ -3,8 +3,8 @@ const Announcement = require("../models/Announcement");
 // Tạo thông báo mới
 exports.createAnnouncement = async (req, res) => {
   try {
-    const { title, content, author } = req.body;
-    const announcement = new Announcement({ title, content, author });
+    const { title, content, author, type } = req.body;
+    const announcement = new Announcement({ title, content, author, type });
     await announcement.save();
     res.status(201).json({ message: "Tạo thông báo thành công", announcement });
   } catch (error) {

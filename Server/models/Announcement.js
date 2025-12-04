@@ -10,6 +10,11 @@ const announcementSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  type: {
+    type: String,
+    enum: ["promo", "maintenance", "event", "notice"],
+    default: "notice",
+  },
   author: {
     type: String,
     default: "Admin",

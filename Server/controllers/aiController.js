@@ -5,10 +5,119 @@ const Prompt = require("../models/Prompt");
 const PromptTrending = require("../models/PromptTrending");
 const History = require("../models/History");
 const Profile = require("../models/Profile");
+const Premium = require("../models/Premium");
 const ServiceConfig = require("../models/ServiceConfig");
+const User = require("../models/User");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
+
+// Daily free images configuration per premium type
+const DAILY_FREE_IMAGES = {
+  pro: 10,
+  max: 15,
+  yearly: 5,
+  monthly: 3,
+  free: 0,
+};
+
+// Helper function to check and use daily free quota
+async function checkAndUseDailyFreeQuota(userId) {
+  const user = await User.findById(userId);
+  if (!user) {
+    return { hasFreeQuota: false, remainingFree: 0, usedFree: 0 };
+  }
+
+  const premiumType = user.premiumType || "free";
+  const maxFreeImages = DAILY_FREE_IMAGES[premiumType] || 0;
+
+  // Check if user has premium with free quota
+  if (maxFreeImages === 0) {
+    return { hasFreeQuota: false, remainingFree: 0, usedFree: 0, maxFree: 0 };
+  }
+
+  // Check if we need to reset (new day - reset at midnight)
+  const now = new Date();
+  const todayMidnight = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  if (!user.lastFreeImageReset || user.lastFreeImageReset < todayMidnight) {
+    // Reset quota for new day
+    user.dailyFreeImagesUsed = 0;
+    user.lastFreeImageReset = now;
+    await user.save();
+    console.log(
+      `🔄 Reset daily free quota for user ${userId}, plan: ${premiumType}`
+    );
+  }
+
+  const usedFree = user.dailyFreeImagesUsed || 0;
+  const remainingFree = maxFreeImages - usedFree;
+
+  if (remainingFree > 0) {
+    // Use free quota
+    user.dailyFreeImagesUsed = usedFree + 1;
+    await user.save();
+    console.log(
+      `🎁 Used free quota: ${usedFree + 1}/${maxFreeImages} for user ${userId}`
+    );
+    return {
+      hasFreeQuota: true,
+      remainingFree: remainingFree - 1,
+      usedFree: usedFree + 1,
+      maxFree: maxFreeImages,
+      isFreeImage: true,
+    };
+  }
+
+  return {
+    hasFreeQuota: false,
+    remainingFree: 0,
+    usedFree: usedFree,
+    maxFree: maxFreeImages,
+    isFreeImage: false,
+  };
+}
+
+// Helper function to get remaining daily free quota (without using it)
+async function getDailyFreeQuotaInfo(userId) {
+  const user = await User.findById(userId);
+  if (!user) {
+    return { remainingFree: 0, usedFree: 0, maxFree: 0, premiumType: "free" };
+  }
+
+  const premiumType = user.premiumType || "free";
+  const maxFreeImages = DAILY_FREE_IMAGES[premiumType] || 0;
+
+  if (maxFreeImages === 0) {
+    return { remainingFree: 0, usedFree: 0, maxFree: 0, premiumType };
+  }
+
+  // Check if we need to reset
+  const now = new Date();
+  const todayMidnight = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  let usedFree = user.dailyFreeImagesUsed || 0;
+
+  if (!user.lastFreeImageReset || user.lastFreeImageReset < todayMidnight) {
+    usedFree = 0; // Would be reset
+  }
+
+  return {
+    remainingFree: maxFreeImages - usedFree,
+    usedFree,
+    maxFree: maxFreeImages,
+    premiumType,
+    nextReset: new Date(todayMidnight.getTime() + 24 * 60 * 60 * 1000), // Tomorrow midnight
+  };
+}
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -20,13 +129,129 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
+// Model execution function
+async function executeModel(modelName, prompt, imageInputs) {
+  try {
+    console.log(`Executing model: ${modelName}`);
+
+    // All models use Replicate API
+    let replicateModel;
+
+    switch (modelName) {
+      case "nano-banana":
+        replicateModel = "google/nano-banana";
+        break;
+      case "gemini-2.0-flash":
+        // Use a Replicate model for "gemini-2.0-flash"
+        // You can replace this with the actual Replicate model identifier
+        replicateModel = "google/nano-banana"; // Using same model for now
+        break;
+      case "gemini-3-pro":
+        // Use a Replicate model for "gemini-3-pro"
+        // You can replace this with the actual Replicate model identifier
+        replicateModel = "google/nano-banana"; // Using same model for now
+        break;
+      default:
+        throw new Error(`Unknown model: ${modelName}`);
+    }
+
+    const output = await replicate.run(replicateModel, {
+      input: {
+        prompt: prompt,
+        image_input: imageInputs,
+      },
+    });
+
+    return Array.isArray(output) ? output[0] : output;
+  } catch (error) {
+    console.error(`❌ Model execution error for ${modelName}:`, error);
+    throw error;
+  }
+}
+
+// Helper function to check user's premium plan and allowed models
+async function getUserAllowedModel(userId, requestedModel) {
+  try {
+    const userObjectId = mongoose.Types.ObjectId.isValid(userId)
+      ? userId
+      : new mongoose.Types.ObjectId(userId);
+
+    // First check Premium collection for active plans
+    const premium = await Premium.findOne({
+      userId: userObjectId,
+      status: "active",
+      endDate: { $gt: new Date() },
+    }).sort({ createdAt: -1 });
+
+    let userPlan = "free";
+
+    if (premium) {
+      // Use Premium collection record
+      userPlan = premium.plan.toLowerCase();
+    } else {
+      // Fallback: Check User model for premiumType
+      const User = mongoose.model("User");
+      const user = await User.findById(userObjectId);
+
+      if (user && user.premiumType && user.premiumType !== "free") {
+        userPlan = user.premiumType.toLowerCase();
+        console.log(`👤 Using premiumType from User model: ${userPlan}`);
+      }
+    }
+
+    console.log(
+      `👤 User plan: ${userPlan}, Requested model: ${requestedModel}`
+    );
+
+    // Define available models by plan
+    const availableModels = {
+      free: ["nano-banana"],
+      pro: ["nano-banana", "gemini-2.0-flash"],
+      max: ["nano-banana", "gemini-2.0-flash", "gemini-3-pro"],
+    };
+
+    const allowedModels = availableModels[userPlan] || availableModels.free;
+
+    // Check if requested model is allowed
+    if (requestedModel && !allowedModels.includes(requestedModel)) {
+      return {
+        allowed: false,
+        model: "nano-banana", // fallback to free model
+        userPlan,
+        message: `Model ${requestedModel} yêu cầu gói ${
+          userPlan === "free" ? "PRO" : "MAX"
+        } trở lên`,
+      };
+    }
+
+    // If no specific model requested, use the best available model for their plan
+    const selectedModel =
+      requestedModel || allowedModels[allowedModels.length - 1];
+
+    return {
+      allowed: true,
+      model: selectedModel,
+      userPlan,
+      availableModels,
+    };
+  } catch (error) {
+    console.error("Error checking user plan:", error);
+    return {
+      allowed: true,
+      model: "nano-banana",
+      userPlan: "free",
+      availableModels: ["nano-banana"],
+    };
+  }
+}
+
 exports.generateFaceImage = async (req, res) => {
   try {
-    const { promptName } = req.body;
+    const { promptName, model } = req.body;
     const userId = req.user?.id || req.user?._id;
     const cloudinaryFile = req.cloudinaryFile;
 
-    console.log("📝 Request body:", { promptName, userId });
+    console.log("📝 Request body:", { promptName, model, userId });
     console.log("📤 Cloudinary file:", cloudinaryFile);
     console.log("📦 req.file:", req.file);
 
@@ -60,29 +285,61 @@ exports.generateFaceImage = async (req, res) => {
       return res.status(400).json({ error: "Prompt này không có sẵn" });
     }
 
-    // Kiểm tra và trừ phí từ balance
+    // Check user's allowed models based on premium plan
+    const modelCheck = await getUserAllowedModel(userId, model);
+
+    if (!modelCheck.allowed) {
+      return res.status(403).json({
+        error: modelCheck.message,
+        currentPlan: modelCheck.userPlan,
+        availableModels: modelCheck.availableModels,
+      });
+    }
+
+    console.log(
+      `🤖 Selected model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
+    );
+
+    // Kiểm tra và trừ phí từ balance (với daily free quota)
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
 
     const profile = await Profile.findOne({ userId: userObjectId });
     const fee = promptData.fee || 0;
+    let isFreeImage = false;
+    let freeQuotaInfo = null;
 
     if (fee > 0) {
-      if (!profile || profile.balance < fee) {
-        return res
-          .status(400)
-          .json({ error: "Số dư không đủ để tạo ảnh. Vui lòng nạp tiền" });
-      }
+      // Check if user has daily free quota
+      freeQuotaInfo = await checkAndUseDailyFreeQuota(userObjectId);
 
-      profile.balance -= fee;
-      await profile.save();
-      console.log(
-        "💰 Fee deducted:",
-        fee,
-        "Remaining balance:",
-        profile.balance
-      );
+      if (freeQuotaInfo.isFreeImage) {
+        // Use free quota, no charge
+        isFreeImage = true;
+        console.log(
+          `🎁 Free image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`
+        );
+      } else {
+        // No free quota, charge from balance
+        if (!profile || profile.balance < fee) {
+          return res.status(400).json({
+            error: "Số dư không đủ để tạo ảnh. Vui lòng nạp tiền",
+            freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
+            dailyFreeUsed: freeQuotaInfo.usedFree,
+            dailyFreeMax: freeQuotaInfo.maxFree,
+          });
+        }
+
+        profile.balance -= fee;
+        await profile.save();
+        console.log(
+          "💰 Fee deducted:",
+          fee,
+          "Remaining balance:",
+          profile.balance
+        );
+      }
     }
 
     const finalPrompt = promptData.prompt;
@@ -98,18 +355,13 @@ exports.generateFaceImage = async (req, res) => {
     const imageBase64 = Buffer.from(buffer).toString("base64");
     console.log("Image fetched and converted to base64");
 
-    console.log("Running Replicate model với prompt:", promptData.name);
-    const output = await replicate.run("google/nano-banana", {
-      input: {
-        prompt: finalPrompt,
-        image_input: [`data:image/jpeg;base64,${imageBase64}`],
-      },
-    });
+    // Execute the selected model
+    const imageUrl = await executeModel(modelCheck.model, finalPrompt, [
+      `data:image/jpeg;base64,${imageBase64}`,
+    ]);
 
-    let imageUrl = Array.isArray(output) ? output[0] : output;
-
-    if (typeof imageUrl !== "string") {
-      imageUrl = String(imageUrl);
+    if (!imageUrl) {
+      throw new Error("Model execution returned no result");
     }
 
     console.log("Output URL:", imageUrl);
@@ -161,7 +413,9 @@ exports.generateFaceImage = async (req, res) => {
     res.json({
       success: true,
       historyId: history?._id || null,
-      model: "google/nano-banana",
+      model: modelCheck.model,
+      userPlan: modelCheck.userPlan,
+      availableModels: modelCheck.availableModels,
       promptName: promptData.name,
       promptTitle: promptData.title,
       prompt: finalPrompt,
@@ -185,7 +439,7 @@ exports.generateFaceImage = async (req, res) => {
 
 exports.generateOutfit = async (req, res) => {
   try {
-    const { type, hairstyle, description } = req.body;
+    const { type, hairstyle, description, model } = req.body;
     const userId = req.user?.id || req.user?._id;
     const cloudinaryFiles = req.cloudinaryFiles || {};
     console.log(
@@ -210,13 +464,30 @@ exports.generateOutfit = async (req, res) => {
 
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
 
-    // Kiểm tra và trừ phí outfit
+    // Check user's allowed models based on premium plan
+    const modelCheck = await getUserAllowedModel(userId, model);
+
+    if (!modelCheck.allowed) {
+      return res.status(403).json({
+        error: modelCheck.message,
+        currentPlan: modelCheck.userPlan,
+        availableModels: modelCheck.availableModels,
+      });
+    }
+
+    console.log(
+      `🤖 Selected outfit model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
+    );
+
+    // Kiểm tra và trừ phí outfit (với daily free quota)
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
 
     const profile = await Profile.findOne({ userId: userObjectId });
     let outfitFee = 0;
+    let isFreeImage = false;
+    let freeQuotaInfo = null;
 
     try {
       const configOutfit = await ServiceConfig.findOne({ service: "outfit" });
@@ -226,20 +497,35 @@ exports.generateOutfit = async (req, res) => {
     }
 
     if (outfitFee > 0) {
-      if (!profile || profile.balance < outfitFee) {
-        return res.status(400).json({
-          error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền",
-        });
-      }
+      // Check if user has daily free quota
+      freeQuotaInfo = await checkAndUseDailyFreeQuota(userObjectId);
 
-      profile.balance -= outfitFee;
-      await profile.save();
-      console.log(
-        "Outfit fee deducted:",
-        outfitFee,
-        "Remaining balance:",
-        profile.balance
-      );
+      if (freeQuotaInfo.isFreeImage) {
+        // Use free quota, no charge
+        isFreeImage = true;
+        console.log(
+          `🎁 Free outfit image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`
+        );
+      } else {
+        // No free quota, charge from balance
+        if (!profile || profile.balance < outfitFee) {
+          return res.status(400).json({
+            error: "Số dư không đủ để tạo trang phục. Vui lòng nạp tiền",
+            freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
+            dailyFreeUsed: freeQuotaInfo.usedFree,
+            dailyFreeMax: freeQuotaInfo.maxFree,
+          });
+        }
+
+        profile.balance -= outfitFee;
+        await profile.save();
+        console.log(
+          "Outfit fee deducted:",
+          outfitFee,
+          "Remaining balance:",
+          profile.balance
+        );
+      }
     }
 
     let outfitPrompt;
@@ -280,17 +566,15 @@ exports.generateOutfit = async (req, res) => {
       imageInputs.push(`data:image/jpeg;base64,${clothingBase64}`);
     }
 
-    console.log(" Running Replicate model for outfit generation");
-    const output = await replicate.run("google/nano-banana", {
-      input: {
-        prompt: outfitPrompt,
-        image_input: imageInputs,
-      },
-    });
+    console.log("🚀 Running model for outfit generation");
+    const imageUrl = await executeModel(
+      modelCheck.model,
+      outfitPrompt,
+      imageInputs
+    );
 
-    let imageUrl = Array.isArray(output) ? output[0] : output;
-    if (typeof imageUrl !== "string") {
-      imageUrl = String(imageUrl);
+    if (!imageUrl) {
+      throw new Error("Model execution returned no result");
     }
 
     console.log("Output URL:", imageUrl);
@@ -341,7 +625,9 @@ exports.generateOutfit = async (req, res) => {
     res.json({
       success: true,
       historyId: history?._id || null,
-      model: "google/nano-banana",
+      model: modelCheck.model,
+      userPlan: modelCheck.userPlan,
+      availableModels: modelCheck.availableModels,
       outfitType: type,
       hairstyle: hairstyle,
       prompt: outfitPrompt,
@@ -364,7 +650,7 @@ exports.generateOutfit = async (req, res) => {
 
 exports.generateBackground = async (req, res) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, model } = req.body;
     const userId = req.user?.id || req.user?._id;
 
     console.log("Request body:", { prompt, userId });
@@ -375,13 +661,30 @@ exports.generateBackground = async (req, res) => {
         .json({ error: "Prompt mô tả bối cảnh là bắt buộc" });
     if (!userId) return res.status(401).json({ error: "Bạn chưa đăng nhập" });
 
-    // Kiểm tra và trừ phí background
+    // Check user's allowed models based on premium plan
+    const modelCheck = await getUserAllowedModel(userId, model);
+
+    if (!modelCheck.allowed) {
+      return res.status(403).json({
+        error: modelCheck.message,
+        currentPlan: modelCheck.userPlan,
+        availableModels: modelCheck.availableModels,
+      });
+    }
+
+    console.log(
+      `🤖 Selected background model: ${modelCheck.model} for user plan: ${modelCheck.userPlan}`
+    );
+
+    // Kiểm tra và trừ phí background (với daily free quota)
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? userId
       : new mongoose.Types.ObjectId(userId);
 
     const profile = await Profile.findOne({ userId: userObjectId });
     let backgroundFee = 0;
+    let isFreeImage = false;
+    let freeQuotaInfo = null;
 
     try {
       const configBg = await ServiceConfig.findOne({ service: "background" });
@@ -391,20 +694,35 @@ exports.generateBackground = async (req, res) => {
     }
 
     if (backgroundFee > 0) {
-      if (!profile || profile.balance < backgroundFee) {
-        return res
-          .status(400)
-          .json({ error: "Số dư không đủ để tạo bối cảnh. Vui lòng nạp tiền" });
-      }
+      // Check if user has daily free quota
+      freeQuotaInfo = await checkAndUseDailyFreeQuota(userObjectId);
 
-      profile.balance -= backgroundFee;
-      await profile.save();
-      console.log(
-        "💰 Background fee deducted:",
-        backgroundFee,
-        "Remaining balance:",
-        profile.balance
-      );
+      if (freeQuotaInfo.isFreeImage) {
+        // Use free quota, no charge
+        isFreeImage = true;
+        console.log(
+          `🎁 Free background image used! Remaining: ${freeQuotaInfo.remainingFree}/${freeQuotaInfo.maxFree}`
+        );
+      } else {
+        // No free quota, charge from balance
+        if (!profile || profile.balance < backgroundFee) {
+          return res.status(400).json({
+            error: "Số dư không đủ để tạo bối cảnh. Vui lòng nạp tiền",
+            freeQuotaExhausted: freeQuotaInfo.maxFree > 0,
+            dailyFreeUsed: freeQuotaInfo.usedFree,
+            dailyFreeMax: freeQuotaInfo.maxFree,
+          });
+        }
+
+        profile.balance -= backgroundFee;
+        await profile.save();
+        console.log(
+          "💰 Background fee deducted:",
+          backgroundFee,
+          "Remaining balance:",
+          profile.balance
+        );
+      }
     }
 
     // Tạo prompt hoàn chỉnh để sinh bối cảnh
@@ -426,21 +744,29 @@ Composition: centered subject, balanced framing, professional layout`;
 
     console.log("🔄 Generating background with prompt:", backgroundPrompt);
 
-    // Sử dụng model text-to-image để tạo bối cảnh từ prompt
-    const output = await replicate.run("google/nano-banana", {
-      input: {
-        prompt: backgroundPrompt,
-        width: 1024,
-        height: 768,
-        num_inference_steps: 30,
-        guidance_scale: 7.5,
-        scheduler: "DPMSolverMultistep",
-      },
-    });
+    // Generate background using the selected model (all use Replicate)
+    let imageUrl;
 
-    let imageUrl = Array.isArray(output) ? output[0] : output;
-    if (typeof imageUrl !== "string") {
-      imageUrl = String(imageUrl);
+    if (modelCheck.model === "nano-banana") {
+      // Use Replicate with specific parameters
+      const output = await replicate.run("google/nano-banana", {
+        input: {
+          prompt: backgroundPrompt,
+          width: 1024,
+          height: 768,
+          num_inference_steps: 30,
+          guidance_scale: 7.5,
+          scheduler: "DPMSolverMultistep",
+        },
+      });
+      imageUrl = Array.isArray(output) ? output[0] : output;
+    } else {
+      // Use Replicate for other models as well
+      imageUrl = await executeModel(modelCheck.model, backgroundPrompt, []);
+    }
+
+    if (!imageUrl) {
+      throw new Error("Model execution returned no result");
     }
 
     console.log("✅ Output URL:", imageUrl);
@@ -471,7 +797,7 @@ Composition: centered subject, balanced framing, professional layout`;
         userId: userObjectId,
         promptName: "background_generation",
         promptTitle: `Tạo bối cảnh: ${prompt.substring(0, 50)}...`,
-        originalImagePath: null, // Không có ảnh gốc
+        originalImagePath: "", // Background generation không có ảnh gốc
         outputImagePath: cloudinaryOutputUrl,
         outputImageUrl: imageUrl,
         status: "success",
@@ -484,7 +810,9 @@ Composition: centered subject, balanced framing, professional layout`;
     res.json({
       success: true,
       historyId: history?._id || null,
-      model: "google/nano-banana",
+      model: modelCheck.model,
+      userPlan: modelCheck.userPlan,
+      availableModels: modelCheck.availableModels,
       backgroundType: "generated",
       prompt: backgroundPrompt,
       imageUrl,
@@ -501,5 +829,29 @@ Composition: centered subject, balanced framing, professional layout`;
         error: error.message || String(error),
       });
     }
+  }
+};
+
+// API to get daily free quota info
+exports.getDailyQuota = async (req, res) => {
+  try {
+    const userId = req.body.userId || req.user?.id;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Thiếu userId" });
+    }
+
+    const quotaInfo = await getDailyFreeQuotaInfo(userId);
+
+    res.json({
+      success: true,
+      ...quotaInfo,
+    });
+  } catch (error) {
+    console.error("❌ Lỗi lấy quota info:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };

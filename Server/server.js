@@ -3,6 +3,8 @@ const cors = require("cors");
 require("dotenv").config();
 const passport = require("passport");
 const path = require("path");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
@@ -20,6 +22,10 @@ const outfitStyleRoutes = require("./routes/outfitStyles");
 const chatRoutes = require("./routes/chat");
 const trendsRoutes = require("./routes/trends");
 const collectionsRoutes = require("./routes/collections");
+const contentManagementRoutes = require("./routes/contentManagement");
+const debugContentRoutes = require("./routes/debugContent");
+const shareRoutes = require("./routes/share");
+const sessionRoutes = require("./routes/sessionRoutes");
 const app = express();
 
 // CORS configuration
@@ -42,6 +48,17 @@ connectDB();
 require("./config/passport")(passport);
 app.use(passport.initialize());
 
+// Swagger API Documentation - MUST be before static files
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "EternaPicSHT API Documentation",
+  })
+);
+
+// Static files - AFTER api-docs route
 app.use(express.static(path.join(__dirname, "../Client")));
 
 app.use("/admin", express.static(path.join(__dirname, "../Client/admin")));
@@ -61,19 +78,46 @@ app.use("/api/outfit-styles", outfitStyleRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/trends", trendsRoutes);
 app.use("/api/collections", collectionsRoutes);
+app.use("/api/admin/content-management", contentManagementRoutes);
+app.use("/api/debug/content", debugContentRoutes);
+app.use("/share", shareRoutes);
+app.use("/api/sessions", sessionRoutes);
 app.use("/outputs", express.static(path.join(__dirname, "outputs")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../Client/index.html"));
 });
 
+// Debug route for testing content management
+app.get("/api/admin/content-management/debug-check", async (req, res) => {
+  console.log("DEBUG: Debug route called!");
+  try {
+    const History = require("./models/History");
+    const totalCount = await History.countDocuments();
+    const successCount = await History.countDocuments({ status: "success" });
+
+    console.log(
+      "DEBUG: Found",
+      totalCount,
+      "total records,",
+      successCount,
+      "success records"
+    );
+    res.json({
+      totalCount,
+      successCount,
+      message: "Debug route working",
+    });
+  } catch (error) {
+    console.error("DEBUG: Error in debug route:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get("*", (req, res) => {
-  if (
-    req.path.startsWith("/auth") ||
-    req.path.startsWith("/protected") ||
-    req.path.startsWith("/api")
-  ) {
-    return res.status(404).json({ error: "Not found" });
+  // Don't interfere with API routes
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ error: "API endpoint not found" });
   }
 
   if (req.path.startsWith("/admin")) {
@@ -85,6 +129,6 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

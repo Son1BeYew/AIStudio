@@ -10,8 +10,34 @@
     </p>
     <div class="buttons">
       <button class="primary" onclick="redirectToGenImage()">Bắt Đầu Tạo</button>
-      <button class="secondary" onclick="window.location.href='bo-suu-tap.html'">Xem Bộ Sưu Tập</button>
+      <button class="secondary" onmouseenter="prefetchCollections()" onclick="window.location.href='bo-suu-tap.html'">Xem Bộ Sưu Tập</button>
     </div>
   </div>
   <img src="/assets/images/anh3_trangchu.jpg" alt="Ảnh bên phải" class="hero-image right" />
 </section>
+<script>
+  // Prefetch collections data khi hover vào button
+  let collectionsPrefetched = false;
+  function prefetchCollections() {
+    if (collectionsPrefetched) return;
+    collectionsPrefetched = true;
+
+    fetch('/api/collections?sort=latest&page=1&limit=50')
+      .then(r => r.json())
+      .then(result => {
+        if (result.success) {
+          sessionStorage.setItem('collectionsCache', JSON.stringify(result));
+          sessionStorage.setItem('collectionsCacheTime', Date.now().toString());
+          // Preload images
+          result.data.forEach(c => {
+            if (c.image) {
+              const img = new Image();
+              img.src = c.image;
+            }
+          });
+          console.log('✅ Collections prefetched');
+        }
+      })
+      .catch(() => {});
+  }
+</script>

@@ -16,6 +16,7 @@ const profileSchema = new mongoose.Schema(
       default: "other",
     },
     phone: { type: String, default: "" },
+    address: { type: String, default: "" },
 
     mangXaHoi: {
       facebook: { type: String, default: "" },

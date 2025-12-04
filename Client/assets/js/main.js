@@ -47,44 +47,68 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(link);
   }
 
-  function loadComponent(id, file) {
-    fetch(file)
-      .then((res) => res.text())
-      .then((data) => {
-        const el = document.getElementById(id);
-        if (!el) return console.warn("Errol Data #" + id);
-        el.innerHTML = data;
+  async function loadComponent(id, file) {
+    try {
+      const res = await fetch(file);
+      const data = await res.text();
+      const el = document.getElementById(id);
+      if (!el) return console.warn("Errol Data #" + id);
+      el.innerHTML = data;
 
-        if (componentCSS[id]) loadCSS(componentCSS[id]);
+      if (componentCSS[id]) loadCSS(componentCSS[id]);
 
-        if (id === "header") checkAuth();
-        if (id === "slider") initSlider();
-
-        initScrollAnimations();
-      })
-      .catch((err) => console.error("Không thể nạp " + file, err));
+      if (id === "header") checkAuth();
+      if (id === "slider") initSlider();
+    } catch (err) {
+      console.error("Không thể nạp " + file, err);
+    }
   }
 
-  loadComponent("header", "/assets/components/header.html");
-  loadComponent("hero", "/assets/components/hero.html");
-  loadComponent("features", "/assets/components/features.html");
-  loadComponent("footer", "/assets/components/footer.html");
-  loadComponent("slider", "/assets/components/slider.html");
+  // Load critical components first, then others
+  Promise.all([
+    loadComponent("header", "/assets/components/header.html"),
+    loadComponent("hero", "/assets/components/hero.html")
+  ]).then(() => {
+    // Load non-critical components after
+    loadComponent("features", "/assets/components/features.html");
+    loadComponent("footer", "/assets/components/footer.html");
+    loadComponent("slider", "/assets/components/slider.html");
+    
+    // Init scroll animations once after all loaded
+    setTimeout(() => initScrollAnimations(), 100);
+  });
 });
 function checkAuth() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token") || localStorage.getItem("token");
-  if (!token) return;
+  const authDiv = document.getElementById("auth-section");
+
+  if (!token) {
+    // Không có token → hiện nút Đăng Nhập
+    if (authDiv) authDiv.classList.add("loaded");
+    return;
+  }
 
   localStorage.setItem("token", token);
 
   fetch("/protected", {
     headers: { Authorization: "Bearer " + token },
   })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok && res.status === 401) {
+        // Chỉ xóa token khi server trả về 401 (Unauthorized)
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        if (authDiv) authDiv.classList.add("loaded");
+        return null;
+      }
+      return res.json();
+    })
     .then((data) => {
-      const authDiv = document.getElementById("auth-section");
-      if (!authDiv || !data.user) return;
+      if (!data || !authDiv || !data.user) {
+        if (authDiv) authDiv.classList.add("loaded");
+        return;
+      }
 
       const avatarURL =
         data.user.avatar ||
@@ -113,44 +137,58 @@ function checkAuth() {
 
       const style = document.createElement("style");
       style.innerHTML = `
-  .user-menu {
-    position: relative;
-    display: inline-block;
-    font-family: 'Inter', system-ui, sans-serif;
-  }
+        .user-menu {
+          position: relative;
+          display: inline-block;
+          font-family: 'Inter', -apple-system, system-ui, sans-serif;
+        }
 
-  .user-trigger {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(8px);
-  }
+        .user-trigger {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          padding: 6px 14px 6px 6px;
+          border-radius: 50px;
+          transition: all 0.2s ease;
+          background: transparent;
+          border: 1.5px solid #111;
+        }
 
-  .avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-  }
+        .user-trigger:hover {
+          background: rgba(0,0,0,0.03);
+          border-color: #111;
+        }
 
-  .username {
-    font-weight: 700;
-    color: #212121ff;
-    font-size: 16px;
-  }
+        .avatar {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #111;
+        }
 
-  .arrow-icon {
-    transition: transform 0.3s ease;
-  }
+        .username {
+          font-weight: 600;
+          color: #111;
+          font-size: 14px;
+          max-width: 120px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
 
-  .dropdown {
+        .arrow-icon {
+          transition: transform 0.2s ease;
+          stroke: #111;
+          opacity: 0.6;
+        }
+
+        .user-trigger:hover .arrow-icon {
+          opacity: 1;
+        }
+
+         .dropdown {
     position: absolute;
     right: 0;
     top: 115%;
@@ -166,7 +204,7 @@ function checkAuth() {
     backdrop-filter: blur(10px);
   }
 
-  .dropdown a,
+        .dropdown a,
 .dropdown button {
   padding: 12px 12px;
   text-align: left;
@@ -182,15 +220,13 @@ function checkAuth() {
   text-decoration: none !important;
 }
 
-
-  .dropdown a:hover,
+         .dropdown a:hover,
   .dropdown button:hover {
     background: linear-gradient(90deg, rgba(0, 0, 0, 0.1), rgba(255,255,255,1));
     color: #000000ff;
   }
 
-
-  .dropdown hr {
+         .dropdown hr {
     border: none;
     border-top: 1px solid rgba(229,231,235,0.8);
     margin: 6px 0;
@@ -227,10 +263,14 @@ function checkAuth() {
           arrow.style.transform = "rotate(0deg)";
         }
       });
+
+      // Hiện auth section sau khi setup xong
+      authDiv.classList.add("loaded");
     })
     .catch((err) => {
       console.error("Lỗi xác thực:", err);
-      localStorage.removeItem("token");
+      // KHÔNG xóa token khi có lỗi network, chỉ log error
+      if (authDiv) authDiv.classList.add("loaded");
     });
 }
 

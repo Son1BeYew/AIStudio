@@ -16,6 +16,11 @@ function initSlider() {
     lastTime = 0,
     momentumAnimationId = null;
 
+  // Throttle để giảm số lần update
+  let lastUpdateTime = 0;
+  let updateQueued = false;
+  const UPDATE_INTERVAL = 16; // ~60fps
+
   // ----------- Chuyển ảnh mượt với preload -----------
   function changeImage(newSrc, newAlt) {
     // fade-out trước
@@ -35,7 +40,23 @@ function initSlider() {
       mainImage.classList.add("fade-in");
     };
   }
-  function updateActive() {
+
+  function updateActive(force = false) {
+    const now = performance.now();
+
+    // Throttle updates nếu không force
+    if (!force && now - lastUpdateTime < UPDATE_INTERVAL) {
+      if (!updateQueued) {
+        updateQueued = true;
+        requestAnimationFrame(() => {
+          updateQueued = false;
+          updateActive(true);
+        });
+      }
+      return;
+    }
+    lastUpdateTime = now;
+
     const center = nameList.scrollLeft + nameList.offsetWidth / 2;
     let closest = items[0],
       minDist = Infinity,
@@ -50,17 +71,21 @@ function initSlider() {
         minDist = dist;
       }
 
-      const opacity = Math.max(0.2, 1 - (dist / nameList.offsetWidth) * 1.2);
+      // Smooth opacity dựa trên khoảng cách
+      const normalizedDist = dist / nameList.offsetWidth;
+      const opacity = Math.max(0.3, 1 - normalizedDist * 1.5);
       item.style.opacity = opacity;
     });
 
-    currentIndex = closestIdx;
-    items.forEach((i) => i.classList.remove("active"));
-    closest.classList.add("active");
+    if (currentIndex !== closestIdx) {
+      currentIndex = closestIdx;
+      items.forEach((i) => i.classList.remove("active"));
+      closest.classList.add("active");
 
-    // Chuyển ảnh mượt nếu khác src
-    if (!mainImage.src.includes(closest.dataset.img)) {
-      changeImage(closest.dataset.img, closest.textContent);
+      // Chuyển ảnh mượt nếu khác src
+      if (!mainImage.src.includes(closest.dataset.img)) {
+        changeImage(closest.dataset.img, closest.textContent);
+      }
     }
   }
 
@@ -76,11 +101,12 @@ function initSlider() {
 
     const start = nameList.scrollLeft;
     const distance = target - start;
-    const duration = 800;
+    const duration = 600; // Giảm từ 800 xuống 600 cho snappy hơn
     let startTime = null;
 
-    function easeOutCubic(t) {
-      return 1 - Math.pow(1 - t, 3);
+    // Easing mượt hơn
+    function easeOutExpo(t) {
+      return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
     }
 
     function animate(currentTime) {
@@ -88,11 +114,13 @@ function initSlider() {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      nameList.scrollLeft = start + distance * easeOutCubic(progress);
+      nameList.scrollLeft = start + distance * easeOutExpo(progress);
       updateActive();
 
       if (progress < 1) {
         momentumAnimationId = requestAnimationFrame(animate);
+      } else {
+        momentumAnimationId = null;
       }
     }
 
@@ -101,10 +129,16 @@ function initSlider() {
 
   // ----------- Momentum khi drag/touch -----------
   function applyMomentum() {
-    if (Math.abs(velocity) < 0.5 || momentumAnimationId) return;
+    if (Math.abs(velocity) < 0.3) {
+      // Snap to nearest item khi velocity thấp
+      scrollToCenter(items[currentIndex]);
+      return;
+    }
 
-    const friction = 0.95;
-    const minVelocity = 0.1;
+    if (momentumAnimationId) cancelAnimationFrame(momentumAnimationId);
+
+    const friction = 0.92; // Giảm từ 0.95 để dừng nhanh hơn
+    const minVelocity = 0.2;
 
     function momentum() {
       velocity *= friction;
@@ -116,6 +150,8 @@ function initSlider() {
       } else {
         momentumAnimationId = null;
         velocity = 0;
+        // Snap to center sau khi momentum dừng
+        scrollToCenter(items[currentIndex]);
       }
     }
 

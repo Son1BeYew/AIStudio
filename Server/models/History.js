@@ -6,11 +6,40 @@ const historySchema = new mongoose.Schema(
     promptId: { type: mongoose.Schema.Types.ObjectId, ref: "Prompt", default: null },
     promptName: { type: String, required: true },
     promptTitle: { type: String, default: "" },
-    originalImagePath: { type: String, required: true },
+    originalImagePath: { type: String, default: "" },
     outputImagePath: { type: String, required: true },
     outputImageUrl: { type: String, default: "" },
+    localPath: { type: String, default: "" }, // For accessing via /outputs/ (optional when using Cloudinary)
+    model: { type: String, default: "nano-banana" },
     status: { type: String, enum: ["success", "failed"], default: "success" },
     errorMessage: { type: String, default: "" },
+
+    // Content moderation fields
+    moderationStatus: {
+      type: String,
+      enum: ["approved", "pending", "rejected", "flagged"],
+      default: "approved"
+    },
+    aiSafetyScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 100
+    },
+    moderatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    moderatedAt: {
+      type: Date
+    },
+    moderationNotes: {
+      type: String
+    },
+    reportCount: {
+      type: Number,
+      default: 0
+    }
   },
   { timestamps: true }
 );

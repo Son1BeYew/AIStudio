@@ -1,12 +1,16 @@
 <header>
   <nav>
-    <div class="logo" style="cursor: pointer" onclick="window.location.href='/'">
-      <img src="/assets/images/logo.png" alt="EternaPicSHT Logo" />
-      <strong>EternaPicSHT</strong>
+    <div
+      class="logo"
+      style="cursor: pointer"
+      onclick="window.location.href='/'"
+    >
+      <img src="/assets/images/logo.png" alt="EternaPic Studio Logo" />
+      <strong>EternaPic Studio</strong>
     </div>
     <div class="nav-links">
       <a href="/">Giới thiệu</a>
-      <a href="/trends.html">Xu hướng</a>
+      <a href="/trends.html" onmouseenter="prefetchTrends()">Xu hướng</a>
       <a href="/pricing.html">Bảng giá</a>
       <a href="mailto:support@eternapicsht.com">Liên hệ</a>
     </div>
@@ -15,42 +19,46 @@
         Đăng Nhập
       </button>
     </div>
-    <div class="auth-menu" id="auth-menu" style="display: none; gap: 10px">
-      <a href="/topup.html" class="nav-btn" style="
-          padding: 8px 16px;
-          background: #fff3cd;
-          border-radius: 6px;
-          color: #333;
-          text-decoration: none;
-          font-weight: 500;
-        ">💰 Nạp Tiền</a>
-      <a href="/profile.html" class="nav-btn" style="
-          padding: 8px 16px;
-          background: #e7f3ff;
-          border-radius: 6px;
-          color: #333;
-          text-decoration: none;
-          font-weight: 500;
-        ">👤 Hồ Sơ</a>
-      <a href="/tao-anh.html" class="nav-btn" style="
-          padding: 8px 16px;
-          background: #e8f5e9;
-          border-radius: 6px;
-          color: #333;
-          text-decoration: none;
-          font-weight: 500;
-        ">🎨 Tạo Ảnh</a>
-      <button class="primary1" onclick="logout()" style="
-          padding: 8px 16px;
-          background: #f8d7da;
-          color: #721c24;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          font-weight: 500;
-        ">
-        Đăng Xuất
-      </button>
-    </div>
   </nav>
 </header>
+<script>
+  // Prefetch trends data khi hover vào link
+  let trendsPrefetched = false;
+  function prefetchTrends() {
+    if (trendsPrefetched) return;
+    trendsPrefetched = true;
+
+    fetch('/api/trends/popular')
+      .then(r => r.json())
+      .then(trends => {
+        sessionStorage.setItem('trendsCache', JSON.stringify(trends));
+        sessionStorage.setItem('trendsCacheTime', Date.now().toString());
+        // Preload images
+        trends.forEach(t => {
+          if (t.image) {
+            const img = new Image();
+            img.src = t.image;
+          }
+        });
+        console.log('✅ Trends prefetched');
+      })
+      .catch(() => {});
+  }
+
+  // Prefetch collections data khi hover vào link
+  let collectionsPrefetched = false;
+  function prefetchCollections() {
+    if (collectionsPrefetched) return;
+    collectionsPrefetched = true;
+
+    fetch('/api/collections')
+      .then(r => r.json())
+      .then(collections => {
+        sessionStorage.setItem('collectionsCache', JSON.stringify(collections));
+        sessionStorage.setItem('collectionsCacheTime', Date.now().toString());
+        console.log('✅ Collections prefetched');
+      })
+      .catch(() => {});
+  }
+</script>
+  

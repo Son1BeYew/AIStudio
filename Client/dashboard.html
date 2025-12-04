@@ -4,14 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trang Chủ | EternaPicSHT Studio</title>
+    <link rel="icon" type="image/png" href="/assets/images/logo.png" />
     <link rel="stylesheet" href="assets/css/styles.css" />
   </head>
   <body>
     <div id="header"></div>
     <main id="user-info" class="dashboard-content"></main>
     <div id="footer"></div>
-    <script src="assets/js/main.js"></script>
+    <script src="/assets/js/slider.js"></script>
     <script src="/assets/js/floating-chat-loader.js"></script>
+    <script src="/assets/js/announcements.js"></script>
+    <script src="/assets/js/main.js"></script>
     <script>
       const params = new URLSearchParams(window.location.search);
       const token = params.get("token") || localStorage.getItem("token");

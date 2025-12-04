@@ -32,27 +32,210 @@ const checkAuth = (req, res, next) => {
   }
 };
 
-// Purchase premium
+/**
+ * @swagger
+ * /premium/purchase:
+ *   post:
+ *     summary: Purchase a premium plan
+ *     tags: [Premium]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - planId
+ *             properties:
+ *               planId:
+ *                 type: string
+ *                 description: Premium plan ID
+ *               paymentMethod:
+ *                 type: string
+ *                 enum: [momo, bank, card, vnpay]
+ *     responses:
+ *       200:
+ *         description: Purchase initiated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 paymentUrl:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ */
 router.post("/purchase", checkAuth, purchasePremium);
 
-// Get premium history
+/**
+ * @swagger
+ * /premium/history:
+ *   get:
+ *     summary: Get premium subscription history
+ *     tags: [Premium]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Premium history
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Premium'
+ *       401:
+ *         description: Unauthorized
+ */
 router.get("/history", checkAuth, getPremiumHistory);
 
-// Get current premium status
+/**
+ * @swagger
+ * /premium/current:
+ *   get:
+ *     summary: Get current premium status
+ *     tags: [Premium]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current premium status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Premium'
+ *       401:
+ *         description: Unauthorized
+ */
 router.get("/current", checkAuth, getCurrentPremium);
 
-// Get available plans (no auth required)
+/**
+ * @swagger
+ * /premium/plans:
+ *   get:
+ *     summary: Get available premium plans
+ *     tags: [Premium]
+ *     responses:
+ *       200:
+ *         description: List of available plans
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/PremiumPlan'
+ */
 router.get("/plans", getPlans);
 
-// Cancel premium (if supported)
+/**
+ * @swagger
+ * /premium/cancel:
+ *   post:
+ *     summary: Cancel premium subscription
+ *     tags: [Premium]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Premium cancelled
+ *       401:
+ *         description: Unauthorized
+ */
 router.post("/cancel", checkAuth, cancelPremium);
 
-// Momo callback (no auth required)
+/**
+ * @swagger
+ * /premium/momo-callback:
+ *   post:
+ *     summary: Momo payment callback
+ *     tags: [Premium]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Callback processed
+ */
 router.post("/momo-callback", momoCallback);
 
-// Email verification routes
+/**
+ * @swagger
+ * /premium/send-verification-code:
+ *   post:
+ *     summary: Send email verification code for premium upgrade
+ *     tags: [Premium]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Verification code sent
+ *       401:
+ *         description: Unauthorized
+ */
 router.post("/send-verification-code", checkAuth, sendVerificationCode);
+
+/**
+ * @swagger
+ * /premium/verify-and-upgrade:
+ *   post:
+ *     summary: Verify code and upgrade to premium
+ *     tags: [Premium]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 description: Verification code
+ *     responses:
+ *       200:
+ *         description: Upgrade successful
+ *       400:
+ *         description: Invalid code
+ *       401:
+ *         description: Unauthorized
+ */
 router.post("/verify-and-upgrade", checkAuth, verifyAndUpgrade);
+
+/**
+ * @swagger
+ * /premium/verification-status:
+ *   get:
+ *     summary: Get verification status
+ *     tags: [Premium]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Verification status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 verified:
+ *                   type: boolean
+ *                 expiresAt:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         description: Unauthorized
+ */
 router.get("/verification-status", checkAuth, getVerificationStatus);
 
 module.exports = router;
