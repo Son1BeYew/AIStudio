@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Đăng nhập | EternaPicSHT AI </title>
   <link rel="icon" type="image/png" href="/assets/images/logo.png" />
-  <link rel="stylesheet" href="assets/css/styles.css" />
-  <script src="assets/js/config.js"></script>
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+  <script src="/assets/js/config.js"></script>
   <style>
     body {
       margin: 0;
@@ -329,10 +329,10 @@
         const password = document.getElementById("password").value;
 
         try {
-          const res = await fetch("/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
+          const res = await fetch(API_CONFIG.endpoint("/auth/login"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
           });
 
           const data = await res.json();
