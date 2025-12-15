@@ -123,6 +123,16 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        background: #f0f0f0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .history-image.loading {
+        opacity: 0.5;
+      }
+      
+      .history-image.loaded {
+        opacity: 1;
       }
 
       .history-info {
@@ -293,16 +303,19 @@
         object-fit: contain;
         border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        transition: transform 0.3s ease;
+        transition: opacity 0.3s ease;
         cursor: zoom-in;
+        image-rendering: auto;
+        user-select: none;
+        -webkit-user-drag: none;
       }
 
       .image-modal-img.zoomed {
-        cursor: grab;
+        cursor: grab !important;
       }
 
-      .image-modal-img.dragging {
-        cursor: grabbing;
+      .image-modal-img.panning {
+        cursor: grabbing !important;
       }
 
       .image-modal-close {
@@ -498,6 +511,16 @@
           <div class="history-grid" id="images-list">
             <div class="loading">Đang tải...</div>
           </div>
+          
+          <!-- Pagination -->
+          <div id="pagination" style="display: none; margin-top: 30px; text-align: center;">
+            <button id="loadMoreBtn" style="padding: 12px 30px; background: #333; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+              Xem Thêm
+            </button>
+            <div id="loadingMore" style="display: none; margin-top: 10px; color: #999;">
+              Đang tải...
+            </div>
+          </div>
         </div>
       </div>
 
@@ -610,7 +633,12 @@
         return true;
       }
 
-      // Load images history
+      // Pagination state
+      let allHistory = [];
+      let currentPage = 0;
+      const ITEMS_PER_PAGE = 12; // Load 12 ảnh mỗi lần
+
+      // Load images history với lazy loading và pagination
       async function loadImagesHistory() {
         if (!checkLogin()) return;
 
@@ -630,26 +658,53 @@
           const response = await fetch("/api/history", {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const history = await response.json();
+          allHistory = await response.json();
 
           const imagesList = document.getElementById("images-list");
 
-          if (history.length === 0) {
+          if (allHistory.length === 0) {
             imagesList.innerHTML =
               '<div class="empty-message"><p>Chưa có lịch sử tạo ảnh</p></div>';
             return;
           }
 
-          imagesList.innerHTML = history
-            .map((item) => {
+          // Reset và load trang đầu
+          currentPage = 0;
+          imagesList.innerHTML = '';
+          loadMoreImages();
+        } catch (error) {
+          console.error("Lỗi load history:", error);
+          document.getElementById("images-list").innerHTML =
+            '<div class="empty-message"><p style="color: #f00;">Không thể tải lịch sử</p></div>';
+        }
+      }
+
+      // Load thêm ảnh
+      function loadMoreImages() {
+        const imagesList = document.getElementById("images-list");
+        const start = currentPage * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        const itemsToShow = allHistory.slice(start, end);
+
+        if (itemsToShow.length === 0) return;
+
+        const newHTML = itemsToShow
+          .map((item) => {
               const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
+              
+              // Tạo thumbnail URL nhỏ để load nhanh
+              let thumbnailUrl = item.outputImagePath;
+              if (thumbnailUrl.includes('cloudinary.com')) {
+                thumbnailUrl = thumbnailUrl.replace('/upload/', '/upload/w_400,h_300,c_fill,q_auto:low,f_auto/');
+              }
 
               return `
                 <div class="history-card">
                   <div class="history-image-wrapper">
-                    <img src="${
-                      item.outputImagePath
-                    }?t=${Date.now()}" alt="Generated" class="history-image" />
+                    <img 
+                      data-src="${thumbnailUrl}" 
+                      alt="Generated" 
+                      class="history-image loading lazy-load" />
                   </div>
                   <div class="history-info">
                     <div class="history-prompt">${
@@ -675,12 +730,35 @@
                   </div>
                 </div>
               `;
-            })
-            .join("");
-        } catch (error) {
-          console.error("Lỗi load history:", error);
-          document.getElementById("images-list").innerHTML =
-            '<div class="empty-message"><p style="color: #f00;">Không thể tải lịch sử</p></div>';
+          })
+          .join("");
+
+        imagesList.insertAdjacentHTML('beforeend', newHTML);
+        currentPage++;
+
+        // Setup lazy loading cho ảnh mới
+        setupLazyLoading();
+
+        // Show/hide pagination
+        const pagination = document.getElementById("pagination");
+        const loadMoreBtn = document.getElementById("loadMoreBtn");
+        
+        if (end >= allHistory.length) {
+          // Đã load hết
+          pagination.style.display = 'none';
+        } else {
+          // Còn ảnh để load
+          pagination.style.display = 'block';
+          loadMoreBtn.onclick = () => {
+            document.getElementById("loadingMore").style.display = 'block';
+            loadMoreBtn.style.display = 'none';
+            
+            setTimeout(() => {
+              loadMoreImages();
+              document.getElementById("loadingMore").style.display = 'none';
+              loadMoreBtn.style.display = 'block';
+            }, 500);
+          };
         }
       }
 
@@ -712,10 +790,10 @@
               const statusClass = `status-${item.status}`;
               const statusText =
                 item.status === "success"
-                  ? "✓ Thành công"
+                  ? "Thành công"
                   : item.status === "pending"
-                  ? "⏳ Chờ xử lý"
-                  : "✗ Thất bại";
+                  ? "Chờ xử lý"
+                  : "Thất bại";
 
               return `
                 <tr>
@@ -757,16 +835,32 @@
         }, { danger: true });
       }
 
-      // Download image
+      // Download image với chất lượng gốc (không resize)
       async function downloadImage(imagePath, promptName) {
         try {
+          // Nếu là Cloudinary URL, tải ảnh gốc với chất lượng 100%
+          let downloadUrl = imagePath;
+          if (imagePath.includes('cloudinary.com')) {
+            // Tải ảnh gốc không resize, chỉ optimize quality
+            // q_100: chất lượng 100%
+            // fl_preserve_transparency: giữ transparency
+            // Không có w_ hoặc h_ để giữ nguyên kích thước gốc
+            downloadUrl = imagePath.replace('/upload/', '/upload/q_100,fl_preserve_transparency,fl_attachment/');
+            console.log('📥 Downloading original quality image from:', downloadUrl);
+          }
+
+          // Show loading toast
+          showToast("⏳ Đang tải ảnh chất lượng gốc...", 'info');
+
           // Fetch the image as a blob
-          const response = await fetch(imagePath);
+          const response = await fetch(downloadUrl);
           if (!response.ok) {
             throw new Error("Failed to fetch image");
           }
 
           const blob = await response.blob();
+          const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
+          console.log(`📦 Downloaded image size: ${sizeMB}MB`);
 
           // Create an object URL for the blob
           const blobUrl = URL.createObjectURL(blob);
@@ -774,7 +868,7 @@
           // Create download link
           const link = document.createElement("a");
           link.href = blobUrl;
-          link.download = `${promptName || "generated"}-${Date.now()}.png`;
+          link.download = `${promptName || "generated"}_ORIGINAL_${Date.now()}.jpg`;
 
           // Trigger download
           document.body.appendChild(link);
@@ -785,9 +879,11 @@
           setTimeout(() => {
             URL.revokeObjectURL(blobUrl);
           }, 100);
+
+          showToast(`✅ Đã tải ảnh gốc thành công! (${sizeMB}MB)`, 'success');
         } catch (error) {
           console.error("Error downloading image:", error);
-          showToast("Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
+          showToast("❌ Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
         }
       }
 
@@ -810,8 +906,15 @@
       let currentHistoryId = "";
       let currentZoom = 1;
       const MIN_ZOOM = 0.5;
-      const MAX_ZOOM = 3;
+      const MAX_ZOOM = 2;
       const ZOOM_STEP = 0.25;
+      
+      // Pan/Drag state
+      let isPanning = false;
+      let startX = 0;
+      let startY = 0;
+      let translateX = 0;
+      let translateY = 0;
 
       function updateZoomDisplay() {
         document.getElementById("zoomLevel").textContent =
@@ -821,12 +924,17 @@
         document.getElementById("zoomInBtn").disabled = currentZoom >= MAX_ZOOM;
 
         const modalImg = document.getElementById("modalImage");
-        modalImg.style.transform = `scale(${currentZoom})`;
+        modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoom})`;
 
         if (currentZoom > 1) {
           modalImg.classList.add("zoomed");
+          modalImg.style.cursor = 'grab';
         } else {
           modalImg.classList.remove("zoomed");
+          modalImg.style.cursor = 'zoom-in';
+          // Reset position khi zoom out về 1x
+          translateX = 0;
+          translateY = 0;
         }
       }
 
@@ -846,7 +954,72 @@
 
       function zoomReset() {
         currentZoom = 1;
+        translateX = 0;
+        translateY = 0;
         updateZoomDisplay();
+      }
+      
+      // Pan/Drag functionality
+      function setupPanDrag() {
+        const modalImg = document.getElementById("modalImage");
+        
+        // Mouse events
+        modalImg.addEventListener('mousedown', (e) => {
+          if (currentZoom > 1) {
+            isPanning = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            modalImg.classList.add('panning');
+            e.preventDefault();
+          }
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+          if (isPanning) {
+            e.preventDefault();
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            
+            // Update transform trực tiếp không qua transition
+            const modalImg = document.getElementById("modalImage");
+            modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoom})`;
+          }
+        });
+        
+        document.addEventListener('mouseup', () => {
+          if (isPanning) {
+            isPanning = false;
+            const modalImg = document.getElementById("modalImage");
+            modalImg.classList.remove('panning');
+          }
+        });
+        
+        // Touch events for mobile
+        modalImg.addEventListener('touchstart', (e) => {
+          if (currentZoom > 1 && e.touches.length === 1) {
+            isPanning = true;
+            startX = e.touches[0].clientX - translateX;
+            startY = e.touches[0].clientY - translateY;
+            modalImg.classList.add('panning');
+            e.preventDefault();
+          }
+        });
+        
+        modalImg.addEventListener('touchmove', (e) => {
+          if (isPanning && e.touches.length === 1) {
+            e.preventDefault();
+            translateX = e.touches[0].clientX - startX;
+            translateY = e.touches[0].clientY - startY;
+            
+            // Update transform trực tiếp
+            modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoom})`;
+          }
+        });
+        
+        modalImg.addEventListener('touchend', () => {
+          isPanning = false;
+          modalImg.classList.remove('panning');
+        });
       }
 
       function openImageModal(imagePath, promptName, historyId) {
@@ -858,7 +1031,35 @@
         const modal = document.getElementById("imageModal");
         const modalImg = document.getElementById("modalImage");
 
-        modalImg.src = imagePath;
+        // Load ảnh 2K trực tiếp (cân bằng giữa chất lượng và tốc độ)
+        let displayUrl = imagePath;
+        
+        if (imagePath.includes('cloudinary.com')) {
+          // 2K resolution (2048px) - đủ nét, load nhanh hơn 4K
+          // q_auto:good: chất lượng tốt nhưng file nhỏ hơn q_100
+          displayUrl = imagePath.replace('/upload/', '/upload/w_2048,q_auto:good,f_auto/');
+          console.log('🖼️ Loading 2K quality image:', displayUrl);
+        }
+
+        // Show loading indicator
+        modalImg.style.opacity = '0.5';
+        modalImg.src = displayUrl;
+        
+        // Remove loading when image loaded
+        modalImg.onload = () => {
+          modalImg.style.opacity = '1';
+          console.log('✅ Image loaded successfully');
+        };
+        
+        modalImg.onerror = () => {
+          modalImg.style.opacity = '1';
+          console.error('❌ Failed to load image');
+          showToast('Không thể tải ảnh', 'error');
+        };
+        
+        // Reset transform
+        translateX = 0;
+        translateY = 0;
         modalImg.style.transform = "scale(1)";
         modal.classList.add("active");
         document.body.style.overflow = "hidden";
@@ -878,6 +1079,10 @@
         const modal = document.getElementById("imageModal");
         modal.classList.remove("active");
         document.body.style.overflow = "";
+        // Reset zoom and pan
+        currentZoom = 1;
+        translateX = 0;
+        translateY = 0;
         currentZoom = 1;
         document.getElementById("modalImage").style.transform = "scale(1)";
       }
@@ -925,10 +1130,43 @@
         updateZoomDisplay();
       });
 
+      // Lazy loading images với Intersection Observer
+      function setupLazyLoading() {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              const src = img.getAttribute('data-src');
+              
+              if (src) {
+                img.src = src;
+                img.classList.remove('loading');
+                img.classList.add('loaded');
+                img.removeAttribute('data-src');
+                observer.unobserve(img);
+              }
+            }
+          });
+        }, {
+          rootMargin: '50px' // Load trước 50px
+        });
+
+        // Observe tất cả ảnh lazy-load
+        document.querySelectorAll('.lazy-load').forEach(img => {
+          imageObserver.observe(img);
+        });
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         if (checkLogin()) {
-          loadImagesHistory();
+          loadImagesHistory().then(() => {
+            // Setup lazy loading sau khi load xong HTML
+            setupLazyLoading();
+          });
         }
+        
+        // Setup pan/drag functionality
+        setupPanDrag();
       });
     </script>
   </body>
