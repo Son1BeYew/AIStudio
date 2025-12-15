@@ -1,4 +1,4 @@
-/* ========== CSS VARIABLES ========== */
+
 :root {
   --color-primary: #5b21b6;
   --color-primary-dark: #4c1d95;
@@ -36,7 +36,6 @@
   --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ========== GLOBAL RESET ========== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -183,7 +182,6 @@ body {
   transform: scale(0.98);
 }
 
-/* ========== SETTINGS ========== */
 .settings-box {
   display: flex;
   flex-direction: column;
@@ -1142,7 +1140,6 @@ body {
     0 2px 8px rgba(91, 33, 182, 0.12);
 }
 
-/* ========== HOT TREND SECTION ========== */
 .trends-section {
   max-width: 1200px;
   margin: 0 auto;
