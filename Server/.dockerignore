@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.env.local
+.env.development
+.git
+.gitignore
+README.md
+.vscode
+.idea
+*.log
+outputs/*
+!outputs/.gitkeep

@@ -9,105 +9,129 @@ exports.sendMessage = async (req, res) => {
     const { message, conversationId } = req.body;
     const userId = req.user?.id || req.user?._id;
 
-    if (!message) {
+    if (!message || !message.trim()) {
       return res.status(400).json({ error: "Tin nhắn không được để trống" });
     }
     if (!userId) {
       return res.status(401).json({ error: "Bạn chưa đăng nhập" });
     }
 
-    // Lưu tin nhắn của user
+    const convId = conversationId || new Date().getTime().toString();
+
+    // 1) Lưu tin nhắn user
     const userMessage = await ChatMessage.create({
       userId,
-      conversationId: conversationId || new Date().getTime().toString(),
+      conversationId: convId,
       role: "user",
       content: message,
     });
+    const DEFAULT_REPLY =
+      "Xin lỗi, mình chưa có thông tin liên quan trong hệ thống. Bạn vui lòng liên hệ hỗ trợ hoặc hỏi về nạp tiền/tài khoản/premium/tạo ảnh nhé.";
+    const MIN_SCORE = 40; // ngưỡng để tránh match bừa
+    const ALLOWED_CATEGORIES = new Set(["payment", "account", "usage", "support", "premium", "general"]);
 
-    // Normalize Vietnamese abbreviations
-    const expandAbbreviations = (text) => {
+    // ====== Helpers ======
+    const expandAbbreviations = (text = "") => {
       return text
         .toLowerCase()
+        .replace(/\bko\b/g, "không")
         .replace(/\bk\b/g, "không")
         .replace(/\bdc\b/g, "được")
-        .replace(/\bko\b/g, "không")
-        .replace(/\bsao\b/g, "tại sao")
-        .replace(/\btại\b/g, "tại sao");
+        .replace(/\bđc\b/g, "được")
+        .replace(/\bsao\b/g, "tại sao");
     };
-    
-    const expandedMessage = expandAbbreviations(message);
-    const messageWords = expandedMessage.split(/\s+/).filter(w => w.length > 0);
-    
-    // Tìm kiếm FAQs phù hợp
-    let faqResults = await FAQ.find({ active: true });
-    
-    // Tính điểm match cho mỗi FAQ
-    const scoredFAQs = faqResults.map(faq => {
-      let score = 0;
-      const faqQuestion = expandAbbreviations(faq.question);
-      const faqKeywords = faq.keywords.map(k => expandAbbreviations(k));
-      const faqText = (faqQuestion + " " + faqKeywords.join(" ")).toLowerCase();
-      
-      // Kiểm tra từng từ khóa của user
-      messageWords.forEach(word => {
-        if (word.length < 2) return; // Bỏ qua các ký tự đơn
-        
-        // Kiểm tra trong question
-        if (faqQuestion.includes(word)) {
-          score += 5;
-        }
-        // Kiểm tra trong keywords
-        faqKeywords.forEach(keyword => {
-          if (keyword.includes(word)) {
-            score += 3;
-          }
-        });
-        // Kiểm tra trong toàn bộ FAQ text
-        if (faqText.includes(word)) {
-          score += 1;
-        }
-      });
-      
-      // Bonus nếu FAQs chứa nhiều từ khóa từ message
-      const matchedWords = messageWords.filter(word => 
-        word.length >= 2 && faqText.includes(word)
+
+    const normalize = (text = "") =>
+      text
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") 
+        .replace(/[^\p{L}\p{N}\s+]/gu, " ") 
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const STOPWORDS = new Set([
+      "la","gi","co","cho","minh","ban","toi","a","em","anh","chi","voi",
+      "the","nay","do","khi","neu","khong","duoc","tai","sao","nhu","nao",
+      "moi","nhat","dang","bi","gap","mot","cai","nhung","va","roi"
+    ]);
+
+    const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const expandedMessage = normalize(expandAbbreviations(message));
+    const messageWords = expandedMessage
+      .split(" ")
+      .filter((w) => w.length >= 3 && !STOPWORDS.has(w));
+
+    const faqResults = await FAQ.find({ active: true }).lean();
+
+    let best = { faq: null, score: 0, matchedKeywords: 0 };
+
+    for (const faq of faqResults) {
+      const category = faq.category || "general";
+      if (!ALLOWED_CATEGORIES.has(category)) continue;
+
+      const faqQuestion = normalize(expandAbbreviations(faq.question || ""));
+      const faqKeywords = (faq.keywords || []).map((k) =>
+        normalize(expandAbbreviations(k))
       );
-      if (matchedWords.length > 2) {
-        score += 5;
+
+      let score = 0;
+      let matchedKeywords = 0;
+      for (const kw of faqKeywords) {
+        if (!kw) continue;
+        const re = new RegExp(`(?:^|\\s)${escapeRegex(kw)}(?:\\s|$)`, "i");
+        if (re.test(expandedMessage)) {
+          score += 50;
+          matchedKeywords++;
+        }
       }
-      
-      return { faq, score };
-    });
-    
-    // Sắp xếp theo điểm và lấy câu trả lời tốt nhất
-    const bestMatch = scoredFAQs
-      .filter(item => item.score > 0)
-      .sort((a, b) => b.score - a.score)[0];
+      if (matchedKeywords === 0) {
+        for (const w of messageWords) {
+          const re = new RegExp(`(?:^|\\s)${escapeRegex(w)}(?:\\s|$)`, "i");
 
-    let response;
-    if (bestMatch && bestMatch.score > 0) {
-      response = bestMatch.faq.answer;
-    } else {
-      response = "Xin lỗi, tôi không tìm thấy thông tin liên quan đến câu hỏi của bạn trong cơ sở dữ liệu.";
+          if (re.test(faqQuestion)) score += 8;
+
+          for (const kw of faqKeywords) {
+            if (re.test(kw)) {
+              score += 5;
+              break;
+            }
+          }
+        }
+      }
+      if (faqQuestion && (expandedMessage === faqQuestion || faqQuestion.includes(expandedMessage))) {
+        score += 10;
+      }
+
+      if (score > best.score) best = { faq, score, matchedKeywords };
     }
-
-    // Lưu tin nhắn từ assistant
+    let response;
+    if (best.faq && (best.matchedKeywords >= 1 || best.score >= MIN_SCORE)) {
+      response = best.faq.answer;
+    } else {
+      response = DEFAULT_REPLY;
+    }
     const assistantMessage = await ChatMessage.create({
       userId,
-      conversationId: userMessage.conversationId,
+      conversationId: convId,
       role: "assistant",
       content: response,
+      
     });
 
-    res.json({
+    return res.json({
       success: true,
-      conversationId: userMessage.conversationId,
+      conversationId: convId,
       userMessage: userMessage.content,
       assistantMessage: assistantMessage.content,
+      source: best.faq ? "faq" : "fallback",
+      faqId: best.faq?._id || null,
+      score: best.score || 0,
     });
   } catch (error) {
-    console.error("❌ Chat error:", error);
-    res.status(500).json({
+    console.error("Chat error:", error);
+    return res.status(500).json({
       error: "Lỗi xử lý tin nhắn",
       message: error.message,
     });
