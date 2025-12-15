@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Replicate = require("replicate");
+const sharp = require("sharp");
 const Prompt = require("../models/Prompt");
 const PromptTrending = require("../models/PromptTrending");
 const History = require("../models/History");
@@ -96,7 +97,6 @@ async function getDailyFreeQuotaInfo(userId) {
     return { remainingFree: 0, usedFree: 0, maxFree: 0, premiumType };
   }
 
-  // Check if we need to reset
   const now = new Date();
   const todayMidnight = new Date(
     now.getFullYear(),
@@ -125,6 +125,53 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Helper function to optimize and upscale image quality with Sharp
+async function optimizeImageWithSharp(inputPath, outputPath) {
+  try {
+    const image = sharp(inputPath);
+    const metadata = await image.metadata();
+    
+    console.log(`📐 Original image size: ${metadata.width}x${metadata.height}`);
+    
+    // Luôn upscale lên 2048px để đảm bảo chất lượng
+    const targetSize = 2048;
+    
+    console.log(`⬆️ Upscaling to: ${targetSize}x${targetSize}`);
+    
+    await image
+      .resize(targetSize, targetSize, {
+        fit: 'inside',
+        withoutEnlargement: false,
+        kernel: 'lanczos3' // Best quality upscaling
+      })
+      .sharpen({
+        sigma: 1.0,      // Độ mạnh của sharpen
+        m1: 1.0,         // Flat areas
+        m2: 2.0,         // Jagged areas
+        x1: 2.0,         // Threshold
+        y2: 10.0,        // Maximum sharpening
+        y3: 20.0         // Minimum sharpening
+      })
+      .jpeg({
+        quality: 100,    // Tăng lên 100% cho chất lượng tối đa
+        chromaSubsampling: '4:4:4',
+        mozjpeg: true,
+        force: true
+      })
+      .withMetadata()
+      .toFile(outputPath);
+    
+    const finalMetadata = await sharp(outputPath).metadata();
+    console.log(`✨ Image optimized: ${finalMetadata.width}x${finalMetadata.height}, quality: 100%, sharpened`);
+    return outputPath;
+  } catch (error) {
+    console.error('⚠️ Sharp optimization failed, using original:', error.message);
+    // If Sharp fails, copy original file
+    fs.copyFileSync(inputPath, outputPath);
+    return outputPath;
+  }
+}
+
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
@@ -142,13 +189,9 @@ async function executeModel(modelName, prompt, imageInputs) {
         replicateModel = "google/nano-banana";
         break;
       case "gemini-2.0-flash":
-        // Use a Replicate model for "gemini-2.0-flash"
-        // You can replace this with the actual Replicate model identifier
         replicateModel = "google/nano-banana"; // Using same model for now
         break;
       case "gemini-3-pro":
-        // Use a Replicate model for "gemini-3-pro"
-        // You can replace this with the actual Replicate model identifier
         replicateModel = "google/nano-banana"; // Using same model for now
         break;
       default:
@@ -372,15 +415,29 @@ exports.generateFaceImage = async (req, res) => {
     }
 
     const outputBuffer = await outputResponse.arrayBuffer();
+    const tempPath = path.join(__dirname, "../temp_output_raw.jpg");
     const outputPath = path.join(__dirname, "../temp_output.jpg");
-    fs.writeFileSync(outputPath, Buffer.from(outputBuffer));
+    
+    // Save raw image first
+    fs.writeFileSync(tempPath, Buffer.from(outputBuffer));
+    
+    // Optimize with Sharp
+    await optimizeImageWithSharp(tempPath, outputPath);
 
     const cloudinaryResult = await cloudinary.uploader.upload(outputPath, {
       folder: "ai-studio/outputs",
       public_id: `output_${Date.now()}`,
       resource_type: "auto",
+      quality: "auto:best",
+      format: "jpg",
+      transformation: [
+        { quality: "auto:best" },
+        { fetch_format: "auto" }
+      ]
     });
 
+    // Clean up temp files
+    fs.unlinkSync(tempPath);
     fs.unlinkSync(outputPath);
 
     const cloudinaryOutputUrl = cloudinaryResult.secure_url;
@@ -585,15 +642,29 @@ exports.generateOutfit = async (req, res) => {
     }
 
     const outputBuffer = await outputResponse.arrayBuffer();
+    const tempPath = path.join(__dirname, "../temp_outfit_raw.jpg");
     const outputPath = path.join(__dirname, "../temp_outfit.jpg");
-    fs.writeFileSync(outputPath, Buffer.from(outputBuffer));
+    
+    // Save raw image first
+    fs.writeFileSync(tempPath, Buffer.from(outputBuffer));
+    
+    // Optimize with Sharp
+    await optimizeImageWithSharp(tempPath, outputPath);
 
     const cloudinaryResult = await cloudinary.uploader.upload(outputPath, {
       folder: "ai-studio/outfits",
       public_id: `outfit_${Date.now()}`,
       resource_type: "auto",
+      quality: "auto:best",
+      format: "jpg",
+      transformation: [
+        { quality: "auto:best" },
+        { fetch_format: "auto" }
+      ]
     });
 
+    // Clean up temp files
+    fs.unlinkSync(tempPath);
     fs.unlinkSync(outputPath);
 
     const cloudinaryOutputUrl = cloudinaryResult.secure_url;
@@ -777,15 +848,29 @@ Composition: centered subject, balanced framing, professional layout`;
     }
 
     const outputBuffer = await outputResponse.arrayBuffer();
+    const tempPath = path.join(__dirname, "../temp_background_raw.jpg");
     const outputPath = path.join(__dirname, "../temp_background.jpg");
-    fs.writeFileSync(outputPath, Buffer.from(outputBuffer));
+    
+    // Save raw image first
+    fs.writeFileSync(tempPath, Buffer.from(outputBuffer));
+    
+    // Optimize with Sharp
+    await optimizeImageWithSharp(tempPath, outputPath);
 
     const cloudinaryResult = await cloudinary.uploader.upload(outputPath, {
       folder: "ai-studio/backgrounds",
       public_id: `background_${Date.now()}`,
       resource_type: "auto",
+      quality: "auto:best",
+      format: "jpg",
+      transformation: [
+        { quality: "auto:best" },
+        { fetch_format: "auto" }
+      ]
     });
 
+    // Clean up temp files
+    fs.unlinkSync(tempPath);
     fs.unlinkSync(outputPath);
 
     const cloudinaryOutputUrl = cloudinaryResult.secure_url;

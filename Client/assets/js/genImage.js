@@ -350,11 +350,28 @@ function handleTrendFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     uploadArea.innerHTML = `
-            <img src="${reader.result}" 
-              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
-          `;
+      <div style="position: relative; width: 100%; height: 100%;">
+        <img src="${reader.result}" 
+          style="max-width:100%; max-height:100%; border-radius:8px; display:block; margin:auto; object-fit: contain;">
+        <button class="change-image-btn" onclick="changeTrendImage(event)" title="Chọn ảnh khác">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Chọn ảnh khác
+        </button>
+      </div>
+    `;
   };
   reader.readAsDataURL(file);
+}
+
+function changeTrendImage(event) {
+  event.stopPropagation();
+  event.preventDefault();
+  const trendFileInput = document.getElementById("trend-file-input");
+  trendFileInput.click();
 }
 
 // Reset trend creator
@@ -410,8 +427,15 @@ function displayTrendOutput(result) {
 
 async function downloadTrendImage(imagePath, name) {
   try {
+    // Nếu là Cloudinary URL, thêm transformation để tải chất lượng cao nhất
+    let downloadUrl = imagePath;
+    if (imagePath.includes('cloudinary.com')) {
+      downloadUrl = imagePath.replace('/upload/', '/upload/q_100,fl_preserve_transparency/');
+      console.log('📥 Downloading high quality trend image from:', downloadUrl);
+    }
+
     // Fetch the image as a blob
-    const response = await fetch(imagePath);
+    const response = await fetch(downloadUrl);
     if (!response.ok) {
       throw new Error("Failed to fetch image");
     }
@@ -424,7 +448,7 @@ async function downloadTrendImage(imagePath, name) {
     // Create download link
     const link = document.createElement("a");
     link.href = blobUrl;
-    link.download = `${name}_${Date.now()}.jpg`;
+    link.download = `${name}_${Date.now()}_HQ.jpg`;
 
     // Trigger download
     document.body.appendChild(link);
@@ -435,6 +459,8 @@ async function downloadTrendImage(imagePath, name) {
     setTimeout(() => {
       URL.revokeObjectURL(blobUrl);
     }, 100);
+    
+    showToast("Đã tải ảnh chất lượng cao!", 'success');
   } catch (error) {
     console.error("Error downloading image:", error);
     showToast("Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
@@ -502,11 +528,27 @@ function handleFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     uploadArea.innerHTML = `
-            <img src="${reader.result}" 
-              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
-          `;
+      <div style="position: relative; width: 100%; height: 100%;">
+        <img src="${reader.result}" 
+          style="max-width:100%; max-height:100%; border-radius:8px; display:block; margin:auto; object-fit: contain;">
+        <button class="change-image-btn" onclick="changeImage(event)" title="Chọn ảnh khác">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Chọn ảnh khác
+        </button>
+      </div>
+    `;
   };
   reader.readAsDataURL(file);
+}
+
+function changeImage(event) {
+  event.stopPropagation();
+  event.preventDefault();
+  fileInput.click();
 }
 
 // Load prompts từ API
@@ -577,16 +619,29 @@ function displayOutput(result) {
     downloadImage(result.localPath, result.promptName);
 }
 
-// Download ảnh
+// Download ảnh với chất lượng gốc (không resize)
 async function downloadImage(imagePath, promptName) {
   try {
+    // Nếu là Cloudinary URL, tải ảnh gốc không resize
+    let downloadUrl = imagePath;
+    if (imagePath.includes('cloudinary.com')) {
+      // Tải ảnh gốc với chất lượng 100%, không resize
+      downloadUrl = imagePath.replace('/upload/', '/upload/q_100,fl_preserve_transparency,fl_attachment/');
+      console.log('📥 Downloading original quality image from:', downloadUrl);
+    }
+
+    // Show loading toast
+    showToast("⏳ Đang tải ảnh chất lượng gốc...", 'info');
+
     // Fetch the image as a blob
-    const response = await fetch(imagePath);
+    const response = await fetch(downloadUrl);
     if (!response.ok) {
       throw new Error("Failed to fetch image");
     }
 
     const blob = await response.blob();
+    const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
+    console.log(`📦 Downloaded image size: ${sizeMB}MB`);
 
     // Create an object URL for the blob
     const blobUrl = URL.createObjectURL(blob);
@@ -594,7 +649,7 @@ async function downloadImage(imagePath, promptName) {
     // Create download link
     const link = document.createElement("a");
     link.href = blobUrl;
-    link.download = `${promptName}_${Date.now()}.jpg`;
+    link.download = `${promptName}_ORIGINAL_${Date.now()}.jpg`;
 
     // Trigger download
     document.body.appendChild(link);
@@ -605,6 +660,8 @@ async function downloadImage(imagePath, promptName) {
     setTimeout(() => {
       URL.revokeObjectURL(blobUrl);
     }, 100);
+    
+    showToast(`✅ Đã tải ảnh gốc! (${sizeMB}MB)`, 'success');
   } catch (error) {
     console.error("Error downloading image:", error);
     showToast("Không thể tải ảnh. Vui lòng thử lại sau.", 'error');
@@ -780,11 +837,27 @@ function handleOutfitFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     outfitUploadArea.innerHTML = `
-            <img src="${reader.result}" 
-              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
-          `;
+      <div style="position: relative; width: 100%; height: 100%;">
+        <img src="${reader.result}" 
+          style="max-width:100%; max-height:100%; border-radius:8px; display:block; margin:auto; object-fit: contain;">
+        <button class="change-image-btn" onclick="changeOutfitImage(event)" title="Chọn ảnh khác">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Chọn ảnh khác
+        </button>
+      </div>
+    `;
   };
   reader.readAsDataURL(file);
+}
+
+function changeOutfitImage(event) {
+  event.stopPropagation();
+  event.preventDefault();
+  outfitFileInput.click();
 }
 
 // Clothing upload handlers
@@ -823,11 +896,27 @@ function handleClothingFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     clothingUploadArea.innerHTML = `
-            <img src="${reader.result}" 
-              style="max-width:100%; border-radius:8px; display:block; margin:auto;">
-          `;
+      <div style="position: relative; width: 100%; height: 100%;">
+        <img src="${reader.result}" 
+          style="max-width:100%; max-height:100%; border-radius:8px; display:block; margin:auto; object-fit: contain;">
+        <button class="change-image-btn" onclick="changeClothingImage(event)" title="Chọn ảnh khác">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Chọn ảnh khác
+        </button>
+      </div>
+    `;
   };
   reader.readAsDataURL(file);
+}
+
+function changeClothingImage(event) {
+  event.stopPropagation();
+  event.preventDefault();
+  clothingFileInput.click();
 }
 
 outfitGenerateBtn.addEventListener("click", async () => {
@@ -908,6 +997,16 @@ let pendingGenerateData = {
   type: "faceImage",
 };
 
+// Cache data để tránh fetch lại nhiều lần
+let cachedData = {
+  prompts: null,
+  trendingPrompts: null,
+  serviceConfigs: {},
+  lastFetch: 0
+};
+
+const CACHE_DURATION = 60000; // 1 phút
+
 async function showConfirmDialog(
   promptName,
   file,
@@ -921,29 +1020,64 @@ async function showConfirmDialog(
     const headers = { Authorization: `Bearer ${token}` };
     let fee = 0;
 
-    // Chạy song song tất cả API calls để tăng tốc
+    const now = Date.now();
+    const needRefresh = now - cachedData.lastFetch > CACHE_DURATION;
+
+    // Fetch data (sử dụng cache nếu có)
+    let prompts, trendingPrompts, serviceConfig, profileData, quotaInfo;
+
+    if (needRefresh || !cachedData.prompts) {
+      // Fetch mới và cache
+      const [promptsRes, trendingRes, profileRes, quotaRes] = await Promise.all([
+        fetch("/api/prompts", { headers }),
+        fetch("/api/prompts-trending", { headers }),
+        fetch("/api/profile/me", { headers }),
+        fetch("/api/ai/daily-quota", { headers }).catch(() => null)
+      ]);
+
+      [prompts, trendingPrompts, profileData, quotaInfo] = await Promise.all([
+        promptsRes.json(),
+        trendingRes.json(),
+        profileRes.json(),
+        quotaRes ? quotaRes.json() : null
+      ]);
+
+      // Cache prompts
+      cachedData.prompts = prompts;
+      cachedData.trendingPrompts = trendingPrompts;
+      cachedData.lastFetch = now;
+    } else {
+      // Dùng cache cho prompts, chỉ fetch profile và quota
+      prompts = cachedData.prompts;
+      trendingPrompts = cachedData.trendingPrompts;
+
+      const [profileRes, quotaRes] = await Promise.all([
+        fetch("/api/profile/me", { headers }),
+        fetch("/api/ai/daily-quota", { headers }).catch(() => null)
+      ]);
+
+      [profileData, quotaInfo] = await Promise.all([
+        profileRes.json(),
+        quotaRes ? quotaRes.json() : null
+      ]);
+    }
+
+    // Fetch service config nếu cần (cache riêng)
     const serviceConfigEndpoint = type === "outfit"
       ? "/api/service-config/outfit"
       : type === "background"
         ? "/api/service-config/background"
         : null;
 
-    const [promptsRes, trendingRes, serviceConfigRes, profileRes, quotaRes] = await Promise.all([
-      fetch("/api/prompts", { headers }),
-      fetch("/api/prompts-trending", { headers }),
-      serviceConfigEndpoint ? fetch(serviceConfigEndpoint, { headers }) : Promise.resolve(null),
-      fetch("/api/profile/me", { headers }),
-      fetch("/api/ai/daily-quota", { headers }).catch(() => null)
-    ]);
-
-    // Parse responses
-    const [prompts, trendingPrompts, serviceConfig, profileData, quotaInfo] = await Promise.all([
-      promptsRes.json(),
-      trendingRes.json(),
-      serviceConfigRes ? serviceConfigRes.json() : null,
-      profileRes.json(),
-      quotaRes ? quotaRes.json() : null
-    ]);
+    if (serviceConfigEndpoint) {
+      if (!cachedData.serviceConfigs[type]) {
+        const res = await fetch(serviceConfigEndpoint, { headers });
+        serviceConfig = await res.json();
+        cachedData.serviceConfigs[type] = serviceConfig;
+      } else {
+        serviceConfig = cachedData.serviceConfigs[type];
+      }
+    }
 
     // Tìm promptData
     let promptData = prompts.find((p) => p.name === promptName);
