@@ -5,13 +5,15 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   display: grid;
-  grid-template-columns: 260px 1fr 300px;
+  grid-template-columns: 260px 1fr;
   height: 100vh;
   background: #f8fafc;
-  color: #1e293b;
+  color: #334155;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Sidebar */
@@ -20,16 +22,18 @@ body {
   border-right: 1px solid #e2e8f0;
   padding: 24px 16px;
   overflow-y: auto;
+  height: 100vh;
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 32px;
-  font-size: 15px;
+  font-size: 16px;
   padding: 0 8px;
+  letter-spacing: -0.5px;
 }
 
 .logo-icon {
@@ -53,8 +57,8 @@ body {
   text-transform: uppercase;
   color: #94a3b8;
   margin-bottom: 8px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
   padding: 0 12px;
 }
 
@@ -66,7 +70,7 @@ body {
   padding: 10px 12px;
   border-radius: 8px;
   text-decoration: none;
-  color: #000000;
+  color: #475569;
   font-size: 14px;
   margin-bottom: 2px;
   transition: all 0.2s;
@@ -76,12 +80,12 @@ body {
 
 .nav-item:hover {
   background: #f1f5f9;
-  color: #000000;
+  color: #1e293b;
 }
 
 .nav-item.active {
   background: #f0f4ff;
-  color: #000;
+  color: #1e293b;
 }
 
 .nav-item-content {
@@ -120,7 +124,7 @@ body {
 .sub-item {
   display: block;
   padding: 8px 12px;
-  color: #000000;
+  color: #475569;
   text-decoration: none;
   font-size: 13px;
   border-radius: 6px;
@@ -131,7 +135,7 @@ body {
 
 .sub-item:hover {
   background: #f1f5f9;
-  color: #000000;
+  color: #1e293b;
 }
 
 .sidebar-footer {
@@ -163,6 +167,9 @@ body {
 .main-content {
   overflow-y: auto;
   background: #f8fafc;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -175,6 +182,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+  flex-shrink: 0;
 }
 
 .header-left,
@@ -217,6 +225,8 @@ body {
 
 .dashboard-content {
   padding: 32px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .dashboard-header {
@@ -227,9 +237,10 @@ body {
 }
 
 .dashboard-header h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -1px;
 }
 
 .time-select {
@@ -282,18 +293,20 @@ body {
 
 .stat-label {
   color: #64748b;
-  font-size: 13px;
+  font-size: 12px;
   margin-bottom: 12px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .stat-value {
-  font-size: 36px;
+  font-size: 40px;
   font-weight: 800;
   margin-bottom: 10px;
-  color: #0f172a;
+  color: #1e293b;
+  letter-spacing: -1.5px;
+  line-height: 1;
 }
 
 .stat-change {
@@ -332,7 +345,8 @@ body {
   font-size: 18px;
   margin-bottom: 24px;
   font-weight: 700;
-  color: #0f172a;
+  color: #1e293b;
+  letter-spacing: -0.3px;
 }
 
 .chart-header {
@@ -363,7 +377,7 @@ body {
 
 .tab.active {
   background: white;
-  color: #111;
+  color: #1e293b;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 

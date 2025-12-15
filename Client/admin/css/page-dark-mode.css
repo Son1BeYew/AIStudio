@@ -1,0 +1,322 @@
+/* Dark Mode for Admin Pages */
+body.dark-mode {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Page Container */
+body.dark-mode .page-container {
+  background: #0f172a;
+}
+
+/* Headers */
+body.dark-mode .page-header h1,
+body.dark-mode .page-header h2 {
+  color: #f1f5f9;
+}
+
+body.dark-mode .page-header p {
+  color: #94a3b8;
+}
+
+/* Stats Bar */
+body.dark-mode .stat-item,
+body.dark-mode .stats-bar > div {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .stat-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .stat-value {
+  color: #f1f5f9;
+}
+
+/* Tables */
+body.dark-mode .table-section,
+body.dark-mode .accounts-table {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode table {
+  color: #e2e8f0;
+}
+
+body.dark-mode thead {
+  background: #0f172a;
+}
+
+body.dark-mode th {
+  color: #94a3b8;
+  border-bottom-color: #334155;
+}
+
+body.dark-mode td {
+  border-bottom-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode tbody tr:hover {
+  background: #334155;
+}
+
+/* Inputs & Selects */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+  border-color: #3b82f6;
+  background: #1e293b;
+}
+
+body.dark-mode input::placeholder {
+  color: #64748b;
+}
+
+body.dark-mode input[readonly] {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+/* Buttons */
+body.dark-mode .btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+body.dark-mode .btn-primary:hover {
+  background: #2563eb;
+}
+
+body.dark-mode .btn-success {
+  background: #10b981;
+}
+
+body.dark-mode .btn-success:hover {
+  background: #059669;
+}
+
+body.dark-mode .btn-danger {
+  background: #ef4444;
+}
+
+body.dark-mode .btn-danger:hover {
+  background: #dc2626;
+}
+
+body.dark-mode .btn-cancel {
+  background: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .btn-cancel:hover {
+  background: #475569;
+}
+
+body.dark-mode .btn-refresh,
+body.dark-mode .btn-add {
+  background: #3b82f6;
+}
+
+body.dark-mode .btn-refresh:hover,
+body.dark-mode .btn-add:hover {
+  background: #2563eb;
+}
+
+/* Badges */
+body.dark-mode .premium-badge {
+  opacity: 0.9;
+}
+
+body.dark-mode .status-badge {
+  opacity: 0.9;
+}
+
+/* User Info */
+body.dark-mode .user-name {
+  color: #f1f5f9;
+}
+
+body.dark-mode .user-email {
+  color: #94a3b8;
+}
+
+/* Modals */
+body.dark-mode .modal-content {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .modal-header {
+  border-bottom-color: #334155;
+}
+
+body.dark-mode .modal-header h2 {
+  color: #f1f5f9;
+}
+
+body.dark-mode .modal-body {
+  background: #1e293b;
+}
+
+body.dark-mode .modal-actions {
+  background: #0f172a;
+  border-top-color: #334155;
+}
+
+body.dark-mode .close-btn {
+  color: #94a3b8;
+}
+
+body.dark-mode .close-btn:hover {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+/* Alerts */
+body.dark-mode .alert {
+  opacity: 0.95;
+}
+
+body.dark-mode .alert-success {
+  background: #064e3b;
+  color: #6ee7b7;
+  border-color: #065f46;
+}
+
+body.dark-mode .alert-error {
+  background: #7f1d1d;
+  color: #fca5a5;
+  border-color: #991b1b;
+}
+
+body.dark-mode .alert-warning {
+  background: #78350f;
+  color: #fcd34d;
+  border-color: #92400e;
+}
+
+/* Search Bar */
+body.dark-mode .search-bar,
+body.dark-mode .filter-section {
+  background: #1e293b;
+}
+
+body.dark-mode .filter-input,
+body.dark-mode .filter-select {
+  background: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+/* Tabs */
+body.dark-mode .tabs {
+  background: #1e293b;
+}
+
+body.dark-mode .tab-btn {
+  color: #94a3b8;
+}
+
+body.dark-mode .tab-btn:hover {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .tab-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
+body.dark-mode .tab-count {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Pagination */
+body.dark-mode .page-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .page-btn:hover {
+  background: #334155;
+}
+
+body.dark-mode .page-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+/* Empty State */
+body.dark-mode .empty-state {
+  color: #64748b;
+}
+
+/* Loading */
+body.dark-mode .loading {
+  color: #94a3b8;
+}
+
+body.dark-mode .spinner {
+  border-color: #334155;
+  border-top-color: #3b82f6;
+}
+
+/* Form Groups */
+body.dark-mode .form-group label {
+  color: #e2e8f0;
+}
+
+body.dark-mode .form-group small {
+  color: #64748b;
+}
+
+/* Action Buttons */
+body.dark-mode .btn-icon {
+  opacity: 0.9;
+}
+
+body.dark-mode .btn-delete {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+body.dark-mode .btn-delete:hover {
+  background: #991b1b;
+}
+
+/* Avatar Placeholder */
+body.dark-mode .user-avatar,
+body.dark-mode .notif-avatar-placeholder {
+  background: #334155;
+  color: #64748b;
+}
+
+/* Balance */
+body.dark-mode .balance {
+  color: #6ee7b7;
+}
+
+/* Smooth Transition */
+body,
+input,
+select,
+textarea,
+button,
+.modal-content,
+table {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

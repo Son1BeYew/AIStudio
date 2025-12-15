@@ -4,15 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard | EternaPicSHT AI</title>
-
-    <!-- Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-
-    <!-- Link file CSS tách riêng -->
     <link rel="stylesheet" href="../admin/css/style.css" />
+    <link rel="stylesheet" href="../admin/css/notification-panel.css" />
+    <link rel="stylesheet" href="../admin/css/dark-mode.css" />
     <style>
       .page-iframe {
         width: 100%;
@@ -73,6 +74,16 @@
               <span>Wallet</span>
             </div>
           </a>
+          <a
+            href="#"
+            class="nav-item"
+            onclick="loadPage(event, 'page/account-management.html')"
+          >
+            <div class="nav-item-content">
+              <i class="nav-icon fas fa-wallet"></i>
+              <span>Số Dư & Premium</span>
+            </div>
+          </a>
         </div>
 
         <div class="nav-section">
@@ -119,11 +130,11 @@
           <a
             href="#"
             class="nav-item"
-            onclick="loadPage(event, 'page/tai-khoan.html')"
+            onclick="loadPage(event, 'page/tai-khoan-admin.html')"
           >
             <div class="nav-item-content">
               <i class="nav-icon fas fa-users"></i>
-              <span>Tài khoản</span>
+              <span>Danh Sách User</span>
             </div>
           </a>
 
@@ -173,9 +184,16 @@
 
         <div class="header-right">
           <button class="icon-btn"><i class="fas fa-search"></i></button>
-          <button class="icon-btn"><i class="fas fa-sun"></i></button>
-          <button class="icon-btn"><i class="fas fa-history"></i></button>
-          <button class="icon-btn"><i class="fas fa-bell"></i></button>
+          <button class="icon-btn theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Chuyển đổi giao diện">
+            <i class="fas fa-sun"></i>
+          </button>
+          <button class="icon-btn" onclick="goBack()" title="Quay lại trang trước">
+            <i class="fas fa-history"></i>
+          </button>
+          <button class="icon-btn notification-btn" onclick="toggleNotifications()" title="Thông báo">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge">0</span>
+          </button>
           <button class="icon-btn"><i class="fas fa-th"></i></button>
         </div>
       </header>
@@ -493,25 +511,90 @@
       </div>
     </main>
 
-    <!-- Right Sidebar -->
-    <aside class="right-sidebar">
-      <h2>Thông Báo</h2>
+    <!-- Notification Dropdown Panel -->
+    <div class="notification-panel" id="notificationPanel">
+      <div class="notification-panel-header">
+        <h3><i class="fas fa-bell"></i> Thông Báo</h3>
+        <button class="close-panel-btn" onclick="toggleNotifications()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="notification-panel-body">
+        <div class="notifications-list"></div>
+        
+        <div class="panel-divider"></div>
+        
+        <div class="panel-section">
+          <h4><i class="fas fa-history"></i> Hoạt động gần đây</h4>
+          <div class="activity-list"></div>
+        </div>
+      </div>
+    </div>
 
-      <h3>Hoạt động gần đây</h3>
-      <div class="activity-list"></div>
-
-      <h3>Liên hệ</h3>
-      <div class="contacts-list"></div>
-    </aside>
+    <!-- Overlay -->
+    <div class="notification-overlay" id="notificationOverlay" onclick="toggleNotifications()"></div>
 
     <script>
       let currentPage = null;
       let statsData = {};
       let topPrompts = [];
       const token = localStorage.getItem("token");
+      let pageHistory = [];
+
+      // Theme toggle
+      function toggleTheme() {
+        const body = document.body;
+        const themeIcon = document.querySelector('#themeToggle i');
+        
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+          themeIcon.classList.remove('fa-sun');
+          themeIcon.classList.add('fa-moon');
+          localStorage.setItem('adminTheme', 'dark');
+          applyThemeToIframes('dark');
+        } else {
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+          localStorage.setItem('adminTheme', 'light');
+          applyThemeToIframes('light');
+        }
+      }
+
+      // Apply theme to all iframes
+      function applyThemeToIframes(theme) {
+        const iframes = document.querySelectorAll('.page-iframe');
+        iframes.forEach(iframe => {
+          try {
+            if (iframe.contentDocument && iframe.contentDocument.body) {
+              if (theme === 'dark') {
+                iframe.contentDocument.body.classList.add('dark-mode');
+              } else {
+                iframe.contentDocument.body.classList.remove('dark-mode');
+              }
+            }
+          } catch (e) {
+            console.log('Cannot access iframe:', e);
+          }
+        });
+      }
+
+      // Load saved theme
+      function loadTheme() {
+        const savedTheme = localStorage.getItem('adminTheme');
+        const themeIcon = document.querySelector('#themeToggle i');
+        
+        if (savedTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+          themeIcon.classList.remove('fa-sun');
+          themeIcon.classList.add('fa-moon');
+        }
+      }
 
       // Load dashboard feed on page load
       document.addEventListener("DOMContentLoaded", () => {
+        loadTheme();
         loadDashboardFeed();
         loadOverviewStats();
       });
@@ -535,64 +618,88 @@
         }
       }
 
-      function updateNotifications(notifications) {
-        const rightSidebar = document.querySelector(".right-sidebar");
-        const h2 = rightSidebar.querySelector("h2");
-        const h3 = rightSidebar.querySelector("h3");
+      function toggleNotifications() {
+        const panel = document.getElementById('notificationPanel');
+        const overlay = document.getElementById('notificationOverlay');
+        
+        panel.classList.toggle('active');
+        overlay.classList.toggle('active');
+      }
 
-        // Remove existing notifications
-        let node = h2.nextElementSibling;
-        while (node && node !== h3) {
-          node.remove();
-          node = h2.nextElementSibling;
+      function updateNotifications(notifications) {
+        const notificationsList = document.querySelector(".notifications-list");
+        const badge = document.getElementById('notificationBadge');
+        
+        if (!notificationsList) return;
+        
+        notificationsList.innerHTML = '';
+        
+        if (badge) {
+          badge.textContent = notifications.length;
+          badge.style.display = notifications.length > 0 ? 'flex' : 'none';
         }
 
-        // Add new notifications after h2
-        let insertAfter = h2;
-        notifications.forEach((notif) => {
-          const notifEl = document.createElement("div");
-          notifEl.className = "notification";
-          const timeAgo = getTimeAgo(notif.timestamp);
-          const avatarImg = notif.avatar
-            ? `<img src="${notif.avatar}" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px; vertical-align: middle;" alt="avatar">`
-            : `<div style="width: 32px; height: 32px; border-radius: 50%; background: #e0e0e0; margin-right: 10px; display: inline-block; vertical-align: middle;"></div>`;
-          notifEl.innerHTML = `
-            <div class="notif-text">
-              ${avatarImg}
-              <span style="display: inline-block; vertical-align: middle;">
-                <strong>${notif.message}</strong><small style="display: block; margin-top: 2px;">${timeAgo}</small>
-              </span>
+        if (notifications.length === 0) {
+          notificationsList.innerHTML = `
+            <div class="empty-notifications">
+              <i class="fas fa-bell-slash"></i>
+              <p>Không có thông báo mới</p>
             </div>
           `;
-          insertAfter.after(notifEl);
-          insertAfter = notifEl;
+          return;
+        }
+
+        notifications.forEach((notif) => {
+          const notifEl = document.createElement("div");
+          notifEl.className = "notification-item";
+          const timeAgo = getTimeAgo(notif.timestamp);
+          const avatarImg = notif.avatar
+            ? `<img src="${notif.avatar}" class="notif-avatar" alt="avatar">`
+            : `<div class="notif-avatar-placeholder"><i class="fas fa-user"></i></div>`;
+          
+          notifEl.innerHTML = `
+            ${avatarImg}
+            <div class="notif-content">
+              <div class="notif-message">${notif.message}</div>
+              <div class="notif-time">${timeAgo}</div>
+            </div>
+          `;
+          notificationsList.appendChild(notifEl);
         });
       }
 
       function updateActivities(activities) {
-        const rightSidebar = document.querySelector(".right-sidebar");
-        const h3 = Array.from(rightSidebar.querySelectorAll("h3")).find((el) =>
-          el.textContent.includes("Hoạt động")
-        );
-        const activityList = h3.nextElementSibling;
-
+        const activityList = document.querySelector(".activity-list");
+        
+        if (!activityList) return;
+        
         activityList.innerHTML = "";
+
+        if (activities.length === 0) {
+          activityList.innerHTML = `
+            <div class="empty-notifications">
+              <i class="fas fa-inbox"></i>
+              <p>Chưa có hoạt động nào</p>
+            </div>
+          `;
+          return;
+        }
 
         activities.slice(0, 5).forEach((activity) => {
           const timeAgo = getTimeAgo(activity.createdAt);
           const avatarImg = activity.userAvatar
-            ? `<img src="${activity.userAvatar}" alt="avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" />`
-            : `<div style="width: 40px; height: 40px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0;"></div>`;
+            ? `<img src="${activity.userAvatar}" alt="avatar" class="notif-avatar" />`
+            : `<div class="notif-avatar-placeholder"><i class="fas fa-user"></i></div>`;
           const userName =
             activity.userName || activity.userEmail.split("@")[0];
 
           const activityEl = document.createElement("div");
-          activityEl.className = "activity-item";
+          activityEl.className = "notification-item";
           activityEl.innerHTML = `
             ${avatarImg}
-            <div style="flex: 1; min-width: 0;">
-              <div style="font-weight: 600; color: #1f2937; font-size: 14px; margin-bottom: 4px;">${userName} đã tạo ảnh</div>
-              <div style="font-size: 13px; color: #9ca3af;">${activity.promptName} • ${timeAgo}</div>
+            <div class="notif-content">
+              <div class="notif-message">${userName} đã tạo ảnh</div>
+              <div class="notif-time">${activity.promptName} • ${timeAgo}</div>
             </div>
           `;
           activityList.appendChild(activityEl);
@@ -600,28 +707,8 @@
       }
 
       function updateContacts(contacts) {
-        const rightSidebar = document.querySelector(".right-sidebar");
-        const h3 = Array.from(rightSidebar.querySelectorAll("h3")).find((el) =>
-          el.textContent.includes("Liên hệ")
-        );
-        const contactsList = h3.nextElementSibling;
-
-        contactsList.innerHTML = "";
-
-        contacts.slice(0, 6).forEach((contact, idx) => {
-          const avatarImg = contact.avatar
-            ? `<img src="${contact.avatar}" alt="avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" />`
-            : `<div style="width: 36px; height: 36px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0;"></div>`;
-          const name = contact.fullname || contact.email.split("@")[0];
-
-          const contactEl = document.createElement("div");
-          contactEl.className = "contact-item";
-          contactEl.innerHTML = `
-            ${avatarImg}
-            <span style="font-weight: 500; color: #1f2937; font-size: 14px;">${name}</span>
-          `;
-          contactsList.appendChild(contactEl);
-        });
+        // Contacts không cần hiển thị trong notification panel nữa
+        return;
       }
 
       function getTimeAgo(timestamp) {
@@ -657,6 +744,16 @@
         }
 
         if (currentPage === page) return;
+        
+        // Add current page to history before changing
+        if (currentPage) {
+          pageHistory.push(currentPage);
+          // Keep only last 10 pages
+          if (pageHistory.length > 10) {
+            pageHistory.shift();
+          }
+        }
+        
         currentPage = page;
 
         const mainContent = document.querySelector(".main-content");
@@ -674,18 +771,34 @@
         const iframe = document.createElement("iframe");
         iframe.className = "page-iframe";
         iframe.src = page;
+        
+        // Apply theme to iframe when loaded
+        iframe.onload = function() {
+          const savedTheme = localStorage.getItem('adminTheme');
+          if (savedTheme === 'dark') {
+            try {
+              if (iframe.contentDocument && iframe.contentDocument.body) {
+                iframe.contentDocument.body.classList.add('dark-mode');
+              }
+            } catch (e) {
+              console.log('Cannot access iframe:', e);
+            }
+          }
+        };
+        
         mainContent.appendChild(iframe);
 
         // Update breadcrumb
         const breadcrumb = document.querySelector(".breadcrumb");
         const pageNames = {
           "page/prompt-trendding.html": "Prompt Xu hướng",
-          "page/tai-khoan.html": "Tài Khoản",
+          "page/tai-khoan-admin.html": "Danh Sách User",
           "page/tong-quan.html": "Tổng Quan",
           "page/prompt-co-ban.html": "Prompt Cơ Bản",
           "page/quan-ao-toc.html": "Quần Áo & Tóc",
           "page/wallet.html": "Wallet",
           "page/content-simple.html": "Content Management",
+          "page/account-management.html": "Số Dư & Premium",
         };
         const displayName = pageNames[page] || page.split("/").pop();
         if (page.includes("content-management")) {
@@ -706,7 +819,88 @@
         event.target.closest(".sub-item").classList.add("active");
       }
 
+      function goBack() {
+        if (pageHistory.length === 0) {
+          showDashboard();
+          return;
+        }
+        
+        const previousPage = pageHistory.pop();
+        currentPage = null; // Reset to allow loading same page
+        
+        // Find the link element and trigger click
+        const links = document.querySelectorAll('a[onclick*="loadPage"]');
+        for (let link of links) {
+          const onclickAttr = link.getAttribute('onclick');
+          if (onclickAttr && onclickAttr.includes(previousPage)) {
+            // Manually load the page without adding to history
+            const event = new Event('click');
+            loadPageDirect(previousPage);
+            return;
+          }
+        }
+      }
+
+      function loadPageDirect(page) {
+        currentPage = page;
+        
+        const mainContent = document.querySelector(".main-content");
+        const dashboardContent = document.querySelector(".dashboard-content");
+        const existingIframe = mainContent.querySelector(".page-iframe");
+
+        if (dashboardContent) {
+          dashboardContent.style.display = "none";
+        }
+
+        if (existingIframe) {
+          existingIframe.remove();
+        }
+
+        const iframe = document.createElement("iframe");
+        iframe.className = "page-iframe";
+        iframe.src = page;
+        
+        // Apply theme to iframe when loaded
+        iframe.onload = function() {
+          const savedTheme = localStorage.getItem('adminTheme');
+          if (savedTheme === 'dark') {
+            try {
+              if (iframe.contentDocument && iframe.contentDocument.body) {
+                iframe.contentDocument.body.classList.add('dark-mode');
+              }
+            } catch (e) {
+              console.log('Cannot access iframe:', e);
+            }
+          }
+        };
+        
+        mainContent.appendChild(iframe);
+
+        // Update breadcrumb
+        const breadcrumb = document.querySelector(".breadcrumb");
+        const pageNames = {
+          "page/prompt-trendding.html": "Prompt Xu hướng",
+          "page/tai-khoan-admin.html": "Danh Sách User",
+          "page/tong-quan.html": "Tổng Quan",
+          "page/prompt-co-ban.html": "Prompt Cơ Bản",
+          "page/quan-ao-toc.html": "Quần Áo & Tóc",
+          "page/wallet.html": "Wallet",
+          "page/content-simple.html": "Content Management",
+          "page/account-management.html": "Số Dư & Premium",
+        };
+        const displayName = pageNames[page] || page.split("/").pop();
+        breadcrumb.innerHTML = `Quản Lý / <strong>${displayName}</strong>`;
+      }
+
       function showDashboard() {
+        // Add current page to history if not dashboard
+        if (currentPage) {
+          pageHistory.push(currentPage);
+          if (pageHistory.length > 10) {
+            pageHistory.shift();
+          }
+        }
+        
         currentPage = null;
         const mainContent = document.querySelector(".main-content");
         const dashboardContent = document.querySelector(".dashboard-content");

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Lý Số Dư & Premium</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/page-dark-mode.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      padding: 24px;
+    }
+
+    .page-header {
+      margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .search-bar {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 10px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .accounts-table {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 14px;
+      color: #1e293b;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #94a3b8;
+      font-size: 18px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .user-avatar i {
+      font-size: 20px;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .user-email {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .balance {
+      font-weight: 600;
+      color: #059669;
+    }
+
+    .premium-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .premium-free {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .premium-pro {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .premium-max {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    .btn-cancel {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .btn-cancel:hover {
+      background: #e2e8f0;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #64748b;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1><i class="fas fa-wallet"></i> Quản Lý Số Dư & Premium</h1>
+    <p>Cộng/trừ tiền và quản lý gói premium cho người dùng</p>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên hoặc email...">
+  </div>
+
+  <div class="accounts-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Người dùng</th>
+          <th>Số dư</th>
+          <th>Gói Premium</th>
+          <th>Ngày hết hạn</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody id="accountsTableBody">
+        <tr>
+          <td colspan="5" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal Cộng Tiền -->
+  <div id="addMoneyModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus-circle"></i> Cộng Tiền</h2>
+        <button class="close-btn" onclick="closeModal('addMoneyModal')">&times;</button>
+      </div>
+      <form id="addMoneyForm">
+        <div class="form-group">
+          <label>Người dùng</label>
+          <input type="text" id="addMoneyUserName" readonly>
+        </div>
+        <div class="form-group">
+          <label>Số tiền cộng (VNĐ)</label>
+          <input type="number" id="addMoneyAmount" placeholder="Nhập số tiền" required min="1000">
+        </div>
+        <div class="form-group">
+          <label>Lý do</label>
+          <input type="text" id="addMoneyReason" placeholder="VD: Bồi thường lỗi hệ thống" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('addMoneyModal')">Hủy</button>
+          <button type="submit" class="btn btn-success">Cộng Tiền</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Trừ Tiền -->
+  <div id="subtractMoneyModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-minus-circle"></i> Trừ Tiền</h2>
+        <button class="close-btn" onclick="closeModal('subtractMoneyModal')">&times;</button>
+      </div>
+      <form id="subtractMoneyForm">
+        <div class="form-group">
+          <label>Người dùng</label>
+          <input type="text" id="subtractMoneyUserName" readonly>
+        </div>
+        <div class="form-group">
+          <label>Số dư hiện tại</label>
+          <input type="text" id="subtractMoneyCurrentBalance" readonly>
+        </div>
+        <div class="form-group">
+          <label>Số tiền trừ (VNĐ)</label>
+          <input type="number" id="subtractMoneyAmount" placeholder="Nhập số tiền" required min="0">
+        </div>
+        <div class="form-group">
+          <label>Lý do</label>
+          <input type="text" id="subtractMoneyReason" placeholder="VD: Điều chỉnh số dư" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('subtractMoneyModal')">Hủy</button>
+          <button type="submit" class="btn btn-danger">Trừ Tiền</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Quản Lý Premium -->
+  <div id="managePremiumModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-crown"></i> Quản Lý Premium</h2>
+        <button class="close-btn" onclick="closeModal('managePremiumModal')">&times;</button>
+      </div>
+      <form id="managePremiumForm">
+        <div class="form-group">
+          <label>Người dùng</label>
+          <input type="text" id="premiumUserName" readonly>
+        </div>
+        <div class="form-group">
+          <label>Gói hiện tại</label>
+          <input type="text" id="premiumCurrentPlan" readonly>
+        </div>
+        <div class="form-group">
+          <label>Gói mới</label>
+          <select id="premiumNewPlan" required>
+            <option value="">-- Chọn gói --</option>
+            <option value="free">Free (Miễn phí)</option>
+            <option value="pro">Pro (199,000đ/tháng)</option>
+            <option value="max">Max (499,000đ/tháng)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Thời hạn (ngày)</label>
+          <input type="number" id="premiumDuration" placeholder="VD: 30" required min="1" value="30">
+        </div>
+        <div class="form-group">
+          <label>Lý do</label>
+          <input type="text" id="premiumReason" placeholder="VD: Tặng gói premium" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('managePremiumModal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Cập Nhật</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Xóa Premium -->
+  <div id="removePremiumModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-trash"></i> Xóa Premium</h2>
+        <button class="close-btn" onclick="closeModal('removePremiumModal')">&times;</button>
+      </div>
+      <form id="removePremiumForm">
+        <div class="form-group">
+          <label>Người dùng</label>
+          <input type="text" id="removePremiumUserName" readonly>
+        </div>
+        <div class="form-group">
+          <label>Gói hiện tại</label>
+          <input type="text" id="removePremiumCurrentPlan" readonly>
+        </div>
+        <p style="color: #ef4444; margin: 16px 0; font-size: 14px;">
+          <i class="fas fa-exclamation-triangle"></i> 
+          Bạn có chắc chắn muốn xóa gói premium và chuyển về gói Free?
+        </p>
+        <div class="form-group">
+          <label>Lý do</label>
+          <input type="text" id="removePremiumReason" placeholder="VD: Vi phạm điều khoản" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" onclick="closeModal('removePremiumModal')">Hủy</button>
+          <button type="submit" class="btn btn-danger">Xóa Premium</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    let allAccounts = [];
+    let currentUserId = null;
+
+    // Load accounts on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAccounts();
+      setupSearchFilter();
+      setupFormHandlers();
+    });
+
+    async function loadAccounts() {
+      try {
+        const response = await fetch('/api/admin/accounts-management', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to load accounts');
+
+        allAccounts = await response.json();
+        renderAccounts(allAccounts);
+      } catch (error) {
+        console.error('Error loading accounts:', error);
+        document.getElementById('accountsTableBody').innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>Không thể tải dữ liệu. Vui lòng thử lại.</p>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderAccounts(accounts) {
+      const tbody = document.getElementById('accountsTableBody');
+      
+      if (accounts.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <i class="fas fa-users"></i>
+              <p>Không tìm thấy tài khoản nào</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = accounts.map(account => {
+        const premiumClass = account.premiumType === 'free' ? 'premium-free' 
+          : account.premiumType === 'pro' ? 'premium-pro' 
+          : 'premium-max';
+        
+        const premiumLabel = account.premiumType === 'free' ? 'Free' 
+          : account.premiumType === 'pro' ? 'Pro' 
+          : 'Max';
+
+        const expiryDate = account.premiumExpiry 
+          ? new Date(account.premiumExpiry).toLocaleDateString('vi-VN')
+          : 'Không giới hạn';
+
+        // Avatar display logic - show user icon if no avatar
+        const avatarDisplay = account.avatar 
+          ? `<img src="${account.avatar}" alt="avatar">` 
+          : `<i class="fas fa-user"></i>`;
+
+        return `
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">
+                  ${avatarDisplay}
+                </div>
+                <div class="user-details">
+                  <div class="user-name">${account.fullname || 'Chưa cập nhật'}</div>
+                  <div class="user-email">${account.email}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="balance">${new Intl.NumberFormat('vi-VN').format(account.balance)}đ</span>
+            </td>
+            <td>
+              <span class="premium-badge ${premiumClass}">${premiumLabel}</span>
+            </td>
+            <td>${expiryDate}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-success" onclick="openAddMoneyModal('${account._id}', '${account.fullname || account.email}')">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <button class="btn btn-danger" onclick="openSubtractMoneyModal('${account._id}', '${account.fullname || account.email}', ${account.balance})">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <button class="btn btn-primary" onclick="openManagePremiumModal('${account._id}', '${account.fullname || account.email}', '${account.premiumType}')">
+                  <i class="fas fa-crown"></i>
+                </button>
+                ${account.premiumType !== 'free' ? `
+                  <button class="btn btn-warning" onclick="openRemovePremiumModal('${account._id}', '${account.fullname || account.email}', '${account.premiumType}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setupSearchFilter() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filtered = allAccounts.filter(account => 
+          account.email.toLowerCase().includes(searchTerm) ||
+          (account.fullname && account.fullname.toLowerCase().includes(searchTerm))
+        );
+        renderAccounts(filtered);
+      });
+    }
+
+    function openAddMoneyModal(userId, userName) {
+      currentUserId = userId;
+      document.getElementById('addMoneyUserName').value = userName;
+      document.getElementById('addMoneyAmount').value = '';
+      document.getElementById('addMoneyReason').value = '';
+      document.getElementById('addMoneyModal').classList.add('active');
+    }
+
+    function openSubtractMoneyModal(userId, userName, balance) {
+      currentUserId = userId;
+      document.getElementById('subtractMoneyUserName').value = userName;
+      document.getElementById('subtractMoneyCurrentBalance').value = new Intl.NumberFormat('vi-VN').format(balance) + 'đ';
+      document.getElementById('subtractMoneyAmount').value = '';
+      document.getElementById('subtractMoneyAmount').max = balance;
+      document.getElementById('subtractMoneyReason').value = '';
+      document.getElementById('subtractMoneyModal').classList.add('active');
+    }
+
+    function openManagePremiumModal(userId, userName, currentPlan) {
+      currentUserId = userId;
+      document.getElementById('premiumUserName').value = userName;
+      document.getElementById('premiumCurrentPlan').value = currentPlan.toUpperCase();
+      document.getElementById('premiumNewPlan').value = '';
+      document.getElementById('premiumDuration').value = '30';
+      document.getElementById('premiumReason').value = '';
+      document.getElementById('managePremiumModal').classList.add('active');
+    }
+
+    function openRemovePremiumModal(userId, userName, currentPlan) {
+      currentUserId = userId;
+      document.getElementById('removePremiumUserName').value = userName;
+      document.getElementById('removePremiumCurrentPlan').value = currentPlan.toUpperCase();
+      document.getElementById('removePremiumReason').value = '';
+      document.getElementById('removePremiumModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+      currentUserId = null;
+    }
+
+    function setupFormHandlers() {
+      // Add Money Form
+      document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const amount = parseInt(document.getElementById('addMoneyAmount').value);
+        const reason = document.getElementById('addMoneyReason').value;
+
+        try {
+          const response = await fetch(`/api/admin/accounts/${currentUserId}/add-money`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ amount, reason })
+          });
+
+          if (!response.ok) throw new Error('Failed to add money');
+
+          alert('✅ Cộng tiền thành công!');
+          closeModal('addMoneyModal');
+          loadAccounts();
+        } catch (error) {
+          console.error('Error adding money:', error);
+          alert('❌ Có lỗi xảy ra. Vui lòng thử lại.');
+        }
+      });
+
+      // Subtract Money Form
+      document.getElementById('subtractMoneyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const amount = parseInt(document.getElementById('subtractMoneyAmount').value);
+        const reason = document.getElementById('subtractMoneyReason').value;
+
+        try {
+          const response = await fetch(`/api/admin/accounts/${currentUserId}/subtract-money`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ amount, reason })
+          });
+
+          if (!response.ok) throw new Error('Failed to subtract money');
+
+          alert('✅ Trừ tiền thành công!');
+          closeModal('subtractMoneyModal');
+          loadAccounts();
+        } catch (error) {
+          console.error('Error subtracting money:', error);
+          alert('❌ Có lỗi xảy ra. Vui lòng thử lại.');
+        }
+      });
+
+      // Manage Premium Form
+      document.getElementById('managePremiumForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const plan = document.getElementById('premiumNewPlan').value;
+        const duration = parseInt(document.getElementById('premiumDuration').value);
+        const reason = document.getElementById('premiumReason').value;
+
+        try {
+          const response = await fetch(`/api/admin/accounts/${currentUserId}/update-premium`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ plan, duration, reason })
+          });
+
+          if (!response.ok) throw new Error('Failed to update premium');
+
+          alert('✅ Cập nhật gói premium thành công!');
+          closeModal('managePremiumModal');
+          loadAccounts();
+        } catch (error) {
+          console.error('Error updating premium:', error);
+          alert('❌ Có lỗi xảy ra. Vui lòng thử lại.');
+        }
+      });
+
+      // Remove Premium Form
+      document.getElementById('removePremiumForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const reason = document.getElementById('removePremiumReason').value;
+
+        try {
+          const response = await fetch(`/api/admin/accounts/${currentUserId}/remove-premium`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason })
+          });
+
+          if (!response.ok) throw new Error('Failed to remove premium');
+
+          alert('✅ Xóa gói premium thành công!');
+          closeModal('removePremiumModal');
+          loadAccounts();
+        } catch (error) {
+          console.error('Error removing premium:', error);
+          alert('❌ Có lỗi xảy ra. Vui lòng thử lại.');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

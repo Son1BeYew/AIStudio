@@ -4,6 +4,8 @@ const User = require("../models/User");
 const Prompt = require("../models/Prompt");
 const History = require("../models/History");
 const TopUp = require("../models/TopUp");
+const Profile = require("../models/Profile");
+const Premium = require("../models/Premium");
 
 const router = express.Router();
 
@@ -737,7 +739,7 @@ router.get("/top-prompts-debug", async (req, res) => {
  * @swagger
  * /admin/users:
  *   get:
- *     summary: Get all users
+ *     summary: Get all users (only role=user)
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -776,6 +778,42 @@ router.get("/users", verifyAdmin, async (req, res) => {
     res.json(usersWithStatus);
   } catch (error) {
     console.error("❌ Get users error:", error.message);
+    res.status(500).json({ error: "Lỗi lấy danh sách người dùng" });
+  }
+});
+
+/**
+ * @swagger
+ * /admin/users/all:
+ *   get:
+ *     summary: Get all users including admins
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users and admins
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
+router.get("/users/all", verifyAdmin, async (req, res) => {
+  try {
+    const users = await User.find({})
+      .select("fullname email phone avatar role createdAt updatedAt")
+      .sort({ createdAt: -1 });
+
+    // Mark users as online if they have updated within last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const usersWithStatus = users.map(user => ({
+      ...user.toObject(),
+      isOnline: user.updatedAt > fiveMinutesAgo
+    }));
+
+    res.json(usersWithStatus);
+  } catch (error) {
+    console.error("❌ Get all users error:", error.message);
     res.status(500).json({ error: "Lỗi lấy danh sách người dùng" });
   }
 });
@@ -1311,6 +1349,528 @@ router.get("/wallet-stats", verifyAdmin, async (req, res) => {
   } catch (error) {
     console.error("❌ Wallet stats error:", error.message);
     res.status(500).json({ error: "Lỗi lấy thống kê ví" });
+  }
+});
+
+/**
+ * @swagger
+ * /admin/accounts-management:
+ *   get:
+ *     summary: Get all accounts with balance and premium info for management
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of accounts with management info
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
+router.get("/accounts-management", verifyAdmin, async (req, res) => {
+  try {
+    const users = await User.find({ role: "user" })
+      .select("fullname email avatar hasPremium premiumType premiumExpiry")
+      .sort({ createdAt: -1 });
+
+    // Get profiles with balance
+    const profiles = await Profile.find({});
+    const profileMap = {};
+    profiles.forEach(p => {
+      profileMap[p.userId.toString()] = p.balance || 0;
+    });
+
+    // Combine user and profile data
+    const accounts = users.map(user => ({
+      _id: user._id,
+      fullname: user.fullname,
+      email: user.email,
+      avatar: user.avatar,
+      balance: profileMap[user._id.toString()] || 0,
+      hasPremium: user.hasPremium,
+      premiumType: user.premiumType || 'free',
+      premiumExpiry: user.premiumExpiry
+    }));
+
+    res.json(accounts);
+  } catch (error) {
+    console.error("❌ Get accounts management error:", error.message);
+    res.status(500).json({ error: "Lỗi lấy danh sách tài khoản" });
+  }
+});
+
+/**
+ * @swagger
+ * /admin/accounts/{userId}/add-money:
+ *   post:
+ *     summary: Add money to user account
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *               reason:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Money added successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
+router.post("/accounts/:userId/add-money", verifyAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { amount, reason } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: "Số tiền không hợp lệ" });
+    }
+
+    // Find or create profile
+    let profile = await Profile.findOne({ userId });
+    if (!profile) {
+      profile = new Profile({ userId, balance: 0 });
+    }
+
+    // Add money
+    profile.balance += amount;
+    await profile.save();
+
+    console.log(`✅ Admin added ${amount}đ to user ${userId}. Reason: ${reason}`);
+
+    res.json({
+      message: "Cộng tiền thành công",
+      newBalance: profile.balance,
+      amount,
+      reason
+    });
+  } catch (error) {
+    console.error("❌ Add money error:", error.message);
+    res.status(500).json({ error: "Lỗi cộng tiền" });
+  }
+});
+
+/**
+ * @swagger
+ * /admin/accounts/{userId}/subtract-money:
+ *   post:
+ *     summary: Subtract money from user account
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *               reason:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Money subtracted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
+router.post("/accounts/:userId/subtract-money", verifyAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { amount, reason } = req.body;
+
+    if (!amount || amount < 0) {
+      return res.status(400).json({ error: "Số tiền không hợp lệ" });
+    }
+
+    // Find profile
+    let profile = await Profile.findOne({ userId });
+    if (!profile) {
+      return res.status(404).json({ error: "Không tìm thấy profile" });
+    }
+
+    // Check if balance is sufficient
+    if (profile.balance < amount) {
+      return res.status(400).json({ error: "Số dư không đủ để trừ" });
+    }
+
+    // Subtract money
+    profile.balance -= amount;
+    await profile.save();
+
+    console.log(`✅ Admin subtracted ${amount}đ from user ${userId}. Reason: ${reason}`);
+
+    res.json({
+      message: "Trừ tiền thành công",
+      newBalance: profile.balance,
+      amount,
+      reason
+    });
+  } catch (error) {
+    console.error("❌ Subtract money error:", error.message);
+    res.status(500).json({ error: "Lỗi trừ tiền" });
+  }
+});
+
+/**
+ * @swagger
+ * /admin/accounts/{userId}/update-premium:
+ *   post:
+ *     summary: Update user premium plan
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               plan:
+ *                 type: string
+ *                 enum: [free, pro, max]
+ *               duration:
+ *                 type: number
+ *               reason:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Premium updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
+router.post("/accounts/:userId/update-premium", verifyAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { plan, duration, reason } = req.body;
+
+    if (!['free', 'pro', 'max'].includes(plan)) {
+      return res.status(400).json({ error: "Gói không hợp lệ" });
+    }
+
+    // Update user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "Không tìm thấy người dùng" });
+    }
+
+    user.hasPremium = plan !== 'free';
+    user.premiumType = plan;
+    
+    if (plan !== 'free') {
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + duration);
+      user.premiumExpiry = expiryDate;
+    } else {
+      user.premiumExpiry = null;
+    }
+
+    await user.save();
+
+    // Create or update premium record
+    const planNames = {
+      free: 'Gói Miễn Phí',
+      pro: 'Gói Pro',
+      max: 'Gói Max'
+    };
+
+    const planPrices = {
+      free: 0,
+      pro: 199000,
+      max: 499000
+    };
+
+    const premium = new Premium({
+      userId,
+      plan,
+      planName: planNames[plan],
+      price: planPrices[plan],
+      duration,
+      status: 'active',
+      paymentMethod: 'free',
+      startDate: new Date(),
+      endDate: plan !== 'free' ? user.premiumExpiry : null
+    });
+
+    await premium.save();
+
+    console.log(`✅ Admin updated premium for user ${userId} to ${plan}. Reason: ${reason}`);
+
+    res.json({
+      message: "Cập nhật gói premium thành công",
+      plan,
+      duration,
+      expiryDate: user.premiumExpiry,
+      reason
+    });
+  } catch (error) {
+    console.error("❌ Update premium error:", error.message);
+    res.status(500).json({ error: "Lỗi cập nhật premium" });
+  }
+});
+
+/**
+ * @swagger
+ * /admin/accounts/{userId}/remove-premium:
+ *   post:
+ *     summary: Remove premium and revert to free plan
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Premium removed successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
+router.post("/accounts/:userId/remove-premium", verifyAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { reason } = req.body;
+
+    // Update user to free plan
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "Không tìm thấy người dùng" });
+    }
+
+    user.hasPremium = false;
+    user.premiumType = 'free';
+    user.premiumExpiry = null;
+    await user.save();
+
+    // Mark all active premiums as expired
+    await Premium.updateMany(
+      { userId, status: 'active' },
+      { status: 'expired' }
+    );
+
+    console.log(`✅ Admin removed premium from user ${userId}. Reason: ${reason}`);
+
+    res.json({
+      message: "Xóa gói premium thành công",
+      reason
+    });
+  } catch (error) {
+    console.error("❌ Remove premium error:", error.message);
+    res.status(500).json({ error: "Lỗi xóa premium" });
+  }
+});
+
+/**
+ * @swagger
+ * /admin/users/create:
+ *   post:
+ *     summary: Create a new user account
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullname:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [user, admin]
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
+router.post("/users/create", verifyAdmin, async (req, res) => {
+  try {
+    const { fullname, email, password, phone, role } = req.body;
+
+    // Validate required fields
+    if (!fullname || !email || !password) {
+      return res.status(400).json({ error: "Vui lòng điền đầy đủ thông tin bắt buộc" });
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email đã được sử dụng" });
+    }
+
+    // Hash password
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const newUser = new User({
+      fullname,
+      email,
+      password: hashedPassword,
+      phone: phone || '',
+      role: role || 'user',
+      hasPremium: false,
+      premiumType: 'free'
+    });
+
+    await newUser.save();
+
+    // Create profile
+    const newProfile = new Profile({
+      userId: newUser._id,
+      balance: 0,
+      phone: phone || ''
+    });
+
+    await newProfile.save();
+
+    // Create free premium
+    const freePremium = new Premium({
+      userId: newUser._id,
+      plan: 'free',
+      planName: 'Gói Miễn Phí',
+      price: 0,
+      duration: 0,
+      status: 'active',
+      paymentMethod: 'free'
+    });
+
+    await freePremium.save();
+
+    console.log(`✅ Admin created new user: ${email}`);
+
+    res.status(201).json({
+      message: "Tạo tài khoản thành công",
+      user: {
+        _id: newUser._id,
+        fullname: newUser.fullname,
+        email: newUser.email,
+        role: newUser.role
+      }
+    });
+  } catch (error) {
+    console.error("❌ Create user error:", error.message);
+    res.status(500).json({ error: "Lỗi tạo tài khoản" });
+  }
+});
+
+/**
+ * @swagger
+ * /admin/users/{userId}:
+ *   delete:
+ *     summary: Delete a user account and all related data
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Admin access required
+ */
+router.delete("/users/:userId", verifyAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "Không tìm thấy người dùng" });
+    }
+
+    // Prevent deleting admin accounts
+    if (user.role === 'admin') {
+      return res.status(403).json({ error: "Không thể xóa tài khoản admin" });
+    }
+
+    // Delete related data
+    await Profile.deleteMany({ userId });
+    await Premium.deleteMany({ userId });
+    await History.deleteMany({ userId });
+    await TopUp.deleteMany({ userId });
+
+    // Delete user
+    await User.findByIdAndDelete(userId);
+
+    console.log(`✅ Admin deleted user: ${user.email}`);
+
+    res.json({
+      message: "Xóa tài khoản thành công",
+      deletedUser: {
+        email: user.email,
+        fullname: user.fullname
+      }
+    });
+  } catch (error) {
+    console.error("❌ Delete user error:", error.message);
+    res.status(500).json({ error: "Lỗi xóa tài khoản" });
   }
 });
 

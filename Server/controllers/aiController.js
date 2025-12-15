@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Replicate = require("replicate");
+const sharp = require("sharp");
 const Prompt = require("../models/Prompt");
 const PromptTrending = require("../models/PromptTrending");
 const History = require("../models/History");
@@ -124,6 +125,52 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+// Helper function to optimize and upscale image quality with Sharp
+async function optimizeImageWithSharp(inputPath, outputPath) {
+  try {
+    const image = sharp(inputPath);
+    const metadata = await image.metadata();
+    
+    console.log(`📐 Original image size: ${metadata.width}x${metadata.height}`);
+    
+    // Luôn upscale lên 2048px để đảm bảo chất lượng
+    const targetSize = 2048;
+    
+    console.log(`⬆️ Upscaling to: ${targetSize}x${targetSize}`);
+    
+    await image
+      .resize(targetSize, targetSize, {
+        fit: 'inside',
+        withoutEnlargement: false,
+        kernel: 'lanczos3' // Best quality upscaling
+      })
+      .sharpen({
+        sigma: 1.0,
+        m1: 1.0,
+        m2: 2.0,
+        x1: 2.0,
+        y2: 10.0,
+        y3: 20.0
+      })
+      .jpeg({
+        quality: 100,
+        chromaSubsampling: '4:4:4',
+        mozjpeg: true,
+        force: true
+      })
+      .withMetadata()
+      .toFile(outputPath);
+    
+    const finalMetadata = await sharp(outputPath).metadata();
+    console.log(`✨ Image optimized: ${finalMetadata.width}x${finalMetadata.height}, quality: 100%, sharpened`);
+    return outputPath;
+  } catch (error) {
+    console.error('⚠️ Sharp optimization failed, using original:', error.message);
+    fs.copyFileSync(inputPath, outputPath);
+    return outputPath;
+  }
+}
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
