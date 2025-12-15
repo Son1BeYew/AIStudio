@@ -7,13 +7,9 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-6.0+-green?style=for-the-badge&logo=mongodb)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow?style=for-the-badge&logo=javascript)
 
-_Ứng dụng web full-stack cho phép người dùng tạo hình ảnh AI, quản lý style outfit và nhiều tính năng nâng cao_
-
-[🚀 Live Demo](#) • [📖 Documentation](#) • [🐛 Bug Report](#) • [💡 Feature Request](#)
-
 </div>
 
-## 📋 Mục Lục
+##  Mục Lục
 
 - [ Tổng Quan](#-tổng-quan)
 - [Tính Năng Nổi Bật](#-tính-năng-nổi-bật)
@@ -169,7 +165,7 @@ AIStudio/
 └── 📄 README.md               # Project Documentation
 ```
 
-## 🛠️ Công Nghệ Sử Dụng
+##  Công Nghệ Sử Dụng
 
 ### Frontend Technologies
 
@@ -193,7 +189,7 @@ AIStudio/
 - **Email Service** - Email Verification & Notifications
 - **Cloud Storage** - File Storage Solution
 
-## 🚀 Cài Đặt và Chạy
+##  Cài Đặt và Chạy
 
 ### Prerequisites
 
@@ -204,8 +200,8 @@ AIStudio/
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/username/ai-studio.git
-cd ai-studio
+git clone https://github.com/Son1BeYew/AIStudio.git
+cd AIStudio
 ```
 
 ### 2. Backend Setup
@@ -245,7 +241,7 @@ npm start
 ### 6. Frontend Setup
 
 ```bash
-# Mở Client/index.html trong browser
+# Mở Localhost:5000 trong terminal
 # Hoặc sử dụng Live Server extension trong VS Code
 ```
 
@@ -259,10 +255,10 @@ PORT=5000
 NODE_ENV=development
 
 # Database
-MONGODB_URI=mongodb://localhost:27017/ai-studio
+MONGODB_URI=...
 
 # JWT Secret
-JWT_SECRET=your-super-secret-jwt-key
+JWT_SECRET=....
 
 # AI Services
 AI_PROVIDER_API_KEY=your-ai-api-key
@@ -353,13 +349,7 @@ npm run test:coverage
 
 ### Test Structure
 
-```
-tests/
-├── unit/                   # Unit Tests
-├── integration/            # Integration Tests
-├── e2e/                    # End-to-End Tests
-└── fixtures/              # Test Data
-```
+
 
 ## 🚀 Deployment
 
@@ -441,19 +431,18 @@ Chúng tôi chào đừng mọi đóng góp! Vui lòng đọc [CONTRIBUTING.md](
 
 Dự án này được cấp phép theo [MIT License](LICENSE) - xem file LICENSE để biết chi tiết.
 
-## 🙏 Lời Cảm Ơn
+##  Lời Cảm Ơn
 
 - **[AI Provider]** - Cung cấp AI generation services
 - **[MoMo]** - Payment gateway integration
 - **[MongoDB]** - Database solution
 - **[Express.js]** - Web framework
 
-## 📞 Liên Hệ
+##  Liên Hệ
 
 - **Email**: contact@aistudio.com
 - **Website**: https://aistudio.com
 - **GitHub**: https://github.com/username/ai-studio
-- **Discord**: [Join our community](https://discord.gg/aistudio)
 
 ---
 

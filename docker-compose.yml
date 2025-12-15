@@ -6,13 +6,20 @@ services:
     container_name: aistudio_server
     ports:
       - "5000:5000"
-    environment:
-      - NODE_ENV=production
+    env_file:
+      - ./Server/.env
     restart: always
+    networks:
+      - aistudio_net
 
   client:
     build: ./Client
     container_name: aistudio_client
     ports:
-      - "8080:80"
+      - "80:80"
     restart: always
+    networks:
+      - aistudio_net
+
+networks:
+  aistudio_net:
