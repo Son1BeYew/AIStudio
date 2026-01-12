@@ -1,455 +1,434 @@
-# AI Studio 🎨
+# EternalPic - AI Image Generation Platform
 
-<div align="center">
+AI-powered image generation and editing platform using Google Gemini AI for creating high-quality images from text descriptions or editing existing images.
 
-![AI Studio Logo](https://img.shields.io/badge/AI%20Studio-v1.0.0-blue?style=for-the-badge)
-![Node.js](https://img.shields.io/badge/Node.js-18+-green?style=for-the-badge&logo=node.js)
-![MongoDB](https://img.shields.io/badge/MongoDB-6.0+-green?style=for-the-badge&logo=mongodb)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow?style=for-the-badge&logo=javascript)
+## Features
 
-</div>
+- **Text-to-Image Generation**: Create images from text prompts with multiple styles (Realistic, Anime, Cartoon, Painting)
+- **360° Panoramic Images**: Generate 360° panoramic images (requires Pro/Max plan)
+- **Image Editing**: Edit images with AI by describing desired changes
+- **Background Removal**: Automatically remove image backgrounds
+- **Face Swap**: Swap faces in images
+- **Virtual Try-On**: Change outfits and hairstyles in images
+- **Image Enhancement**: Improve image quality
+- **Gallery Management**: Organize and manage generated images
+- **Favorites & History**: Save favorites and view generation history
+- **Trending Images**: Discover popular image trends
 
-##  Mục Lục
+## Requirements
 
-- [ Tổng Quan](#-tổng-quan)
-- [Tính Năng Nổi Bật](#-tính-năng-nổi-bật)
-- [Cấu Trúc Dự Án](#️-cấu-trúc-dự-án)
-- [Công Nghệ Sử Dụng](#️-công-nghệ-sử-dụng)
-- [Cài Đặt và Chạy](#-cài-đặt-và-chạy)
-- [Cấu Hình Môi Trường](#️-cấu-hình-môi-trường)
-- [API Documentation](#-api-documentation)
-- [Testing](#-testing)
-- [Deployment](#-deployment)
-- [Đóng Góp](#-đóng-góp)
-- [License](#-license)
+- Node.js >= 18.x
+- MongoDB >= 6.x
+- npm or yarn
+- Google Gemini API Key and Replicate
+- Firebase Storage account
+- (Optional) Replicate API Token for advanced features
+- (Optional) Remove.bg API Key for background removal
 
-## Tổng Quan
-
-AI Studio là một ứng dụng web generation-based art platform cho phép người dùng:
-
-- Tạo hình ảnh AI chất lượng cao từ text prompts
-- Tùy chỉnh và quản lý style outfit
-- Theo dõi lịch sử tạo hình
-- Mua các gói premium với nhiều tính năng nâng cao
-- Khám phá trending prompts từ cộng đồng
-
-## Tính Năng Nổi Bật
-
-### **AI Image Generation**
-
-- Text-to-image generation với nhiều models AI
-- Tùy chỉnh kích thước, chất lượng ảnh
-- Batch processing cho nhiều ảnh cùng lúc
-- Custom styles và filters
-
-### **Outfit Style Management**
-
-- Upload và quản lý outfit styles
-- Apply styles cho AI-generated images
-- Community-driven style library
-- Style recommendation system
-
-### **Premium Plans**
-
-- **FREE**: 15 ảnh/ngày, chất lượng cơ bản
-- **PRO**: 100 ảnh/ngày, chất lượng cao, 4K
-- **MAX**: Unlimited ảnh, chất lượng 8K, batch processing
-
-### **User Dashboard**
-
-- Thống kê sử dụng chi tiết
-- Lịch sử tạo hình với filter và search
-- Credit và balance management
-- Profile customization
-
-### **Security & Authentication**
-
-- JWT-based authentication
-- Email verification
-- Password encryption
-- Session management
-
-### **Additional Features**
-
-- Trending prompts discovery
-- Community gallery
-- Admin dashboard
-- API rate limiting
-- Responsive design
-
-## Cấu Trúc Dự Án
-
-```
-AIStudio/
-├── 📁 Client/                    # Frontend Application
-│   ├── 📁 admin/               # Admin Panel
-│   │   └── 📄 index.html       # Admin Dashboard
-│   ├── 📁 assets/              # Static Assets
-│   │   ├── 📁 components/      # Reusable Components
-│   │   │   ├── 📄 header.html
-│   │   │   ├── 📄 footer.html
-│   │   │   └── 📄 modal.html
-│   │   ├── 📁 css/             # Stylesheets
-│   │   │   ├── 📄 main.css
-│   │   │   ├── 📄 dashboard.css
-│   │   │   └── 📄 premium.css
-│   │   ├── 📁 images/          # Image Assets
-│   │   ├── 📁 js/              # JavaScript Files
-│   │   │   ├── 📄 auth.js
-│   │   │   ├── 📄 api.js
-│   │   │   └── 📄 utils.js
-│   │   └── 📁 video/           # Video Assets
-│   ├── 📄 dashboard.html       # User Dashboard
-│   ├── 📄 tao-anh.html        # AI Image Generation
-│   ├── 📄 history.html         # Generation History
-│   ├── 📄 index.html           # Landing Page
-│   ├── 📄 login.html           # User Login
-│   ├── 📄 pricing.html         # Pricing Plans
-│   ├── 📄 profile.html         # User Profile
-│   ├── 📄 register.html        # User Registration
-│   ├── 📄 studio.html          # Creative Studio
-│   ├── 📄 topup.html           # Payment & Topup
-│   └── 📄 topup-result.html    # Payment Result
-│
-├── 📁 Server/                   # Backend Application
-│   ├── 📁 config/              # Configuration Files
-│   │   ├── 📄 database.js      # Database Configuration
-│   │   ├── 📄 auth.js          # Authentication Config
-│   │   └── 📄 payment.js       # Payment Gateway Config
-│   ├── 📁 controllers/         # Business Logic
-│   │   ├── 📄 aiController.js              # AI Generation Logic
-│   │   ├── 📄 announcementController.js    # System Announcements
-│   │   ├── 📄 authController.js            # User Authentication
-│   │   ├── 📄 historyController.js         # Generation History
-│   │   ├── 📄 outfitStyleController.js     # Style Management
-│   │   ├── 📄 premiumController.js         # Premium Plans
-│   │   ├── 📄 profileController.js         # User Profile
-│   │   ├── 📄 promptController.js          # Prompt Management
-│   │   ├── 📄 promptTrendingController.js  # Trending Prompts
-│   │   └── 📄 topupController.js           # Payment Processing
-│   ├── 📁 models/              # Database Models
-│   │   ├── 📄 User.js          # User Schema
-│   │   ├── 📄 Image.js         # Image Generation Schema
-│   │   ├── 📄 Style.js         # Outfit Style Schema
-│   │   ├── 📄 Prompt.js        # Prompt Schema
-│   │   ├── 📄 Premium.js       # Premium Plan Schema
-│   │   └── 📄 Transaction.js   # Transaction Schema
-│   ├── 📁 middleware/          # Custom Middleware
-│   │   ├── 📄 auth.js          # Authentication Middleware
-│   │   ├── 📄 validation.js    # Input Validation
-│   │   ├── 📄 rateLimit.js     # Rate Limiting
-│   │   └── 📄 errorHandler.js  # Error Handling
-│   ├── 📁 routes/              # API Routes
-│   │   ├── 📄 auth.js          # Auth Routes
-│   │   ├── 📄 ai.js            # AI Generation Routes
-│   │   ├── 📄 user.js          # User Management Routes
-│   │   ├── 📄 premium.js       # Premium Plan Routes
-│   │   └── 📄 payment.js       # Payment Routes
-│   ├── 📁 scripts/             # Utility Scripts
-│   │   ├── 📄 seedDatabase.js  # Database Seeding
-│   │   ├── 📄 backup.js        # Data Backup
-│   │   └── 📄 cleanup.js       # Data Cleanup
-│   ├── 📁 outputs/             # AI Generation Outputs
-│   ├── 📁 uploads/             # User Uploads
-│   ├── 📁 logs/                # Application Logs
-│   ├── 📄 .env                 # Environment Variables
-│   ├── 📄 .env.example         # Environment Template
-│   ├── 📄 package.json         # Project Dependencies
-│   ├── 📄 package-lock.json    # Dependency Lock File
-│   └── 📄 server.js            # Application Entry Point
-│
-├── 📁 .git/                    # Git Repository
-├── 📄 .gitignore              # Git Ignore Rules
-├── 📄 .hintrc                 # HTML Validator Config
-├── 📄 package.json             # Root Package Configuration
-└── 📄 README.md               # Project Documentation
-```
-
-##  Công Nghệ Sử Dụng
-
-### Frontend Technologies
-
-- **HTML5** - Semantic Markup
-- **CSS3** - Modern Styling with Flexbox/Grid
-- **JavaScript (ES6+)** - Modern JavaScript Features
-- **Responsive Design** - Mobile-First Approach
-
-### Backend Technologies
-
-- **Node.js** - JavaScript Runtime Environment
-- **Express.js** - Web Application Framework
-- **MongoDB** - NoSQL Database
-- **Mongoose** - MongoDB Object Modeling
-- **JWT** - JSON Web Tokens for Authentication
-
-### External Services
-
-- **AI Providers** - Multiple AI Generation APIs
-- **Payment Gateways** - MoMo, VNPay Integration
-- **Email Service** - Email Verification & Notifications
-- **Cloud Storage** - File Storage Solution
-
-##  Cài Đặt và Chạy
-
-### Prerequisites
-
-- Node.js 18.0 hoặc cao hơn
-- MongoDB 6.0 hoặc cao hơn
-- Git
+## Installation
 
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/Son1BeYew/AIStudio.git
-cd AIStudio
+git clone https://github.com/Son1BeYew/eternal-pic-generator.git
+cd eternal-pic-generator
 ```
 
-### 2. Backend Setup
+### 2. Install Dependencies
+
+**Frontend:**
 
 ```bash
-cd Server
+cd client
 npm install
 ```
 
-### 3. Environment Configuration
+**Backend:**
 
 ```bash
-cp .env.example .env
-# Chỉnh sửa .env với thông tin của bạn
+cd server
+npm install
 ```
 
-### 4. Database Setup
+### 3. Setup Environment Variables
 
-```bash
-# Start MongoDB service
-sudo systemctl start mongod
-
-# Seed database (optional)
-npm run seed
-```
-
-### 5. Start Development Server
-
-```bash
-# Development mode
-npm run dev
-
-# Production mode
-npm start
-```
-
-### 6. Frontend Setup
-
-```bash
-# Mở Localhost:5000 trong terminal
-# Hoặc sử dụng Live Server extension trong VS Code
-```
-
-## ⚙️ Cấu Hình Môi Trường
-
-### Environment Variables (.env)
+**Frontend (`client/.env.local`):**
 
 ```env
-# Server Configuration
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+**Backend (`server/.env`):**
+
+```env
+# Server
 PORT=5000
-NODE_ENV=development
 
 # Database
-MONGODB_URI=...
+MONGO_URI=mongodb://localhost:27017/eternalpic
 
-# JWT Secret
-JWT_SECRET=....
+# JWT
+JWT_SECRET=your_jwt_secret_key
+
+# Client URL
+CLIENT_URL=http://localhost:3000
 
 # AI Services
-AI_PROVIDER_API_KEY=your-ai-api-key
-AI_PROVIDER_URL=https://api.ai-provider.com
+GEMINI_API_KEY=your_gemini_api_key
+REPLICATE_API_TOKEN=your_replicate_api_token
+REMOVE_BG_API_KEY=your_remove_bg_api_key
 
-# Payment Gateway
-MOMO_PARTNER_CODE=YOUR_PARTNER_CODE
-MOMO_ACCESS_KEY=YOUR_ACCESS_KEY
-MOMO_SECRET_KEY=YOUR_SECRET_KEY
+# OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+FACEBOOK_APP_ID=your_facebook_app_id
+FACEBOOK_APP_SECRET=your_facebook_app_secret
 
-# Email Service
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
+# Firebase
+FIREBASE_PROJECT_ID=your_firebase_project_id
+FIREBASE_CLIENT_EMAIL=your_firebase_client_email
+FIREBASE_PRIVATE_KEY=your_firebase_private_key
+FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
 
-# File Upload
-UPLOAD_PATH=./uploads
-MAX_FILE_SIZE=10485760
-
-# Rate Limiting
-RATE_LIMIT_WINDOW=15
-RATE_LIMIT_MAX_REQUESTS=100
+# Or use JSON service account
+FIREBASE_SERVICE_ACCOUNT={"type":"service_account",...}
 ```
 
-## 📚 API Documentation
+### 4. Setup Firebase
 
-### Authentication Endpoints
+1. Create a project on [Firebase Console](https://console.firebase.google.com/)
+2. Create a Storage bucket
+3. Download service account JSON or configure via environment variables
+4. Place `firebase-service-account.json` in `server/config/` or use `FIREBASE_SERVICE_ACCOUNT` env variable
 
-```javascript
-POST / api / auth / register; // User Registration
-POST / api / auth / login; // User Login
-POST / api / auth / logout; // User Logout
-GET / api / auth / verify; // Email Verification
-POST / api / auth / forgot; // Forgot Password
-POST / api / auth / reset; // Reset Password
+### 5. Setup MongoDB
+
+1. Install MongoDB locally or use MongoDB Atlas
+2. Update `MONGO_URI` in `server/.env`
+
+## Configuration
+
+### Environment Variables
+
+| Variable                  | Required | Description                               |
+| ------------------------- | -------- | ----------------------------------------- |
+| `PORT`                    | Yes      | Backend server port (default: 5000)       |
+| `MONGO_URI`               | Yes      | MongoDB connection string                 |
+| `JWT_SECRET`              | Yes      | Secret key for JWT token signing          |
+| `GEMINI_API_KEY`          | Yes      | Google Gemini AI API key                  |
+| `FIREBASE_PROJECT_ID`     | Yes      | Firebase project ID                       |
+| `FIREBASE_STORAGE_BUCKET` | Yes      | Firebase Storage bucket name              |
+| `REPLICATE_API_TOKEN`     | No       | Replicate API token for advanced features |
+| `REMOVE_BG_API_KEY`       | No       | Remove.bg API key for background removal  |
+| `GOOGLE_CLIENT_ID`        | No       | Google OAuth client ID                    |
+| `GOOGLE_CLIENT_SECRET`    | No       | Google OAuth client secret                |
+| `FACEBOOK_APP_ID`         | No       | Facebook OAuth app ID                     |
+| `FACEBOOK_APP_SECRET`     | No       | Facebook OAuth app secret                 |
+
+### Example Configuration
+
+**Frontend (`client/.env.local`):**
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
-### AI Generation Endpoints
+**Backend (`server/.env`):**
 
-```javascript
-POST / api / ai / generate; // Generate Image
-GET / api / ai / history; // Generation History
-GET / api / ai / styles; // Available Styles
-POST / api / ai / style - upload; // Upload Style
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/eternalpic
+JWT_SECRET=your_super_secret_jwt_key_here
+CLIENT_URL=http://localhost:3000
+GEMINI_API_KEY=AIzaSy...
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 ```
 
-### User Management
+## Usage
 
-```javascript
-GET / api / user / profile; // Get User Profile
-PUT / api / user / profile; // Update Profile
-GET / api / user / stats; // User Statistics
-```
+### Development Mode
 
-### Premium Plans
-
-```javascript
-GET / api / premium / plans; // Available Plans
-POST / api / premium / purchase; // Purchase Plan
-GET / api / premium / current; // Current Plan Status
-```
-
-### Payment Processing
-
-```javascript
-POST / api / topup / initiate; // Initiate Payment
-POST / api / topup / callback; // Payment Callback
-GET / api / topup / history; // Payment History
-```
-
-## 🧪 Testing
-
-### Run Tests
+**Start Backend Server:**
 
 ```bash
-# Run all tests
-npm test
-
-# Run specific test suite
-npm run test:unit
-npm run test:integration
-npm run test:e2e
-
-# Test coverage
-npm run test:coverage
+cd server
+npm run dev
 ```
 
-### Test Structure
+Server runs at `http://localhost:5000`
 
-
-
-## 🚀 Deployment
-
-### Production Deployment
-
-#### 1. Build for Production
+**Start Frontend:**
 
 ```bash
+cd client
+npm run dev
+```
+
+Frontend runs at `http://localhost:3000`
+
+### Production Build
+
+**Build Frontend:**
+
+```bash
+cd client
 npm run build
-```
-
-#### 2. Environment Setup
-
-```bash
-# Set production environment
-export NODE_ENV=production
-
-# Update production .env
-cp .env.production .env
-```
-
-#### 3. Start Production Server
-
-```bash
-# Using PM2 (recommended)
-npm install -g pm2
-pm2 start server.js --name "ai-studio"
-pm2 startup
-pm2 save
-
-# Or directly
 npm start
 ```
 
-#### 4. SSL Certificate (Optional)
+**Start Backend:**
 
 ```bash
-# Using Let's Encrypt
-sudo certbot --nginx -d yourdomain.com
+cd server
+npm start
 ```
 
-### Docker Deployment
+## API Documentation
+
+### Authentication
+
+| Endpoint             | Method | Description                   |
+| -------------------- | ------ | ----------------------------- |
+| `/api/auth/register` | POST   | Register new account          |
+| `/api/auth/login`    | POST   | Login with email/password     |
+| `/api/auth/me`       | GET    | Get current user information  |
+| `/api/auth/google`   | GET    | Google OAuth authentication   |
+| `/api/auth/facebook` | GET    | Facebook OAuth authentication |
+
+### Image Generation
+
+**Generate Image from Text:**
+
+```http
+POST /api/images/generate
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "prompt": "A beautiful sunset over mountains",
+  "style": "realistic",
+  "outputType": "normal"
+}
+```
+
+**Generate 360° Image:**
+
+```http
+POST /api/images/generate
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "prompt": "A panoramic view of a beach",
+  "style": "realistic",
+  "outputType": "360"
+}
+```
+
+**Edit Image:**
+
+```http
+POST /api/images/edit
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "baseImage": "data:image/png;base64,...",
+  "baseImageUrl": "https://...",
+  "originalPrompt": "Original description",
+  "editPrompt": "Add more clouds in the sky"
+}
+```
+
+### Other Endpoints
+
+| Endpoint                   | Method | Description               |
+| -------------------------- | ------ | ------------------------- |
+| `/api/images/remove-bg`    | POST   | Remove image background   |
+| `/api/enhance`             | POST   | Enhance image quality     |
+| `/api/graduation`          | POST   | Generate graduation photo |
+| `/api/images/favorites`    | GET    | Get favorite images       |
+| `/api/images/:id/favorite` | POST   | Toggle favorite status    |
+
+## Project Structure
+
+```
+eternal-pic-generator/
+├── client/                 # Frontend (Next.js)
+│   ├── app/
+│   │   ├── dashboard/      # Dashboard pages
+│   │   │   ├── create-scene/
+│   │   │   ├── edit-image/
+│   │   │   ├── gallery/
+│   │   │   └── ...
+│   │   ├── auth/           # Authentication pages
+│   │   ├── pricing/        # Pricing page
+│   │   └── components/     # React components
+│   ├── lib/
+│   │   └── api.ts          # API client
+│   └── package.json
+│
+├── server/                 # Backend (Express)
+│   ├── config/             # Configuration files
+│   │   ├── db.js           # MongoDB connection
+│   │   ├── firebase.js     # Firebase setup
+│   │   └── passport.js     # Passport OAuth config
+│   ├── controllers/        # Route controllers
+│   │   ├── imageController.js
+│   │   ├── authController.js
+│   │   └── ...
+│   ├── models/             # MongoDB models
+│   │   ├── User.js
+│   │   ├── Scene.js
+│   │   └── ...
+│   ├── routes/             # API routes
+│   ├── middleware/         # Custom middleware
+│   ├── utils/              # Utility functions
+│   └── index.js            # Entry point
+│
+└── README.md
+```
+
+## Authentication Flow
+
+1. User registers/logs in → Server creates JWT token
+2. Token stored in localStorage (client-side)
+3. Each API request includes token in header: `Authorization: Bearer <token>`
+4. Server verifies token and authenticates user
+5. Protected routes check authentication middleware
+
+## Pricing Plans
+
+### Free Plan
+
+- Generate normal images
+- Basic image editing
+- Gallery and favorites
+- Limited generation per day
+
+### Pro Plan
+
+- All Free features
+- Generate 360° panoramic images
+- Priority processing
+- Higher generation limits
+- Better support
+
+### Max Plan
+
+- All Pro features
+- Unlimited generation
+- API access
+- Highest priority support
+- Advanced features
+
+## Development
+
+### Build from Source
 
 ```bash
-# Build Docker image
-docker build -t ai-studio .
+git clone https://github.com/Son1BeYew/eternal-pic-generator.git
+cd eternal-pic-generator
 
-# Run container
-docker run -p 5000:5000 --env-file .env ai-studio
+# Install dependencies
+cd client && npm install
+cd ../server && npm install
+
+# Start development servers
+cd ../server && npm run dev
+cd ../client && npm run dev
 ```
 
-### Cloud Deployment
+### Debug
 
-- **AWS EC2** with Elastic Beanstalk
-- **Google Cloud Platform** with App Engine
-- **Microsoft Azure** with App Service
-- **DigitalOcean** with App Platform
+**Backend:**
 
-## 🤝 Đóng Góp
+```bash
+cd server
+npm run dev
+# Server runs with nodemon for auto-reload
+```
 
-Chúng tôi chào đừng mọi đóng góp! Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) để biết thêm chi tiết.
+**Frontend:**
 
-### Development Workflow
+```bash
+cd client
+npm run dev
+# Next.js dev server with hot reload
+```
 
-1. Fork repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Create Pull Request
+## Troubleshooting
 
-### Code Style
+**"Database is not connected"**
 
-- Sử dụng ES6+ features
-- Follow Airbnb JavaScript Style Guide
-- Add comments cho complex logic
-- Write unit tests cho new features
+- Check MongoDB is running: `mongod` or verify MongoDB Atlas connection
+- Verify `MONGO_URI` in `.env` is correct
+- Check MongoDB connection logs in server console
 
-## 📄 License
+**"Firebase Storage not initialized"**
 
-Dự án này được cấp phép theo [MIT License](LICENSE) - xem file LICENSE để biết chi tiết.
+- Verify Firebase credentials in `.env` or `firebase-service-account.json`
+- Check `FIREBASE_STORAGE_BUCKET` is set correctly
+- Ensure Firebase Storage is enabled in Firebase Console
 
-##  Lời Cảm Ơn
+**"GEMINI_API_KEY is not configured"**
 
-- **[AI Provider]** - Cung cấp AI generation services
-- **[MoMo]** - Payment gateway integration
-- **[MongoDB]** - Database solution
-- **[Express.js]** - Web framework
+- Get API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+- Add to `server/.env` as `GEMINI_API_KEY=your_key`
 
-##  Liên Hệ
+**"Failed to generate image"**
 
-- **Email**: contact@aistudio.com
-- **Website**: https://aistudio.com
-- **GitHub**: https://github.com/username/ai-studio
+- Check Gemini API quota/limits
+- Verify API key is valid
+- Check server logs for detailed error messages
 
----
+**"CORS error"**
 
-<div align="center">
+- Ensure `CLIENT_URL` in backend `.env` matches frontend URL
+- Check `NEXT_PUBLIC_API_URL` in frontend `.env.local` matches backend URL
+- Verify CORS middleware is configured correctly
 
-**Made with ❤️ by AI Studio Team**
+**"Image upload failed"**
 
-[⬆ Back to top](#ai-studio-)
+- Verify Firebase Storage bucket permissions
+- Check Firebase service account has Storage Admin role
+- Ensure file size is within limits (default: 50MB)
 
-</div>
+**"Authentication failed"**
+
+- Verify JWT_SECRET is set in backend `.env`
+- Check token expiration (default: 7 days)
+- Clear localStorage and login again
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
+## Security
+
+We take security seriously. Please see [SECURITY.md](SECURITY.md) for information on reporting security vulnerabilities and security best practices.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Related
+
+- [Google Gemini AI](https://ai.google.dev/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [Firebase Documentation](https://firebase.google.com/docs)
+
+## Authors
+
+- **Son1BeYew** - [GitHub](https://github.com/Son1BeYew)
+
+## Acknowledgments
+
+- Google Gemini AI for image generation capabilities
+- Firebase for reliable cloud storage
+- MongoDB for flexible database solution
+- Next.js and React communities for excellent frameworks
